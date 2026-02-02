@@ -1,51 +1,98 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Layers } from 'lucide-react';
 import ProductCard from '../products/ProductCard';
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 100,
+      damping: 15,
+    },
+  },
+};
+
 export default function CategoryProducts({ categoryProducts }) {
-  // Ensure categoryProducts is always an array
   const categoryProductsArray = Array.isArray(categoryProducts) ? categoryProducts : [];
 
   if (categoryProductsArray.length === 0) return null;
 
   return (
-    <section className="py-20 bg-white">
+    <section className="py-24 md:py-32 bg-white relative">
       <div className="container-custom">
         {categoryProductsArray.map((categoryData, categoryIndex) => (
-          <div key={categoryData.category.id} className="mb-16 last:mb-0">
-            <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-8">
-              <div>
-                <h2 className="text-2xl md:text-3xl font-display font-semibold text-secondary-900 mb-2">
+          <motion.div
+            key={categoryData.category.id}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            className={`${categoryIndex > 0 ? 'mt-24 pt-24 border-t border-gray-100' : ''}`}
+          >
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="inline-flex items-center gap-2 px-3 py-1 bg-secondary-100 text-secondary-600 rounded-full text-xs font-semibold uppercase tracking-wider">
+                    <Layers className="w-3 h-3" />
+                    Collection
+                  </span>
+                </div>
+                <h2 className="text-3xl md:text-4xl font-display font-bold text-secondary-900 mb-3">
                   {categoryData.category.name}
                 </h2>
-                <p className="text-secondary-600">
-                  Explore our {categoryData.category.name.toLowerCase()} collection
+                <p className="text-secondary-600 text-lg">
+                  Explore our curated {categoryData.category.name.toLowerCase()} collection
                 </p>
-              </div>
-              <Link
-                href={`/category/${categoryData.category.slug}`}
-                className="inline-flex items-center text-primary-600 font-medium hover:text-primary-700 mt-4 md:mt-0 group"
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.1 }}
               >
-                View All
-                <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-              </Link>
+                <Link
+                  href={`/category/${categoryData.category.slug}`}
+                  className="group inline-flex items-center gap-2 px-6 py-3 bg-secondary-900 text-white rounded-xl font-semibold hover:bg-secondary-800 hover:shadow-lg transition-all duration-300 mt-6 md:mt-0"
+                >
+                  View Collection
+                  <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+                </Link>
+              </motion.div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {categoryData.products.map((product, productIndex) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: productIndex * 0.1 }}
-                >
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-50px" }}
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"
+            >
+              {categoryData.products.map((product) => (
+                <motion.div key={product.id} variants={itemVariants}>
                   <ProductCard product={product} />
                 </motion.div>
               ))}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         ))}
       </div>
     </section>

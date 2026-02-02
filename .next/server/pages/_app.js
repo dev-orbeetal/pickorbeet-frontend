@@ -30,7 +30,7 @@ eval("__webpack_require__.a(module, async (__webpack_handle_async_dependencies__
 /***/ ((module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.a(module, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {\n__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (/* binding */ App)\n/* harmony export */ });\n/* harmony import */ var react_jsx_dev_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-dev-runtime */ \"react/jsx-dev-runtime\");\n/* harmony import */ var react_jsx_dev_runtime__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react_jsx_dev_runtime__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ \"react-redux\");\n/* harmony import */ var react_hot_toast__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react-hot-toast */ \"react-hot-toast\");\n/* harmony import */ var _store_store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @/store/store */ \"./src/store/store.js\");\n/* harmony import */ var _styles_globals_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @/styles/globals.css */ \"./src/styles/globals.css\");\n/* harmony import */ var _styles_globals_css__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_styles_globals_css__WEBPACK_IMPORTED_MODULE_4__);\nvar __webpack_async_dependencies__ = __webpack_handle_async_dependencies__([react_redux__WEBPACK_IMPORTED_MODULE_1__, react_hot_toast__WEBPACK_IMPORTED_MODULE_2__, _store_store__WEBPACK_IMPORTED_MODULE_3__]);\n([react_redux__WEBPACK_IMPORTED_MODULE_1__, react_hot_toast__WEBPACK_IMPORTED_MODULE_2__, _store_store__WEBPACK_IMPORTED_MODULE_3__] = __webpack_async_dependencies__.then ? (await __webpack_async_dependencies__)() : __webpack_async_dependencies__);\n\n\n\n\n\nfunction App({ Component, pageProps }) {\n    return /*#__PURE__*/ (0,react_jsx_dev_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxDEV)(react_redux__WEBPACK_IMPORTED_MODULE_1__.Provider, {\n        store: _store_store__WEBPACK_IMPORTED_MODULE_3__[\"default\"],\n        children: [\n            /*#__PURE__*/ (0,react_jsx_dev_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxDEV)(Component, {\n                ...pageProps\n            }, void 0, false, {\n                fileName: \"/Volumes/developments/projects/zzuhana/client/src/pages/_app.jsx\",\n                lineNumber: 9,\n                columnNumber: 7\n            }, this),\n            /*#__PURE__*/ (0,react_jsx_dev_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxDEV)(react_hot_toast__WEBPACK_IMPORTED_MODULE_2__.Toaster, {\n                position: \"top-right\",\n                toastOptions: {\n                    duration: 3000,\n                    style: {\n                        background: \"#333\",\n                        color: \"#fff\"\n                    },\n                    success: {\n                        iconTheme: {\n                            primary: \"#22c55e\",\n                            secondary: \"#fff\"\n                        }\n                    },\n                    error: {\n                        iconTheme: {\n                            primary: \"#ef4444\",\n                            secondary: \"#fff\"\n                        }\n                    }\n                }\n            }, void 0, false, {\n                fileName: \"/Volumes/developments/projects/zzuhana/client/src/pages/_app.jsx\",\n                lineNumber: 10,\n                columnNumber: 7\n            }, this)\n        ]\n    }, void 0, true, {\n        fileName: \"/Volumes/developments/projects/zzuhana/client/src/pages/_app.jsx\",\n        lineNumber: 8,\n        columnNumber: 5\n    }, this);\n}\n\n__webpack_async_result__();\n} catch(e) { __webpack_async_result__(e); } });//# sourceURL=[module]\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiLi9zcmMvcGFnZXMvX2FwcC5qc3giLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7O0FBQXVDO0FBQ0c7QUFDUjtBQUNKO0FBRWYsU0FBU0csSUFBSSxFQUFFQyxTQUFTLEVBQUVDLFNBQVMsRUFBRTtJQUNsRCxxQkFDRSw4REFBQ0wsaURBQVFBO1FBQUNFLE9BQU9BLG9EQUFLQTs7MEJBQ3BCLDhEQUFDRTtnQkFBVyxHQUFHQyxTQUFTOzs7Ozs7MEJBQ3hCLDhEQUFDSixvREFBT0E7Z0JBQ05LLFVBQVM7Z0JBQ1RDLGNBQWM7b0JBQ1pDLFVBQVU7b0JBQ1ZDLE9BQU87d0JBQ0xDLFlBQVk7d0JBQ1pDLE9BQU87b0JBQ1Q7b0JBQ0FDLFNBQVM7d0JBQ1BDLFdBQVc7NEJBQ1RDLFNBQVM7NEJBQ1RDLFdBQVc7d0JBQ2I7b0JBQ0Y7b0JBQ0FDLE9BQU87d0JBQ0xILFdBQVc7NEJBQ1RDLFNBQVM7NEJBQ1RDLFdBQVc7d0JBQ2I7b0JBQ0Y7Z0JBQ0Y7Ozs7Ozs7Ozs7OztBQUlSIiwic291cmNlcyI6WyJ3ZWJwYWNrOi8venp1aGFuYS1jbGllbnQvLi9zcmMvcGFnZXMvX2FwcC5qc3g/NGM3NyJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyBQcm92aWRlciB9IGZyb20gJ3JlYWN0LXJlZHV4JztcbmltcG9ydCB7IFRvYXN0ZXIgfSBmcm9tICdyZWFjdC1ob3QtdG9hc3QnO1xuaW1wb3J0IHN0b3JlIGZyb20gJ0Avc3RvcmUvc3RvcmUnO1xuaW1wb3J0ICdAL3N0eWxlcy9nbG9iYWxzLmNzcyc7XG5cbmV4cG9ydCBkZWZhdWx0IGZ1bmN0aW9uIEFwcCh7IENvbXBvbmVudCwgcGFnZVByb3BzIH0pIHtcbiAgcmV0dXJuIChcbiAgICA8UHJvdmlkZXIgc3RvcmU9e3N0b3JlfT5cbiAgICAgIDxDb21wb25lbnQgey4uLnBhZ2VQcm9wc30gLz5cbiAgICAgIDxUb2FzdGVyXG4gICAgICAgIHBvc2l0aW9uPVwidG9wLXJpZ2h0XCJcbiAgICAgICAgdG9hc3RPcHRpb25zPXt7XG4gICAgICAgICAgZHVyYXRpb246IDMwMDAsXG4gICAgICAgICAgc3R5bGU6IHtcbiAgICAgICAgICAgIGJhY2tncm91bmQ6ICcjMzMzJyxcbiAgICAgICAgICAgIGNvbG9yOiAnI2ZmZicsXG4gICAgICAgICAgfSxcbiAgICAgICAgICBzdWNjZXNzOiB7XG4gICAgICAgICAgICBpY29uVGhlbWU6IHtcbiAgICAgICAgICAgICAgcHJpbWFyeTogJyMyMmM1NWUnLFxuICAgICAgICAgICAgICBzZWNvbmRhcnk6ICcjZmZmJyxcbiAgICAgICAgICAgIH0sXG4gICAgICAgICAgfSxcbiAgICAgICAgICBlcnJvcjoge1xuICAgICAgICAgICAgaWNvblRoZW1lOiB7XG4gICAgICAgICAgICAgIHByaW1hcnk6ICcjZWY0NDQ0JyxcbiAgICAgICAgICAgICAgc2Vjb25kYXJ5OiAnI2ZmZicsXG4gICAgICAgICAgICB9LFxuICAgICAgICAgIH0sXG4gICAgICAgIH19XG4gICAgICAvPlxuICAgIDwvUHJvdmlkZXI+XG4gICk7XG59XG4iXSwibmFtZXMiOlsiUHJvdmlkZXIiLCJUb2FzdGVyIiwic3RvcmUiLCJBcHAiLCJDb21wb25lbnQiLCJwYWdlUHJvcHMiLCJwb3NpdGlvbiIsInRvYXN0T3B0aW9ucyIsImR1cmF0aW9uIiwic3R5bGUiLCJiYWNrZ3JvdW5kIiwiY29sb3IiLCJzdWNjZXNzIiwiaWNvblRoZW1lIiwicHJpbWFyeSIsInNlY29uZGFyeSIsImVycm9yIl0sInNvdXJjZVJvb3QiOiIifQ==\n//# sourceURL=webpack-internal:///./src/pages/_app.jsx\n");
+eval("__webpack_require__.a(module, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {\n__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (/* binding */ App)\n/* harmony export */ });\n/* harmony import */ var react_jsx_dev_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-dev-runtime */ \"react/jsx-dev-runtime\");\n/* harmony import */ var react_jsx_dev_runtime__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react_jsx_dev_runtime__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ \"react-redux\");\n/* harmony import */ var react_hot_toast__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react-hot-toast */ \"react-hot-toast\");\n/* harmony import */ var framer_motion__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! framer-motion */ \"framer-motion\");\n/* harmony import */ var next_router__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! next/router */ \"./node_modules/next/router.js\");\n/* harmony import */ var next_router__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(next_router__WEBPACK_IMPORTED_MODULE_4__);\n/* harmony import */ var _store_store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @/store/store */ \"./src/store/store.js\");\n/* harmony import */ var _styles_globals_css__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @/styles/globals.css */ \"./src/styles/globals.css\");\n/* harmony import */ var _styles_globals_css__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_styles_globals_css__WEBPACK_IMPORTED_MODULE_6__);\nvar __webpack_async_dependencies__ = __webpack_handle_async_dependencies__([react_redux__WEBPACK_IMPORTED_MODULE_1__, react_hot_toast__WEBPACK_IMPORTED_MODULE_2__, framer_motion__WEBPACK_IMPORTED_MODULE_3__, _store_store__WEBPACK_IMPORTED_MODULE_5__]);\n([react_redux__WEBPACK_IMPORTED_MODULE_1__, react_hot_toast__WEBPACK_IMPORTED_MODULE_2__, framer_motion__WEBPACK_IMPORTED_MODULE_3__, _store_store__WEBPACK_IMPORTED_MODULE_5__] = __webpack_async_dependencies__.then ? (await __webpack_async_dependencies__)() : __webpack_async_dependencies__);\n\n\n\n\n\n\n\nconst pageVariants = {\n    initial: {\n        opacity: 0,\n        y: 8\n    },\n    animate: {\n        opacity: 1,\n        y: 0,\n        transition: {\n            duration: 0.4,\n            ease: [\n                0.16,\n                1,\n                0.3,\n                1\n            ]\n        }\n    },\n    exit: {\n        opacity: 0,\n        y: -8,\n        transition: {\n            duration: 0.3,\n            ease: [\n                0.16,\n                1,\n                0.3,\n                1\n            ]\n        }\n    }\n};\nfunction App({ Component, pageProps }) {\n    const router = (0,next_router__WEBPACK_IMPORTED_MODULE_4__.useRouter)();\n    return /*#__PURE__*/ (0,react_jsx_dev_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxDEV)(react_redux__WEBPACK_IMPORTED_MODULE_1__.Provider, {\n        store: _store_store__WEBPACK_IMPORTED_MODULE_5__[\"default\"],\n        children: [\n            /*#__PURE__*/ (0,react_jsx_dev_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxDEV)(framer_motion__WEBPACK_IMPORTED_MODULE_3__.AnimatePresence, {\n                mode: \"wait\",\n                initial: false,\n                children: /*#__PURE__*/ (0,react_jsx_dev_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxDEV)(framer_motion__WEBPACK_IMPORTED_MODULE_3__.motion.div, {\n                    variants: pageVariants,\n                    initial: \"initial\",\n                    animate: \"animate\",\n                    exit: \"exit\",\n                    children: /*#__PURE__*/ (0,react_jsx_dev_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxDEV)(Component, {\n                        ...pageProps\n                    }, void 0, false, {\n                        fileName: \"/Volumes/developments/projects/zzuhana/client/src/pages/_app.jsx\",\n                        lineNumber: 44,\n                        columnNumber: 11\n                    }, this)\n                }, router.asPath, false, {\n                    fileName: \"/Volumes/developments/projects/zzuhana/client/src/pages/_app.jsx\",\n                    lineNumber: 37,\n                    columnNumber: 9\n                }, this)\n            }, void 0, false, {\n                fileName: \"/Volumes/developments/projects/zzuhana/client/src/pages/_app.jsx\",\n                lineNumber: 36,\n                columnNumber: 7\n            }, this),\n            /*#__PURE__*/ (0,react_jsx_dev_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxDEV)(react_hot_toast__WEBPACK_IMPORTED_MODULE_2__.Toaster, {\n                position: \"top-center\",\n                containerStyle: {\n                    top: 100\n                },\n                toastOptions: {\n                    duration: 3000,\n                    style: {\n                        background: \"rgba(15, 23, 42, 0.95)\",\n                        backdropFilter: \"blur(12px)\",\n                        color: \"#fff\",\n                        padding: \"16px 24px\",\n                        borderRadius: \"16px\",\n                        fontSize: \"14px\",\n                        fontWeight: \"500\",\n                        boxShadow: \"0 10px 40px -10px rgba(0, 0, 0, 0.3)\",\n                        border: \"1px solid rgba(255, 255, 255, 0.1)\"\n                    },\n                    success: {\n                        iconTheme: {\n                            primary: \"#22c55e\",\n                            secondary: \"#fff\"\n                        },\n                        style: {\n                            background: \"rgba(15, 23, 42, 0.95)\"\n                        }\n                    },\n                    error: {\n                        iconTheme: {\n                            primary: \"#ef4444\",\n                            secondary: \"#fff\"\n                        },\n                        style: {\n                            background: \"rgba(15, 23, 42, 0.95)\"\n                        }\n                    }\n                }\n            }, void 0, false, {\n                fileName: \"/Volumes/developments/projects/zzuhana/client/src/pages/_app.jsx\",\n                lineNumber: 47,\n                columnNumber: 7\n            }, this)\n        ]\n    }, void 0, true, {\n        fileName: \"/Volumes/developments/projects/zzuhana/client/src/pages/_app.jsx\",\n        lineNumber: 35,\n        columnNumber: 5\n    }, this);\n}\n\n__webpack_async_result__();\n} catch(e) { __webpack_async_result__(e); } });//# sourceURL=[module]\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiLi9zcmMvcGFnZXMvX2FwcC5qc3giLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7O0FBQXVDO0FBQ0c7QUFDYztBQUNoQjtBQUNOO0FBQ0o7QUFFOUIsTUFBTU0sZUFBZTtJQUNuQkMsU0FBUztRQUNQQyxTQUFTO1FBQ1RDLEdBQUc7SUFDTDtJQUNBQyxTQUFTO1FBQ1BGLFNBQVM7UUFDVEMsR0FBRztRQUNIRSxZQUFZO1lBQ1ZDLFVBQVU7WUFDVkMsTUFBTTtnQkFBQztnQkFBTTtnQkFBRztnQkFBSzthQUFFO1FBQ3pCO0lBQ0Y7SUFDQUMsTUFBTTtRQUNKTixTQUFTO1FBQ1RDLEdBQUcsQ0FBQztRQUNKRSxZQUFZO1lBQ1ZDLFVBQVU7WUFDVkMsTUFBTTtnQkFBQztnQkFBTTtnQkFBRztnQkFBSzthQUFFO1FBQ3pCO0lBQ0Y7QUFDRjtBQUVlLFNBQVNFLElBQUksRUFBRUMsU0FBUyxFQUFFQyxTQUFTLEVBQUU7SUFDbEQsTUFBTUMsU0FBU2Qsc0RBQVNBO0lBRXhCLHFCQUNFLDhEQUFDSixpREFBUUE7UUFBQ0ssT0FBT0Esb0RBQUtBOzswQkFDcEIsOERBQUNILDBEQUFlQTtnQkFBQ2lCLE1BQUs7Z0JBQU9aLFNBQVM7MEJBQ3BDLDRFQUFDSixpREFBTUEsQ0FBQ2lCLEdBQUc7b0JBRVRDLFVBQVVmO29CQUNWQyxTQUFRO29CQUNSRyxTQUFRO29CQUNSSSxNQUFLOzhCQUVMLDRFQUFDRTt3QkFBVyxHQUFHQyxTQUFTOzs7Ozs7bUJBTm5CQyxPQUFPSSxNQUFNOzs7Ozs7Ozs7OzBCQVN0Qiw4REFBQ3JCLG9EQUFPQTtnQkFDTnNCLFVBQVM7Z0JBQ1RDLGdCQUFnQjtvQkFDZEMsS0FBSztnQkFDUDtnQkFDQUMsY0FBYztvQkFDWmQsVUFBVTtvQkFDVmUsT0FBTzt3QkFDTEMsWUFBWTt3QkFDWkMsZ0JBQWdCO3dCQUNoQkMsT0FBTzt3QkFDUEMsU0FBUzt3QkFDVEMsY0FBYzt3QkFDZEMsVUFBVTt3QkFDVkMsWUFBWTt3QkFDWkMsV0FBVzt3QkFDWEMsUUFBUTtvQkFDVjtvQkFDQUMsU0FBUzt3QkFDUEMsV0FBVzs0QkFDVEMsU0FBUzs0QkFDVEMsV0FBVzt3QkFDYjt3QkFDQWIsT0FBTzs0QkFDTEMsWUFBWTt3QkFDZDtvQkFDRjtvQkFDQWEsT0FBTzt3QkFDTEgsV0FBVzs0QkFDVEMsU0FBUzs0QkFDVEMsV0FBVzt3QkFDYjt3QkFDQWIsT0FBTzs0QkFDTEMsWUFBWTt3QkFDZDtvQkFDRjtnQkFDRjs7Ozs7Ozs7Ozs7O0FBSVIiLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly96enVoYW5hLWNsaWVudC8uL3NyYy9wYWdlcy9fYXBwLmpzeD80Yzc3Il0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IFByb3ZpZGVyIH0gZnJvbSAncmVhY3QtcmVkdXgnO1xuaW1wb3J0IHsgVG9hc3RlciB9IGZyb20gJ3JlYWN0LWhvdC10b2FzdCc7XG5pbXBvcnQgeyBBbmltYXRlUHJlc2VuY2UsIG1vdGlvbiB9IGZyb20gJ2ZyYW1lci1tb3Rpb24nO1xuaW1wb3J0IHsgdXNlUm91dGVyIH0gZnJvbSAnbmV4dC9yb3V0ZXInO1xuaW1wb3J0IHN0b3JlIGZyb20gJ0Avc3RvcmUvc3RvcmUnO1xuaW1wb3J0ICdAL3N0eWxlcy9nbG9iYWxzLmNzcyc7XG5cbmNvbnN0IHBhZ2VWYXJpYW50cyA9IHtcbiAgaW5pdGlhbDoge1xuICAgIG9wYWNpdHk6IDAsXG4gICAgeTogOCxcbiAgfSxcbiAgYW5pbWF0ZToge1xuICAgIG9wYWNpdHk6IDEsXG4gICAgeTogMCxcbiAgICB0cmFuc2l0aW9uOiB7XG4gICAgICBkdXJhdGlvbjogMC40LFxuICAgICAgZWFzZTogWzAuMTYsIDEsIDAuMywgMV0sXG4gICAgfSxcbiAgfSxcbiAgZXhpdDoge1xuICAgIG9wYWNpdHk6IDAsXG4gICAgeTogLTgsXG4gICAgdHJhbnNpdGlvbjoge1xuICAgICAgZHVyYXRpb246IDAuMyxcbiAgICAgIGVhc2U6IFswLjE2LCAxLCAwLjMsIDFdLFxuICAgIH0sXG4gIH0sXG59O1xuXG5leHBvcnQgZGVmYXVsdCBmdW5jdGlvbiBBcHAoeyBDb21wb25lbnQsIHBhZ2VQcm9wcyB9KSB7XG4gIGNvbnN0IHJvdXRlciA9IHVzZVJvdXRlcigpO1xuXG4gIHJldHVybiAoXG4gICAgPFByb3ZpZGVyIHN0b3JlPXtzdG9yZX0+XG4gICAgICA8QW5pbWF0ZVByZXNlbmNlIG1vZGU9XCJ3YWl0XCIgaW5pdGlhbD17ZmFsc2V9PlxuICAgICAgICA8bW90aW9uLmRpdlxuICAgICAgICAgIGtleT17cm91dGVyLmFzUGF0aH1cbiAgICAgICAgICB2YXJpYW50cz17cGFnZVZhcmlhbnRzfVxuICAgICAgICAgIGluaXRpYWw9XCJpbml0aWFsXCJcbiAgICAgICAgICBhbmltYXRlPVwiYW5pbWF0ZVwiXG4gICAgICAgICAgZXhpdD1cImV4aXRcIlxuICAgICAgICA+XG4gICAgICAgICAgPENvbXBvbmVudCB7Li4ucGFnZVByb3BzfSAvPlxuICAgICAgICA8L21vdGlvbi5kaXY+XG4gICAgICA8L0FuaW1hdGVQcmVzZW5jZT5cbiAgICAgIDxUb2FzdGVyXG4gICAgICAgIHBvc2l0aW9uPVwidG9wLWNlbnRlclwiXG4gICAgICAgIGNvbnRhaW5lclN0eWxlPXt7XG4gICAgICAgICAgdG9wOiAxMDAsXG4gICAgICAgIH19XG4gICAgICAgIHRvYXN0T3B0aW9ucz17e1xuICAgICAgICAgIGR1cmF0aW9uOiAzMDAwLFxuICAgICAgICAgIHN0eWxlOiB7XG4gICAgICAgICAgICBiYWNrZ3JvdW5kOiAncmdiYSgxNSwgMjMsIDQyLCAwLjk1KScsXG4gICAgICAgICAgICBiYWNrZHJvcEZpbHRlcjogJ2JsdXIoMTJweCknLFxuICAgICAgICAgICAgY29sb3I6ICcjZmZmJyxcbiAgICAgICAgICAgIHBhZGRpbmc6ICcxNnB4IDI0cHgnLFxuICAgICAgICAgICAgYm9yZGVyUmFkaXVzOiAnMTZweCcsXG4gICAgICAgICAgICBmb250U2l6ZTogJzE0cHgnLFxuICAgICAgICAgICAgZm9udFdlaWdodDogJzUwMCcsXG4gICAgICAgICAgICBib3hTaGFkb3c6ICcwIDEwcHggNDBweCAtMTBweCByZ2JhKDAsIDAsIDAsIDAuMyknLFxuICAgICAgICAgICAgYm9yZGVyOiAnMXB4IHNvbGlkIHJnYmEoMjU1LCAyNTUsIDI1NSwgMC4xKScsXG4gICAgICAgICAgfSxcbiAgICAgICAgICBzdWNjZXNzOiB7XG4gICAgICAgICAgICBpY29uVGhlbWU6IHtcbiAgICAgICAgICAgICAgcHJpbWFyeTogJyMyMmM1NWUnLFxuICAgICAgICAgICAgICBzZWNvbmRhcnk6ICcjZmZmJyxcbiAgICAgICAgICAgIH0sXG4gICAgICAgICAgICBzdHlsZToge1xuICAgICAgICAgICAgICBiYWNrZ3JvdW5kOiAncmdiYSgxNSwgMjMsIDQyLCAwLjk1KScsXG4gICAgICAgICAgICB9LFxuICAgICAgICAgIH0sXG4gICAgICAgICAgZXJyb3I6IHtcbiAgICAgICAgICAgIGljb25UaGVtZToge1xuICAgICAgICAgICAgICBwcmltYXJ5OiAnI2VmNDQ0NCcsXG4gICAgICAgICAgICAgIHNlY29uZGFyeTogJyNmZmYnLFxuICAgICAgICAgICAgfSxcbiAgICAgICAgICAgIHN0eWxlOiB7XG4gICAgICAgICAgICAgIGJhY2tncm91bmQ6ICdyZ2JhKDE1LCAyMywgNDIsIDAuOTUpJyxcbiAgICAgICAgICAgIH0sXG4gICAgICAgICAgfSxcbiAgICAgICAgfX1cbiAgICAgIC8+XG4gICAgPC9Qcm92aWRlcj5cbiAgKTtcbn1cbiJdLCJuYW1lcyI6WyJQcm92aWRlciIsIlRvYXN0ZXIiLCJBbmltYXRlUHJlc2VuY2UiLCJtb3Rpb24iLCJ1c2VSb3V0ZXIiLCJzdG9yZSIsInBhZ2VWYXJpYW50cyIsImluaXRpYWwiLCJvcGFjaXR5IiwieSIsImFuaW1hdGUiLCJ0cmFuc2l0aW9uIiwiZHVyYXRpb24iLCJlYXNlIiwiZXhpdCIsIkFwcCIsIkNvbXBvbmVudCIsInBhZ2VQcm9wcyIsInJvdXRlciIsIm1vZGUiLCJkaXYiLCJ2YXJpYW50cyIsImFzUGF0aCIsInBvc2l0aW9uIiwiY29udGFpbmVyU3R5bGUiLCJ0b3AiLCJ0b2FzdE9wdGlvbnMiLCJzdHlsZSIsImJhY2tncm91bmQiLCJiYWNrZHJvcEZpbHRlciIsImNvbG9yIiwicGFkZGluZyIsImJvcmRlclJhZGl1cyIsImZvbnRTaXplIiwiZm9udFdlaWdodCIsImJveFNoYWRvdyIsImJvcmRlciIsInN1Y2Nlc3MiLCJpY29uVGhlbWUiLCJwcmltYXJ5Iiwic2Vjb25kYXJ5IiwiZXJyb3IiXSwic291cmNlUm9vdCI6IiJ9\n//# sourceURL=webpack-internal:///./src/pages/_app.jsx\n");
 
 /***/ }),
 
@@ -88,6 +88,39 @@ eval("__webpack_require__.a(module, async (__webpack_handle_async_dependencies__
 
 /***/ }),
 
+/***/ "next/dist/compiled/next-server/pages.runtime.dev.js":
+/*!**********************************************************************!*\
+  !*** external "next/dist/compiled/next-server/pages.runtime.dev.js" ***!
+  \**********************************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("next/dist/compiled/next-server/pages.runtime.dev.js");
+
+/***/ }),
+
+/***/ "react":
+/*!************************!*\
+  !*** external "react" ***!
+  \************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("react");
+
+/***/ }),
+
+/***/ "react-dom":
+/*!****************************!*\
+  !*** external "react-dom" ***!
+  \****************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("react-dom");
+
+/***/ }),
+
 /***/ "react/jsx-dev-runtime":
 /*!****************************************!*\
   !*** external "react/jsx-dev-runtime" ***!
@@ -121,6 +154,17 @@ module.exports = import("axios");;
 
 /***/ }),
 
+/***/ "framer-motion":
+/*!********************************!*\
+  !*** external "framer-motion" ***!
+  \********************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = import("framer-motion");;
+
+/***/ }),
+
 /***/ "react-hot-toast":
 /*!**********************************!*\
   !*** external "react-hot-toast" ***!
@@ -141,6 +185,39 @@ module.exports = import("react-hot-toast");;
 "use strict";
 module.exports = import("react-redux");;
 
+/***/ }),
+
+/***/ "fs":
+/*!*********************!*\
+  !*** external "fs" ***!
+  \*********************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("fs");
+
+/***/ }),
+
+/***/ "stream":
+/*!*************************!*\
+  !*** external "stream" ***!
+  \*************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("stream");
+
+/***/ }),
+
+/***/ "zlib":
+/*!***********************!*\
+  !*** external "zlib" ***!
+  \***********************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("zlib");
+
 /***/ })
 
 };
@@ -150,7 +227,7 @@ module.exports = import("react-redux");;
 var __webpack_require__ = require("../webpack-runtime.js");
 __webpack_require__.C(exports);
 var __webpack_exec__ = (moduleId) => (__webpack_require__(__webpack_require__.s = moduleId))
-var __webpack_exports__ = (__webpack_exec__("./src/pages/_app.jsx"));
+var __webpack_exports__ = __webpack_require__.X(0, ["vendor-chunks/next","vendor-chunks/@swc"], () => (__webpack_exec__("./src/pages/_app.jsx")));
 module.exports = __webpack_exports__;
 
 })();
