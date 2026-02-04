@@ -51,12 +51,11 @@ const itemVariants = {
 
 export default function FeaturesSection() {
   return (
-    <section className="py-20 md:py-28 bg-charcoal-900 relative overflow-hidden">
+    <section className="py-16 md:py-20 bg-white relative overflow-hidden border-y border-charcoal-100">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-gold-500/5 rounded-full blur-3xl" />
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-gold-600/5 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-px bg-gradient-to-r from-transparent via-gold-500/20 to-transparent" />
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-gold-500/5 rounded-full blur-3xl" />
       </div>
 
       <div className="container-custom relative">
@@ -71,34 +70,34 @@ export default function FeaturesSection() {
             <motion.div
               key={feature.title}
               variants={itemVariants}
-              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+              whileHover={{ y: -5, transition: { duration: 0.3 } }}
               className="group relative"
             >
-              <div className="relative bg-charcoal-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gold-500/10 hover:border-gold-500/30 hover:bg-charcoal-800/80 transition-all duration-500 h-full overflow-hidden">
+              <div className="relative bg-cream-50 rounded-2xl p-8 border border-charcoal-100 hover:border-gold-300 hover:shadow-lg transition-all duration-500 h-full overflow-hidden">
                 {/* Hover gradient background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-gold-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-br from-gold-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                 {/* Content */}
                 <div className="relative z-10">
                   <motion.div
                     whileHover={{ scale: 1.1, rotate: 5 }}
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                    className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-gold-500 to-gold-600 text-charcoal-950 rounded-2xl mb-6 shadow-lg shadow-gold-500/20"
+                    className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-gold-500 to-gold-400 text-white rounded-xl mb-5 shadow-lg shadow-gold-500/20"
                   >
-                    <feature.icon className="w-7 h-7" strokeWidth={2} />
+                    <feature.icon className="w-6 h-6" strokeWidth={2} />
                   </motion.div>
 
-                  <h3 className="text-xl font-bold text-cream-100 mb-3 group-hover:text-gold-400 transition-colors">
+                  <h3 className="text-lg font-bold text-charcoal-800 mb-2 group-hover:text-gold-600 transition-colors">
                     {feature.title}
                   </h3>
 
-                  <p className="text-cream-500 leading-relaxed text-sm group-hover:text-cream-400 transition-colors">
+                  <p className="text-charcoal-500 leading-relaxed text-sm group-hover:text-charcoal-600 transition-colors">
                     {feature.description}
                   </p>
                 </div>
 
                 {/* Corner decoration */}
-                <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-gradient-to-br from-gold-500 to-gold-600 opacity-5 rounded-full group-hover:opacity-10 group-hover:scale-150 transition-all duration-500" />
+                <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-gradient-to-br from-gold-500 to-gold-400 opacity-5 rounded-full group-hover:opacity-10 group-hover:scale-150 transition-all duration-500" />
               </div>
             </motion.div>
           ))}
