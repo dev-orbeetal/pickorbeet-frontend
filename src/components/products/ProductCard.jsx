@@ -78,9 +78,9 @@ export default function ProductCard({ product }) {
       onMouseLeave={() => setIsHovered(false)}
     >
       <Link href={`/product/${product.slug}`}>
-        <div className="relative bg-cream-100 rounded-2xl md:rounded-3xl overflow-hidden shadow-elegant border border-cream-400/50 hover:shadow-luxury hover:border-gold-500/30 transition-all duration-500">
+        <div className="relative bg-cream-100 rounded-xl overflow-hidden shadow-elegant border border-cream-400/50 hover:shadow-luxury hover:border-gold-500/30 transition-all duration-500">
           {/* Image Container */}
-          <div className="relative aspect-[3/4] overflow-hidden bg-gradient-to-br from-cream-200 to-cream-100">
+          <div className="relative aspect-[4/5] overflow-hidden bg-gradient-to-br from-cream-200 to-cream-100">
             <motion.img
               src={imageUrl}
               alt={product.name}
@@ -200,19 +200,19 @@ export default function ProductCard({ product }) {
           </div>
 
           {/* Product Info */}
-          <div className="p-4 md:p-5 bg-cream-100">
-            <p className="text-[10px] md:text-xs text-charcoal-500 uppercase tracking-widest font-semibold mb-1.5">
+          <div className="p-3 md:p-4 bg-cream-100">
+            <p className="text-[10px] text-charcoal-500 uppercase tracking-wider font-medium mb-1">
               {product.category_name}
             </p>
-            <h3 className="font-semibold text-charcoal-900 mb-3 line-clamp-2 group-hover:text-gold-600 transition-colors duration-300 text-sm md:text-base leading-snug">
+            <h3 className="font-semibold text-charcoal-900 mb-2 line-clamp-2 group-hover:text-gold-600 transition-colors duration-300 text-sm leading-snug">
               {product.name}
             </h3>
             <div className="flex items-baseline gap-2 flex-wrap">
-              <span className="text-lg md:text-xl font-bold text-gold-600">
+              <span className="text-base md:text-lg font-bold text-gold-600">
                 ৳{parseFloat(product.price).toLocaleString()}
               </span>
               {product.compare_price && product.compare_price > product.price && (
-                <span className="text-sm text-charcoal-400 line-through font-medium">
+                <span className="text-xs text-charcoal-400 line-through font-medium">
                   ৳{parseFloat(product.compare_price).toLocaleString()}
                 </span>
               )}
