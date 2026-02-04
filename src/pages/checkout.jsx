@@ -39,7 +39,10 @@ export default function CheckoutPage() {
   const [isInsideDhaka, setIsInsideDhaka] = useState(true);
 
   useEffect(() => {
-    dispatch(fetchCart());
+    // Only run on client side
+    if (typeof window !== 'undefined') {
+      dispatch(fetchCart());
+    }
   }, [dispatch]);
 
   useEffect(() => {
@@ -83,9 +86,9 @@ export default function CheckoutPage() {
       }
     }
     if (stepNum === 2) {
-      if (!formData.shipping_name || !formData.shipping_phone || 
-          !formData.shipping_address_line1 || !formData.shipping_city || 
-          !formData.shipping_district) {
+      if (!formData.shipping_name || !formData.shipping_phone ||
+        !formData.shipping_address_line1 || !formData.shipping_city ||
+        !formData.shipping_district) {
         toast.error('Please fill in all required shipping fields');
         return false;
       }
@@ -146,22 +149,19 @@ export default function CheckoutPage() {
             { num: 3, label: 'Payment', icon: CreditCard },
           ].map((s, i) => (
             <div key={s.num} className="flex items-center">
-              <div 
-                className={`flex items-center justify-center w-10 h-10 rounded-full ${
-                  step >= s.num ? 'bg-primary-600 text-white' : 'bg-gray-200 text-secondary-500'
-                }`}
+              <div
+                className={`flex items-center justify-center w-10 h-10 rounded-full ${step >= s.num ? 'bg-primary-600 text-white' : 'bg-gray-200 text-secondary-500'
+                  }`}
               >
                 {step > s.num ? <CheckCircle className="w-5 h-5" /> : <s.icon className="w-5 h-5" />}
               </div>
-              <span className={`ml-2 text-sm font-medium ${
-                step >= s.num ? 'text-primary-600' : 'text-secondary-500'
-              }`}>
+              <span className={`ml-2 text-sm font-medium ${step >= s.num ? 'text-primary-600' : 'text-secondary-500'
+                }`}>
                 {s.label}
               </span>
               {i < 2 && (
-                <div className={`w-16 h-1 mx-4 rounded ${
-                  step > s.num ? 'bg-primary-600' : 'bg-gray-200'
-                }`} />
+                <div className={`w-16 h-1 mx-4 rounded ${step > s.num ? 'bg-primary-600' : 'bg-gray-200'
+                  }`} />
               )}
             </div>
           ))}
@@ -181,7 +181,7 @@ export default function CheckoutPage() {
                   <h2 className="text-xl font-semibold text-secondary-900 mb-6">
                     Contact Information
                   </h2>
-                  
+
                   {!isAuthenticated && (
                     <div className="space-y-4">
                       <div>
@@ -250,7 +250,7 @@ export default function CheckoutPage() {
                   <h2 className="text-xl font-semibold text-secondary-900 mb-6">
                     Shipping Address
                   </h2>
-                  
+
                   <div className="space-y-4">
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
@@ -383,7 +383,7 @@ export default function CheckoutPage() {
                   <h2 className="text-xl font-semibold text-secondary-900 mb-6">
                     Payment Method
                   </h2>
-                  
+
                   <div className="space-y-4">
                     <button
                       onClick={() => handleSubmit('online')}
@@ -477,3 +477,8 @@ export default function CheckoutPage() {
     </Layout>
   );
 }
+
+// Prevent static generation
+CheckoutPage.getInitialProps = () => {
+  return { props: {} };
+};
