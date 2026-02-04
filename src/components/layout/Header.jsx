@@ -103,8 +103,8 @@ export default function Header() {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-luxury ${isScrolled
-        ? 'bg-white/95 backdrop-blur-xl shadow-elegant py-3 border-b border-charcoal-200'
-        : 'bg-white/90 backdrop-blur-md py-4'
+        ? 'bg-white/95 backdrop-blur-xl shadow-elegant py-1 border-b border-charcoal-200'
+        : 'bg-white/90 backdrop-blur-md py-2'
         }`}
     >
       <div className="container-custom">
@@ -116,9 +116,9 @@ export default function Header() {
               whileTap={{ scale: 0.98 }}
             >
               <img
-                src="/logo.png"
+                src="/images/logo.png"
                 alt="Zzuhana"
-                className="h-10 md:h-12 w-auto"
+                className="h-20 md:h-24 w-auto"
               />
             </motion.div>
           </Link>

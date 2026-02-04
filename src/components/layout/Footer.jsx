@@ -55,49 +55,6 @@ export default function Footer() {
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gold-500/5 rounded-full blur-3xl" />
       </div>
 
-      {/* Newsletter Section */}
-      <div className="border-b border-charcoal-200">
-        <div className="container-custom py-16">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="flex flex-col lg:flex-row items-center justify-between gap-8"
-          >
-            <div className="text-center lg:text-left">
-              <div className="flex items-center justify-center lg:justify-start gap-2 mb-3">
-                <Crown className="w-5 h-5 text-gold-600" />
-                <span className="text-gold-600 font-semibold">Stay Updated</span>
-              </div>
-              <h3 className="text-2xl md:text-3xl font-display font-bold mb-2 text-charcoal-800">
-                Subscribe to Our Newsletter
-              </h3>
-              <p className="text-charcoal-500">
-                Get exclusive offers, new arrivals, and style tips delivered to your inbox.
-              </p>
-            </div>
-            <div className="w-full lg:w-auto">
-              <form className="flex flex-col sm:flex-row gap-3">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="px-5 py-3.5 bg-white border border-charcoal-300 rounded-xl text-charcoal-800 placeholder:text-charcoal-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition-all duration-300 w-full sm:w-80"
-                />
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="submit"
-                  className="px-6 py-3.5 bg-gradient-to-r from-gold-500 to-gold-400 text-white font-bold rounded-xl hover:shadow-lg hover:shadow-gold-500/25 transition-all duration-300 flex items-center justify-center gap-2"
-                >
-                  Subscribe
-                  <ArrowRight className="w-4 h-4" />
-                </motion.button>
-              </form>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-
       {/* Main Footer Content */}
       <div className="container-custom py-16 relative">
         <motion.div
@@ -110,7 +67,7 @@ export default function Footer() {
           {/* Brand */}
           <motion.div variants={itemVariants}>
             <Link href="/" className="inline-block group">
-              <img src="/logo.png" alt="Zzuhana" className="h-10 w-auto" />
+              <img src="/images/logo.png" alt="Zzuhana" className="h-10 w-auto" />
             </Link>
             <p className="mt-5 text-charcoal-500 leading-relaxed">
               Your destination for premium quality clothing. We bring you the latest fashion trends
@@ -227,6 +184,17 @@ export default function Footer() {
             © {new Date().getFullYear()} Zuhana. Made with
             <Heart className="w-4 h-4 text-gold-500 fill-gold-500 inline" />
             in Bangladesh
+          </p>
+          <p className="text-charcoal-500 text-sm">
+            Developed by{' '}
+            <a
+              href="https://orbeetal.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gold-600 hover:text-gold-700 font-medium transition-colors"
+            >
+              Orbeetal
+            </a>
           </p>
           <div className="flex items-center gap-4">
             <span className="text-charcoal-500 text-sm">We Accept:</span>
