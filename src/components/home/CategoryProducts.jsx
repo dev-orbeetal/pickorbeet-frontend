@@ -71,7 +71,7 @@ export default function CategoryProducts({ categoryProducts }) {
               >
                 <Link
                   href={`/category/${categoryData.category.slug}`}
-                  className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 text-charcoal-950 rounded-xl font-bold hover:from-gold-400 hover:to-gold-300 hover:shadow-lg hover:shadow-gold-500/20 transition-all duration-300 mt-6 md:mt-0"
+                  className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 text-white rounded-xl font-bold hover:from-gold-400 hover:to-gold-300 hover:shadow-lg hover:shadow-gold-500/20 transition-all duration-300 mt-6 md:mt-0"
                 >
                   View Collection
                   <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />

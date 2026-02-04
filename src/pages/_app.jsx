@@ -60,16 +60,16 @@ export default function App({ Component, pageProps }) {
             fontSize: '14px',
             fontWeight: '500',
             boxShadow: '0 10px 40px -10px rgba(0, 0, 0, 0.5)',
-            border: '1px solid rgba(212, 175, 55, 0.2)',
+            border: '1px solid rgba(139, 41, 66, 0.2)',
           },
           success: {
             iconTheme: {
-              primary: '#D4AF37',
+              primary: '#8B2942',
               secondary: '#1A1A1A',
             },
             style: {
               background: 'rgba(26, 26, 26, 0.98)',
-              borderColor: 'rgba(212, 175, 55, 0.3)',
+              borderColor: 'rgba(139, 41, 66, 0.3)',
             },
           },
           error: {

@@ -114,12 +114,12 @@ export default function HeroSection() {
 
   return (
     <section
-      className="relative h-screen min-h-[700px] max-h-[900px] overflow-hidden"
+      className="relative h-screen min-h-[700px] max-h-[900px] overflow-hidden -mt-16 md:-mt-20"
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsAutoPlaying(false)}
       onMouseLeave={() => setIsAutoPlaying(true)}
     >
-      <AnimatePresence initial={false} custom={direction} mode="wait">
+      <AnimatePresence initial={false} custom={direction} mode="sync">
         <motion.div
           key={currentSlide}
           custom={direction}
@@ -186,7 +186,7 @@ export default function HeroSection() {
               className="max-w-2xl"
             >
               <motion.div variants={itemVariants} className="flex items-center gap-2 mb-6">
-                <span className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 text-charcoal-950 rounded-full text-sm font-bold shadow-lg shadow-gold-500/20">
+                <span className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-gold-500 to-gold-400 text-white rounded-full text-sm font-bold shadow-lg shadow-gold-500/20">
                   <Crown className="w-4 h-4" />
                   {slides[currentSlide].subtitle}
                 </span>
@@ -213,7 +213,7 @@ export default function HeroSection() {
               <motion.div variants={itemVariants} className="flex flex-wrap gap-4">
                 <Link
                   href={slides[currentSlide].link}
-                  className="group relative inline-flex items-center px-8 py-4 bg-gradient-to-r from-gold-500 to-gold-400 text-charcoal-950 rounded-xl font-bold text-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-gold-500/30 hover:-translate-y-1"
+                  className="group relative inline-flex items-center px-8 py-4 bg-gradient-to-r from-gold-500 to-gold-400 text-white rounded-xl font-bold text-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-gold-500/30 hover:-translate-y-1"
                 >
                   <span className="relative z-10 flex items-center">
                     {slides[currentSlide].cta}

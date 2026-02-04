@@ -8,19 +8,19 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Luxury Gold palette - extracted from the logo
+        // Elegant Burgundy palette - matches the reddish logo
         gold: {
-          50: '#FFFEF5',
-          100: '#FEF9E7',
-          200: '#FCF0C3',
-          300: '#F9E49F',
-          400: '#F0CE6B',
-          500: '#D4AF37', // Primary gold - matches logo
-          600: '#C9A227',
-          700: '#A8841E',
-          800: '#8A6C18',
-          900: '#6B5214',
-          950: '#3D2E0A',
+          50: '#FDF2F4',
+          100: '#FCE8EC',
+          200: '#FAD4DC',
+          300: '#F5ADBF',
+          400: '#ED7A9A',
+          500: '#8B2942', // Primary burgundy - matches logo
+          600: '#7A2439',
+          700: '#661E30',
+          800: '#551928',
+          900: '#4A0D1F',
+          950: '#2D0613',
         },
         // Softer charcoal palette - lighter and milder
         charcoal: {
@@ -49,19 +49,19 @@ module.exports = {
           800: '#8B7D5E',
           900: '#6E6349',
         },
-        // Keep primary as gold for compatibility
+        // Keep primary as burgundy for compatibility
         primary: {
-          50: '#FFFEF5',
-          100: '#FEF9E7',
-          200: '#FCF0C3',
-          300: '#F9E49F',
-          400: '#F0CE6B',
-          500: '#D4AF37',
-          600: '#C9A227',
-          700: '#A8841E',
-          800: '#8A6C18',
-          900: '#6B5214',
-          950: '#3D2E0A',
+          50: '#FDF2F4',
+          100: '#FCE8EC',
+          200: '#FAD4DC',
+          300: '#F5ADBF',
+          400: '#ED7A9A',
+          500: '#8B2942',
+          600: '#7A2439',
+          700: '#661E30',
+          800: '#551928',
+          900: '#4A0D1F',
+          950: '#2D0613',
         },
         // Keep secondary as charcoal for compatibility
         secondary: {
@@ -87,13 +87,13 @@ module.exports = {
         'glass-lg': '0 8px 32px 0 rgba(0, 0, 0, 0.2)',
         'elegant': '0 4px 20px -2px rgba(0, 0, 0, 0.08)',
         'elegant-lg': '0 10px 40px -10px rgba(0, 0, 0, 0.12)',
-        'luxury': '0 4px 30px rgba(212, 175, 55, 0.1)',
-        'luxury-lg': '0 8px 50px rgba(212, 175, 55, 0.15)',
-        'gold-glow': '0 0 30px rgba(212, 175, 55, 0.2)',
-        'gold-glow-lg': '0 0 50px rgba(212, 175, 55, 0.3)',
+        'luxury': '0 4px 30px rgba(139, 41, 66, 0.1)',
+        'luxury-lg': '0 8px 50px rgba(139, 41, 66, 0.15)',
+        'gold-glow': '0 0 30px rgba(139, 41, 66, 0.2)',
+        'gold-glow-lg': '0 0 50px rgba(139, 41, 66, 0.3)',
         'dark': '0 10px 40px -10px rgba(0, 0, 0, 0.5)',
         'dark-lg': '0 20px 60px -15px rgba(0, 0, 0, 0.6)',
-        'inner-gold': 'inset 0 2px 20px 0 rgba(212, 175, 55, 0.1)',
+        'inner-gold': 'inset 0 2px 20px 0 rgba(139, 41, 66, 0.1)',
         'inner-dark': 'inset 0 2px 20px 0 rgba(0, 0, 0, 0.2)',
       },
       backdropBlur: {
@@ -176,8 +176,8 @@ module.exports = {
           '50%': { transform: 'translateY(0)' },
         },
         glowPulse: {
-          '0%, 100%': { boxShadow: '0 0 20px rgba(212, 175, 55, 0.2)' },
-          '50%': { boxShadow: '0 0 40px rgba(212, 175, 55, 0.4)' },
+          '0%, 100%': { boxShadow: '0 0 20px rgba(139, 41, 66, 0.2)' },
+          '50%': { boxShadow: '0 0 40px rgba(139, 41, 66, 0.4)' },
         },
       },
       transitionTimingFunction: {
@@ -189,8 +189,8 @@ module.exports = {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
         'shimmer': 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)',
-        'gold-gradient': 'linear-gradient(135deg, #D4AF37 0%, #F0CE6B 50%, #D4AF37 100%)',
-        'gold-shimmer': 'linear-gradient(90deg, transparent 0%, rgba(212, 175, 55, 0.3) 50%, transparent 100%)',
+        'gold-gradient': 'linear-gradient(135deg, #8B2942 0%, #ED7A9A 50%, #8B2942 100%)',
+        'gold-shimmer': 'linear-gradient(90deg, transparent 0%, rgba(139, 41, 66, 0.3) 50%, transparent 100%)',
         'dark-gradient': 'linear-gradient(180deg, #1F1F1F 0%, #171717 100%)',
         'luxury-gradient': 'linear-gradient(135deg, #2D2D2D 0%, #404040 50%, #2D2D2D 100%)',
       },

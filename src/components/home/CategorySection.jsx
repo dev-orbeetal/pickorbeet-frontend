@@ -116,7 +116,7 @@ export default function CategorySection({ categories }) {
 
                     {/* Hover Content */}
                     <div className="absolute inset-0 flex items-end p-5 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                      <span className="inline-flex items-center gap-2 px-4 py-2 bg-gold-500 text-charcoal-950 rounded-lg text-sm font-bold">
+                      <span className="inline-flex items-center gap-2 px-4 py-2 bg-gold-500 text-white rounded-lg text-sm font-bold">
                         Explore
                         <ArrowRight className="w-4 h-4" />
                       </span>
@@ -125,7 +125,7 @@ export default function CategorySection({ categories }) {
                     {/* Featured Badge */}
                     {category.is_featured && (
                       <div className="absolute top-4 right-4">
-                        <span className="inline-block px-2 py-1 bg-gold-500 text-charcoal-950 text-xs font-bold rounded">
+                        <span className="inline-block px-2 py-1 bg-gold-500 text-white text-xs font-bold rounded">
                           Featured
                         </span>
                       </div>

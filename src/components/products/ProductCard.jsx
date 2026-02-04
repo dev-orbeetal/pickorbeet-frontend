@@ -106,7 +106,7 @@ export default function ProductCard({ product }) {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.1 }}
-                  className="px-3 py-1.5 bg-gradient-to-r from-gold-500 to-gold-400 text-charcoal-950 text-xs font-bold rounded-full shadow-lg"
+                  className="px-3 py-1.5 bg-gradient-to-r from-gold-500 to-gold-400 text-white text-xs font-bold rounded-full shadow-lg"
                 >
                   Featured
                 </motion.div>
@@ -121,7 +121,7 @@ export default function ProductCard({ product }) {
               whileTap="tap"
               onClick={handleWishlist}
               className={`absolute top-3 right-3 p-2.5 rounded-full backdrop-blur-md transition-all duration-300 ${isWishlisted
-                ? 'bg-gold-500 text-charcoal-950 shadow-lg shadow-gold-500/30'
+                ? 'bg-gold-500 text-white shadow-lg shadow-gold-500/30'
                 : 'bg-charcoal-900/80 text-cream-300 hover:bg-charcoal-900 hover:text-gold-400'
                 }`}
             >
@@ -164,7 +164,7 @@ export default function ProductCard({ product }) {
                       disabled={isAddingToCart}
                       className={`flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm transition-all duration-300 shadow-lg ${justAdded
                         ? 'bg-emerald-500 text-white'
-                        : 'bg-gradient-to-r from-gold-500 to-gold-400 text-charcoal-950 hover:from-gold-400 hover:to-gold-300'
+                        : 'bg-gradient-to-r from-gold-500 to-gold-400 text-white hover:from-gold-400 hover:to-gold-300'
                         }`}
                     >
                       {justAdded ? (

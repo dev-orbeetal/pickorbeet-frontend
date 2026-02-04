@@ -28,13 +28,13 @@
   }
   
   .btn-primary {
-    @apply bg-gradient-to-r from-gold-600 to-gold-500 text-charcoal-950 
+    @apply bg-gradient-to-r from-gold-600 to-gold-500 text-white 
            hover:from-gold-500 hover:to-gold-400 focus:ring-gold-500
            shadow-lg shadow-gold-500/20 hover:shadow-xl hover:shadow-gold-500/30;
   }
 
   .btn-gold {
-    @apply bg-gradient-to-r from-gold-500 to-gold-400 text-charcoal-950 font-bold
+    @apply bg-gradient-to-r from-gold-500 to-gold-400 text-white font-bold
            hover:from-gold-400 hover:to-gold-300 focus:ring-gold-500
            shadow-luxury hover:shadow-luxury-lg;
   }
@@ -51,7 +51,7 @@
   }
   
   .btn-outline {
-    @apply border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-charcoal-950 
+    @apply border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-white 
            focus:ring-gold-500 backdrop-blur-sm;
   }
 
@@ -232,14 +232,14 @@
   .gradient-border-gold {
     @apply relative;
     background: linear-gradient(#F5F0E6, #F5F0E6) padding-box,
-                linear-gradient(135deg, #D4AF37, #F0CE6B) border-box;
+                linear-gradient(135deg, #8B2942, #ED7A9A) border-box;
     border: 2px solid transparent;
   }
 
   .gradient-border-dark {
     @apply relative;
     background: linear-gradient(#1A1A1A, #1A1A1A) padding-box,
-                linear-gradient(135deg, #D4AF37, #F0CE6B) border-box;
+                linear-gradient(135deg, #8B2942, #ED7A9A) border-box;
     border: 1px solid transparent;
   }
 
@@ -267,7 +267,7 @@
 
   .scrollbar-gold {
     scrollbar-width: thin;
-    scrollbar-color: #D4AF37 #1A1A1A;
+    scrollbar-color: #8B2942 #1A1A1A;
   }
 
   .scrollbar-gold::-webkit-scrollbar {
@@ -279,7 +279,7 @@
   }
 
   .scrollbar-gold::-webkit-scrollbar-thumb {
-    background: #D4AF37;
+    background: #8B2942;
     border-radius: 3px;
   }
 

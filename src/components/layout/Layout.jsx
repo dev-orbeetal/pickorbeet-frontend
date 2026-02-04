@@ -47,7 +47,7 @@ export default function Layout({ children, title = 'Zzuhana - Premium Clothing S
           variants={mainVariants}
           initial="initial"
           animate="animate"
-          className="flex-grow"
+          className="flex-grow pt-16 md:pt-20"
         >
           {children}
         </motion.main>

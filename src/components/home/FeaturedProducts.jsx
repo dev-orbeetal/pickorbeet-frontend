@@ -61,7 +61,7 @@ export default function FeaturedProducts({ products }) {
         >
           <div>
             <motion.div variants={titleVariants} className="flex items-center gap-2 mb-4">
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-gold-500 to-gold-400 text-charcoal-950 rounded-full text-sm font-bold">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-gold-500 to-gold-400 text-white rounded-full text-sm font-bold">
                 <Crown className="w-4 h-4" />
                 Bestsellers
               </span>

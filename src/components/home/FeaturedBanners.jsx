@@ -19,7 +19,7 @@ const slideVariants = {
 };
 
 export default function FeaturedBanners({ categories }) {
-  const featuredCategories = Array.isArray(categories) 
+  const featuredCategories = Array.isArray(categories)
     ? categories.filter(cat => cat.is_featured).sort((a, b) => (a.featured_order || 0) - (b.featured_order || 0))
     : [];
 
@@ -53,7 +53,7 @@ export default function FeaturedBanners({ categories }) {
   const currentCategory = featuredCategories[currentIndex];
 
   return (
-    <section 
+    <section
       className="relative h-[70vh] min-h-[500px] max-h-[800px] overflow-hidden bg-charcoal-950"
       onMouseEnter={() => setIsAutoPlaying(false)}
       onMouseLeave={() => setIsAutoPlaying(true)}
@@ -83,7 +83,7 @@ export default function FeaturedBanners({ categories }) {
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-charcoal-800 via-charcoal-900 to-charcoal-950" />
             )}
-            
+
             {/* Gradient Overlays */}
             <div className="absolute inset-0 bg-gradient-to-r from-charcoal-950/90 via-charcoal-950/50 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-t from-charcoal-950/80 via-transparent to-charcoal-950/30" />
@@ -109,7 +109,7 @@ export default function FeaturedBanners({ categories }) {
                   </span>
                 </motion.div>
               )}
-              
+
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -137,7 +137,7 @@ export default function FeaturedBanners({ categories }) {
               >
                 <Link
                   href={`/category/${currentCategory.slug}`}
-                  className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-gold-500 to-gold-400 text-charcoal-950 rounded-xl font-bold text-lg hover:from-gold-400 hover:to-gold-300 hover:shadow-2xl hover:shadow-gold-500/30 transition-all duration-300"
+                  className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-gold-500 to-gold-400 text-white rounded-xl font-bold text-lg hover:from-gold-400 hover:to-gold-300 hover:shadow-2xl hover:shadow-gold-500/30 transition-all duration-300"
                 >
                   Explore Collection
                   <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
@@ -173,11 +173,10 @@ export default function FeaturedBanners({ categories }) {
             <button
               key={index}
               onClick={() => goToSlide(index)}
-              className={`h-1.5 rounded-full transition-all duration-500 ${
-                index === currentIndex
+              className={`h-1.5 rounded-full transition-all duration-500 ${index === currentIndex
                   ? 'w-12 bg-gold-500'
                   : 'w-6 bg-cream-100/30 hover:bg-cream-100/50'
-              }`}
+                }`}
             />
           ))}
         </div>
@@ -190,11 +189,10 @@ export default function FeaturedBanners({ categories }) {
             <button
               key={cat.id}
               onClick={() => goToSlide(index)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                index === currentIndex
-                  ? 'bg-gold-500 text-charcoal-950'
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${index === currentIndex
+                  ? 'bg-gold-500 text-white'
                   : 'bg-charcoal-900/50 backdrop-blur-sm text-cream-300 hover:bg-charcoal-800/70 border border-cream-100/10'
-              }`}
+                }`}
             >
               {cat.name}
             </button>
