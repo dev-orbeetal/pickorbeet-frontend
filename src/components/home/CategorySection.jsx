@@ -41,9 +41,14 @@ const titleVariants = {
 
 export default function CategorySection({ categories }) {
   const categoriesArray = Array.isArray(categories) ? categories : [];
-  const nonFeaturedCategories = categoriesArray.filter(cat => !cat.is_featured);
+  // Sort by display_order, featured categories first
+  const sortedCategories = [...categoriesArray].sort((a, b) => {
+    if (a.is_featured && !b.is_featured) return -1;
+    if (!a.is_featured && b.is_featured) return 1;
+    return (a.display_order || 0) - (b.display_order || 0);
+  });
 
-  if (nonFeaturedCategories.length === 0) return null;
+  if (sortedCategories.length === 0) return null;
 
   return (
     <section className="py-20 md:py-28 bg-cream-100 relative overflow-hidden">
@@ -83,7 +88,7 @@ export default function CategorySection({ categories }) {
           viewport={{ once: true, margin: "-50px" }}
           className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-8"
         >
-          {nonFeaturedCategories.slice(0, 8).map((category, index) => (
+          {sortedCategories.slice(0, 8).map((category, index) => (
             <motion.div
               key={category.id}
               variants={itemVariants}
@@ -117,9 +122,18 @@ export default function CategorySection({ categories }) {
                       </span>
                     </div>
 
+                    {/* Featured Badge */}
+                    {category.is_featured && (
+                      <div className="absolute top-4 right-4">
+                        <span className="inline-block px-2 py-1 bg-gold-500 text-charcoal-950 text-xs font-bold rounded">
+                          Featured
+                        </span>
+                      </div>
+                    )}
+
                     {/* Tagline Badge */}
                     {category.tagline && (
-                      <div className="absolute top-4 left-4 right-4">
+                      <div className="absolute top-4 left-4 right-16">
                         <span className="inline-block px-3 py-1 bg-charcoal-900/80 backdrop-blur-sm text-cream-100 text-xs font-medium rounded-full">
                           {category.tagline}
                         </span>
