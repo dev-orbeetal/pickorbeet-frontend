@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, Star, TrendingUp } from 'lucide-react';
+import { ArrowRight, Crown, TrendingUp } from 'lucide-react';
 import ProductCard from '../products/ProductCard';
 
 const containerVariants = {
@@ -45,11 +45,11 @@ export default function FeaturedProducts({ products }) {
   if (productsArray.length === 0) return null;
 
   return (
-    <section className="py-24 md:py-32 bg-gradient-to-b from-gray-50 via-white to-gray-50 relative overflow-hidden">
+    <section className="py-24 md:py-32 bg-cream-300 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-1/4 -right-32 w-96 h-96 bg-primary-100/30 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 -left-32 w-96 h-96 bg-blue-100/30 rounded-full blur-3xl" />
+        <div className="absolute top-1/4 -right-32 w-96 h-96 bg-gold-500/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 -left-32 w-96 h-96 bg-gold-600/5 rounded-full blur-3xl" />
       </div>
 
       <div className="container-custom relative">
@@ -61,8 +61,8 @@ export default function FeaturedProducts({ products }) {
         >
           <div>
             <motion.div variants={titleVariants} className="flex items-center gap-2 mb-4">
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-amber-50 to-orange-50 text-amber-600 rounded-full text-sm font-semibold border border-amber-100">
-                <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-gold-500 to-gold-400 text-charcoal-950 rounded-full text-sm font-bold">
+                <Crown className="w-4 h-4" />
                 Bestsellers
               </span>
             </motion.div>
@@ -76,7 +76,7 @@ export default function FeaturedProducts({ products }) {
           <motion.div variants={titleVariants}>
             <Link
               href="/products?featured=true"
-              className="group inline-flex items-center gap-2 px-6 py-3 bg-white border border-gray-200 rounded-xl text-secondary-700 font-semibold hover:border-primary-200 hover:text-primary-600 hover:shadow-lg hover:shadow-primary-500/10 transition-all duration-300 mt-6 md:mt-0"
+              className="group inline-flex items-center gap-2 px-6 py-3 bg-charcoal-900 border border-charcoal-800 rounded-xl text-cream-300 font-semibold hover:bg-charcoal-800 hover:border-gold-500/30 hover:text-gold-400 transition-all duration-300 mt-6 md:mt-0"
             >
               View All Products
               <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -104,14 +104,14 @@ export default function FeaturedProducts({ products }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.5 }}
-          className="flex items-center justify-center gap-4 mt-12 pt-8 border-t border-gray-100"
+          className="flex items-center justify-center gap-4 mt-12 pt-8 border-t border-gold-500/20"
         >
-          <div className="flex items-center gap-2 text-secondary-500">
-            <TrendingUp className="w-5 h-5 text-emerald-500" />
+          <div className="flex items-center gap-2 text-charcoal-600">
+            <TrendingUp className="w-5 h-5 text-gold-500" />
             <span className="text-sm font-medium">Trending this week</span>
           </div>
-          <div className="h-4 w-px bg-gray-200" />
-          <div className="text-sm text-secondary-400">
+          <div className="h-4 w-px bg-gold-500/30" />
+          <div className="text-sm text-charcoal-500">
             Updated daily based on customer favorites
           </div>
         </motion.div>

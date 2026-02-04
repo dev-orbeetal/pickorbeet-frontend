@@ -10,69 +10,113 @@
   }
   
   body {
-    @apply font-sans text-secondary-900 bg-white antialiased;
+    @apply font-sans text-charcoal-900 bg-cream-300 antialiased;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   ::selection {
-    @apply bg-primary-200 text-primary-900;
+    @apply bg-gold-200 text-gold-900;
   }
 }
 
 @layer components {
   .btn {
     @apply inline-flex items-center justify-center px-6 py-3.5 font-semibold rounded-xl 
-           transition-all duration-300 ease-smooth focus:outline-none focus:ring-2 focus:ring-offset-2
+           transition-all duration-300 ease-luxury focus:outline-none focus:ring-2 focus:ring-offset-2
            transform hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98];
   }
   
   .btn-primary {
-    @apply bg-gradient-to-r from-primary-600 to-primary-700 text-white 
-           hover:from-primary-700 hover:to-primary-800 focus:ring-primary-500
-           shadow-lg shadow-primary-500/25 hover:shadow-xl hover:shadow-primary-500/30;
+    @apply bg-gradient-to-r from-gold-600 to-gold-500 text-charcoal-950 
+           hover:from-gold-500 hover:to-gold-400 focus:ring-gold-500
+           shadow-lg shadow-gold-500/20 hover:shadow-xl hover:shadow-gold-500/30;
+  }
+
+  .btn-gold {
+    @apply bg-gradient-to-r from-gold-500 to-gold-400 text-charcoal-950 font-bold
+           hover:from-gold-400 hover:to-gold-300 focus:ring-gold-500
+           shadow-luxury hover:shadow-luxury-lg;
   }
   
   .btn-secondary {
-    @apply bg-secondary-100 text-secondary-900 hover:bg-secondary-200 focus:ring-secondary-500
-           border border-secondary-200;
+    @apply bg-charcoal-800 text-cream-300 hover:bg-charcoal-700 focus:ring-charcoal-500
+           border border-charcoal-700;
+  }
+
+  .btn-dark {
+    @apply bg-charcoal-900 text-gold-500 hover:bg-charcoal-800 
+           border border-gold-500/30 hover:border-gold-500/50
+           focus:ring-gold-500;
   }
   
   .btn-outline {
-    @apply border-2 border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white 
-           focus:ring-primary-500 backdrop-blur-sm;
+    @apply border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-charcoal-950 
+           focus:ring-gold-500 backdrop-blur-sm;
+  }
+
+  .btn-outline-dark {
+    @apply border-2 border-charcoal-800 text-charcoal-800 hover:bg-charcoal-900 hover:text-cream-300 
+           focus:ring-charcoal-500;
   }
 
   .btn-ghost {
-    @apply bg-white/10 backdrop-blur-md text-white border border-white/20 
-           hover:bg-white/20 hover:border-white/40;
+    @apply bg-white/10 backdrop-blur-md text-gold-400 border border-gold-500/20 
+           hover:bg-gold-500/10 hover:border-gold-500/40;
   }
   
   .input {
-    @apply w-full px-4 py-3.5 bg-white border border-gray-200 rounded-xl 
-           focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 
-           transition-all duration-300 placeholder:text-gray-400
-           hover:border-gray-300;
+    @apply w-full px-4 py-3.5 bg-cream-100 border border-cream-400 rounded-xl 
+           focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 
+           transition-all duration-300 placeholder:text-charcoal-400
+           hover:border-cream-500 text-charcoal-900;
+  }
+
+  .input-dark {
+    @apply w-full px-4 py-3.5 bg-charcoal-800/50 border border-charcoal-700 rounded-xl 
+           focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 
+           transition-all duration-300 placeholder:text-charcoal-400
+           hover:border-charcoal-600 text-cream-300;
   }
   
   .card {
-    @apply bg-white rounded-2xl shadow-elegant border border-gray-100/50
-           hover:shadow-elegant-lg hover:border-gray-200/50 
-           transition-all duration-500 ease-smooth;
+    @apply bg-cream-100 rounded-2xl shadow-elegant border border-cream-400/50
+           hover:shadow-elegant-lg hover:border-gold-500/20 
+           transition-all duration-500 ease-luxury;
+  }
+
+  .card-dark {
+    @apply bg-charcoal-900 rounded-2xl shadow-dark border border-charcoal-800
+           hover:shadow-dark-lg hover:border-gold-500/30 
+           transition-all duration-500 ease-luxury;
   }
 
   .card-glass {
-    @apply bg-white/70 backdrop-blur-xl rounded-2xl shadow-glass border border-white/20
-           hover:shadow-glass-lg hover:bg-white/80
-           transition-all duration-500 ease-smooth;
+    @apply bg-cream-100/70 backdrop-blur-xl rounded-2xl shadow-glass border border-cream-300/50
+           hover:shadow-glass-lg hover:bg-cream-100/90
+           transition-all duration-500 ease-luxury;
+  }
+
+  .card-glass-dark {
+    @apply bg-charcoal-900/80 backdrop-blur-xl rounded-2xl shadow-dark border border-gold-500/10
+           hover:shadow-dark-lg hover:border-gold-500/20
+           transition-all duration-500 ease-luxury;
   }
   
   .section-title {
-    @apply text-3xl md:text-4xl lg:text-5xl font-display font-bold text-secondary-900 tracking-tight;
+    @apply text-3xl md:text-4xl lg:text-5xl font-display font-bold text-charcoal-900 tracking-tight;
+  }
+
+  .section-title-light {
+    @apply text-3xl md:text-4xl lg:text-5xl font-display font-bold text-cream-100 tracking-tight;
   }
 
   .section-subtitle {
-    @apply text-lg md:text-xl text-secondary-600 max-w-2xl leading-relaxed;
+    @apply text-lg md:text-xl text-charcoal-600 max-w-2xl leading-relaxed;
+  }
+
+  .section-subtitle-light {
+    @apply text-lg md:text-xl text-cream-400 max-w-2xl leading-relaxed;
   }
   
   .container-custom {
@@ -80,16 +124,16 @@
   }
 
   .glass {
-    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-glass;
+    @apply bg-cream-100/70 backdrop-blur-xl border border-cream-300/50 shadow-glass;
   }
 
   .glass-dark {
-    @apply bg-secondary-900/70 backdrop-blur-xl border border-white/10 shadow-glass;
+    @apply bg-charcoal-900/80 backdrop-blur-xl border border-gold-500/10 shadow-dark;
   }
 
   .link-underline {
     @apply relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 
-           after:bg-primary-600 after:transition-all after:duration-300 
+           after:bg-gold-500 after:transition-all after:duration-300 
            hover:after:w-full;
   }
 
@@ -97,8 +141,12 @@
     @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider;
   }
 
-  .badge-primary {
-    @apply bg-primary-100 text-primary-700;
+  .badge-gold {
+    @apply bg-gold-100 text-gold-800 border border-gold-200;
+  }
+
+  .badge-dark {
+    @apply bg-charcoal-800 text-gold-400 border border-gold-500/20;
   }
 
   .badge-success {
@@ -110,21 +158,33 @@
   }
 
   .divider {
-    @apply h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent;
+    @apply h-px bg-gradient-to-r from-transparent via-gold-500/30 to-transparent;
+  }
+
+  .divider-dark {
+    @apply h-px bg-gradient-to-r from-transparent via-charcoal-700 to-transparent;
   }
 
   .skeleton {
-    @apply bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 bg-[length:200%_100%] animate-shimmer;
+    @apply bg-gradient-to-r from-cream-400 via-cream-200 to-cream-400 bg-[length:200%_100%] animate-shimmer;
+  }
+
+  .skeleton-dark {
+    @apply bg-gradient-to-r from-charcoal-800 via-charcoal-700 to-charcoal-800 bg-[length:200%_100%] animate-shimmer;
   }
 }
 
 @layer utilities {
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 via-primary-500 to-primary-700;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-gold-600 via-gold-500 to-gold-400;
   }
 
   .text-gradient-gold {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-gold-400 via-gold-500 to-gold-600;
+  }
+
+  .text-gold {
+    @apply text-gold-500;
   }
   
   .animate-fade-in {
@@ -162,18 +222,38 @@
   }
 
   .hover-lift {
-    @apply transition-transform duration-300 ease-smooth hover:-translate-y-2;
+    @apply transition-transform duration-300 ease-luxury hover:-translate-y-2;
   }
 
-  .hover-glow {
-    @apply transition-shadow duration-300 hover:shadow-glow;
+  .hover-glow-gold {
+    @apply transition-shadow duration-300 hover:shadow-gold-glow;
   }
 
-  .gradient-border {
+  .gradient-border-gold {
     @apply relative;
-    background: linear-gradient(white, white) padding-box,
-                linear-gradient(135deg, #cb4539, #e0655a) border-box;
+    background: linear-gradient(#F5F0E6, #F5F0E6) padding-box,
+                linear-gradient(135deg, #D4AF37, #F0CE6B) border-box;
     border: 2px solid transparent;
+  }
+
+  .gradient-border-dark {
+    @apply relative;
+    background: linear-gradient(#1A1A1A, #1A1A1A) padding-box,
+                linear-gradient(135deg, #D4AF37, #F0CE6B) border-box;
+    border: 1px solid transparent;
+  }
+
+  .gold-shimmer {
+    @apply relative overflow-hidden;
+  }
+
+  .gold-shimmer::after {
+    content: '';
+    @apply absolute inset-0 bg-gold-shimmer bg-[length:200%_100%] animate-gold-shimmer opacity-0;
+  }
+
+  .gold-shimmer:hover::after {
+    @apply opacity-100;
   }
 
   .scrollbar-hide {
@@ -185,6 +265,24 @@
     display: none;
   }
 
+  .scrollbar-gold {
+    scrollbar-width: thin;
+    scrollbar-color: #D4AF37 #1A1A1A;
+  }
+
+  .scrollbar-gold::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-gold::-webkit-scrollbar-track {
+    background: #1A1A1A;
+  }
+
+  .scrollbar-gold::-webkit-scrollbar-thumb {
+    background: #D4AF37;
+    border-radius: 3px;
+  }
+
   .mask-gradient-b {
     mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
     -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
@@ -193,5 +291,10 @@
   .mask-gradient-r {
     mask-image: linear-gradient(to right, black 80%, transparent 100%);
     -webkit-mask-image: linear-gradient(to right, black 80%, transparent 100%);
+  }
+
+  .luxury-texture {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.02;
   }
 }

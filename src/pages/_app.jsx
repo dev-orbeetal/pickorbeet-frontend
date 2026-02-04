@@ -52,23 +52,24 @@ export default function App({ Component, pageProps }) {
         toastOptions={{
           duration: 3000,
           style: {
-            background: 'rgba(15, 23, 42, 0.95)',
+            background: 'rgba(26, 26, 26, 0.98)',
             backdropFilter: 'blur(12px)',
-            color: '#fff',
+            color: '#F5F0E6',
             padding: '16px 24px',
             borderRadius: '16px',
             fontSize: '14px',
             fontWeight: '500',
-            boxShadow: '0 10px 40px -10px rgba(0, 0, 0, 0.3)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: '0 10px 40px -10px rgba(0, 0, 0, 0.5)',
+            border: '1px solid rgba(212, 175, 55, 0.2)',
           },
           success: {
             iconTheme: {
-              primary: '#22c55e',
-              secondary: '#fff',
+              primary: '#D4AF37',
+              secondary: '#1A1A1A',
             },
             style: {
-              background: 'rgba(15, 23, 42, 0.95)',
+              background: 'rgba(26, 26, 26, 0.98)',
+              borderColor: 'rgba(212, 175, 55, 0.3)',
             },
           },
           error: {
@@ -77,7 +78,7 @@ export default function App({ Component, pageProps }) {
               secondary: '#fff',
             },
             style: {
-              background: 'rgba(15, 23, 42, 0.95)',
+              background: 'rgba(26, 26, 26, 0.98)',
             },
           },
         }}

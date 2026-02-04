@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useSelector, useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ShoppingBag, User, Menu, X, Search, ChevronDown, Sparkles
+  ShoppingBag, User, Menu, X, Search, ChevronDown
 } from 'lucide-react';
 import { fetchCategories } from '@/store/slices/productsSlice';
 import { checkAuth, logout } from '@/store/slices/authSlice';
@@ -92,19 +92,19 @@ export default function Header() {
     >
       <Link
         href={href}
-        className="relative text-secondary-700 hover:text-primary-600 transition-colors duration-300 font-medium group"
+        className="relative text-cream-300 hover:text-gold-400 transition-colors duration-300 font-medium group"
       >
         {children}
-        <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-primary-600 transition-all duration-300 group-hover:w-full rounded-full" />
+        <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-gold-400 to-gold-500 transition-all duration-300 group-hover:w-full rounded-full" />
       </Link>
     </motion.div>
   );
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-smooth ${isScrolled
-          ? 'bg-white/80 backdrop-blur-xl shadow-elegant py-3 border-b border-gray-100/50'
-          : 'bg-transparent py-5'
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-luxury ${isScrolled
+        ? 'bg-charcoal-900/95 backdrop-blur-xl shadow-dark py-3 border-b border-gold-500/10'
+        : 'bg-charcoal-900/80 backdrop-blur-md py-5'
         }`}
     >
       <div className="container-custom">
@@ -114,13 +114,21 @@ export default function Header() {
             <motion.div
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="flex items-center gap-2"
+              className="flex items-center gap-3"
             >
-              <div className="relative">
-                <span className="text-2xl md:text-3xl font-display font-bold bg-gradient-to-r from-primary-600 via-primary-500 to-primary-700 bg-clip-text text-transparent">
-                  Zzuhana
+              <div className="relative flex items-center">
+                <span className="text-3xl md:text-4xl font-display font-bold text-gold-500 tracking-wide">
+                  Z
                 </span>
-                <Sparkles className="absolute -top-1 -right-4 w-3 h-3 text-primary-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <span className="text-xl md:text-2xl font-display font-semibold text-cream-300 tracking-widest uppercase ml-0.5">
+                  uhana
+                </span>
+                <motion.div
+                  className="absolute -bottom-1 left-0 right-0 h-px bg-gradient-to-r from-gold-500/50 via-gold-400 to-gold-500/50"
+                  initial={{ scaleX: 0 }}
+                  whileHover={{ scaleX: 1 }}
+                  transition={{ duration: 0.3 }}
+                />
               </div>
             </motion.div>
           </Link>
@@ -138,7 +146,7 @@ export default function Header() {
                 variants={navLinkVariants}
                 whileHover="hover"
                 whileTap="tap"
-                className="flex items-center text-secondary-700 hover:text-primary-600 transition-colors duration-300 font-medium group"
+                className="flex items-center text-cream-300 hover:text-gold-400 transition-colors duration-300 font-medium group"
               >
                 Categories
                 <motion.span
@@ -156,9 +164,9 @@ export default function Header() {
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-72 bg-white/95 backdrop-blur-xl rounded-2xl shadow-elegant-lg border border-gray-100/50 py-3 overflow-hidden"
+                    className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-72 bg-charcoal-900/98 backdrop-blur-xl rounded-2xl shadow-dark-lg border border-gold-500/20 py-3 overflow-hidden"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-b from-primary-50/30 to-transparent pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-gold-500/5 to-transparent pointer-events-none" />
                     {categories.map((category, index) => (
                       <motion.div
                         key={category.id}
@@ -168,9 +176,9 @@ export default function Header() {
                       >
                         <Link
                           href={`/category/${category.slug}`}
-                          className="flex items-center px-5 py-3 text-secondary-700 hover:bg-primary-50 hover:text-primary-600 transition-all duration-200 group"
+                          className="flex items-center px-5 py-3 text-cream-400 hover:bg-gold-500/10 hover:text-gold-400 transition-all duration-200 group"
                         >
-                          <span className="w-2 h-2 rounded-full bg-primary-200 group-hover:bg-primary-500 mr-3 transition-colors duration-200" />
+                          <span className="w-2 h-2 rounded-full bg-gold-700 group-hover:bg-gold-500 mr-3 transition-colors duration-200" />
                           <span className="font-medium">{category.name}</span>
                         </Link>
                       </motion.div>
@@ -191,7 +199,7 @@ export default function Header() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setSearchOpen(!searchOpen)}
-              className="p-2.5 text-secondary-600 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-300"
+              className="p-2.5 text-cream-400 hover:text-gold-400 hover:bg-gold-500/10 rounded-xl transition-all duration-300"
             >
               <Search className="w-5 h-5" />
             </motion.button>
@@ -199,7 +207,7 @@ export default function Header() {
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link
                 href="/cart"
-                className="relative p-2.5 text-secondary-600 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-300 block"
+                className="relative p-2.5 text-cream-400 hover:text-gold-400 hover:bg-gold-500/10 rounded-xl transition-all duration-300 block"
               >
                 <ShoppingBag className="w-5 h-5" />
                 <AnimatePresence mode="wait">
@@ -209,7 +217,7 @@ export default function Header() {
                       initial={{ scale: 0, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       exit={{ scale: 0, opacity: 0 }}
-                      className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-xs rounded-full flex items-center justify-center font-semibold shadow-lg shadow-primary-500/30"
+                      className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-gradient-to-r from-gold-500 to-gold-400 text-charcoal-950 text-xs rounded-full flex items-center justify-center font-bold shadow-lg shadow-gold-500/30"
                     >
                       {totalItems}
                     </motion.span>
@@ -226,7 +234,7 @@ export default function Header() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="p-2.5 text-secondary-600 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-300"
+                className="p-2.5 text-cream-400 hover:text-gold-400 hover:bg-gold-500/10 rounded-xl transition-all duration-300"
               >
                 <User className="w-5 h-5" />
               </motion.button>
@@ -238,31 +246,31 @@ export default function Header() {
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    className="absolute top-full right-0 mt-4 w-56 bg-white/95 backdrop-blur-xl rounded-2xl shadow-elegant-lg border border-gray-100/50 py-3 overflow-hidden"
+                    className="absolute top-full right-0 mt-4 w-56 bg-charcoal-900/98 backdrop-blur-xl rounded-2xl shadow-dark-lg border border-gold-500/20 py-3 overflow-hidden"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-b from-primary-50/30 to-transparent pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-gold-500/5 to-transparent pointer-events-none" />
                     {isAuthenticated ? (
                       <>
-                        <div className="px-5 py-3 border-b border-gray-100">
-                          <p className="text-xs text-secondary-500 uppercase tracking-wider">Welcome back</p>
-                          <p className="font-semibold text-secondary-900 mt-0.5">{user?.first_name}</p>
+                        <div className="px-5 py-3 border-b border-gold-500/10">
+                          <p className="text-xs text-gold-600 uppercase tracking-wider">Welcome back</p>
+                          <p className="font-semibold text-cream-200 mt-0.5">{user?.first_name}</p>
                         </div>
                         <div className="py-1">
                           <Link
                             href="/account"
-                            className="flex items-center px-5 py-2.5 text-secondary-700 hover:bg-primary-50 hover:text-primary-600 transition-all duration-200"
+                            className="flex items-center px-5 py-2.5 text-cream-400 hover:bg-gold-500/10 hover:text-gold-400 transition-all duration-200"
                           >
                             My Account
                           </Link>
                           <Link
                             href="/orders"
-                            className="flex items-center px-5 py-2.5 text-secondary-700 hover:bg-primary-50 hover:text-primary-600 transition-all duration-200"
+                            className="flex items-center px-5 py-2.5 text-cream-400 hover:bg-gold-500/10 hover:text-gold-400 transition-all duration-200"
                           >
                             My Orders
                           </Link>
                           <button
                             onClick={handleLogout}
-                            className="w-full flex items-center px-5 py-2.5 text-secondary-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200"
+                            className="w-full flex items-center px-5 py-2.5 text-cream-400 hover:bg-red-500/10 hover:text-red-400 transition-all duration-200"
                           >
                             Logout
                           </button>
@@ -272,20 +280,20 @@ export default function Header() {
                       <div className="py-1">
                         <Link
                           href="/login"
-                          className="flex items-center px-5 py-2.5 text-secondary-700 hover:bg-primary-50 hover:text-primary-600 transition-all duration-200"
+                          className="flex items-center px-5 py-2.5 text-cream-400 hover:bg-gold-500/10 hover:text-gold-400 transition-all duration-200"
                         >
                           Login
                         </Link>
                         <Link
                           href="/register"
-                          className="flex items-center px-5 py-2.5 text-secondary-700 hover:bg-primary-50 hover:text-primary-600 transition-all duration-200"
+                          className="flex items-center px-5 py-2.5 text-cream-400 hover:bg-gold-500/10 hover:text-gold-400 transition-all duration-200"
                         >
                           Register
                         </Link>
-                        <div className="mx-4 my-2 h-px bg-gray-100" />
+                        <div className="mx-4 my-2 h-px bg-gold-500/10" />
                         <Link
                           href="/track-order"
-                          className="flex items-center px-5 py-2.5 text-secondary-700 hover:bg-primary-50 hover:text-primary-600 transition-all duration-200"
+                          className="flex items-center px-5 py-2.5 text-cream-400 hover:bg-gold-500/10 hover:text-gold-400 transition-all duration-200"
                         >
                           Track Order
                         </Link>
@@ -300,7 +308,7 @@ export default function Header() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="lg:hidden p-2.5 text-secondary-600 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-300"
+              className="lg:hidden p-2.5 text-cream-400 hover:text-gold-400 hover:bg-gold-500/10 rounded-xl transition-all duration-300"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               <AnimatePresence mode="wait">
@@ -340,7 +348,7 @@ export default function Header() {
               exit="exit"
               className="lg:hidden mt-4 overflow-hidden"
             >
-              <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-gray-100/50 p-6 shadow-elegant">
+              <div className="bg-charcoal-900/95 backdrop-blur-xl rounded-2xl border border-gold-500/20 p-6 shadow-dark-lg">
                 <nav className="flex flex-col space-y-1">
                   {[
                     { href: '/', label: 'Home' },
@@ -357,7 +365,7 @@ export default function Header() {
                     >
                       <Link
                         href={item.href}
-                        className="block py-3 px-4 text-secondary-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl font-medium transition-all duration-200"
+                        className="block py-3 px-4 text-cream-300 hover:text-gold-400 hover:bg-gold-500/10 rounded-xl font-medium transition-all duration-200"
                         onClick={() => setIsMenuOpen(false)}
                       >
                         {item.label}
@@ -368,9 +376,9 @@ export default function Header() {
                   {categories.length > 0 && (
                     <>
                       <div className="py-2">
-                        <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+                        <div className="h-px bg-gradient-to-r from-transparent via-gold-500/30 to-transparent" />
                       </div>
-                      <p className="px-4 py-2 text-xs font-semibold text-secondary-500 uppercase tracking-wider">Categories</p>
+                      <p className="px-4 py-2 text-xs font-semibold text-gold-600 uppercase tracking-wider">Categories</p>
                       {categories.map((category, index) => (
                         <motion.div
                           key={category.id}
@@ -380,7 +388,7 @@ export default function Header() {
                         >
                           <Link
                             href={`/category/${category.slug}`}
-                            className="block py-2.5 px-4 pl-8 text-secondary-600 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-200"
+                            className="block py-2.5 px-4 pl-8 text-cream-400 hover:text-gold-400 hover:bg-gold-500/10 rounded-xl transition-all duration-200"
                             onClick={() => setIsMenuOpen(false)}
                           >
                             {category.name}

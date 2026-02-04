@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, Layers } from 'lucide-react';
+import { ArrowRight, Crown } from 'lucide-react';
 import ProductCard from '../products/ProductCard';
 
 const containerVariants = {
@@ -33,7 +33,7 @@ export default function CategoryProducts({ categoryProducts }) {
   if (categoryProductsArray.length === 0) return null;
 
   return (
-    <section className="py-24 md:py-32 bg-white relative">
+    <section className="py-24 md:py-32 bg-charcoal-900 relative">
       <div className="container-custom">
         {categoryProductsArray.map((categoryData, categoryIndex) => (
           <motion.div
@@ -41,7 +41,7 @@ export default function CategoryProducts({ categoryProducts }) {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true, margin: "-100px" }}
-            className={`${categoryIndex > 0 ? 'mt-24 pt-24 border-t border-gray-100' : ''}`}
+            className={`${categoryIndex > 0 ? 'mt-24 pt-24 border-t border-gold-500/10' : ''}`}
           >
             <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12">
               <motion.div
@@ -51,15 +51,15 @@ export default function CategoryProducts({ categoryProducts }) {
                 transition={{ duration: 0.5 }}
               >
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="inline-flex items-center gap-2 px-3 py-1 bg-secondary-100 text-secondary-600 rounded-full text-xs font-semibold uppercase tracking-wider">
-                    <Layers className="w-3 h-3" />
+                  <span className="inline-flex items-center gap-2 px-3 py-1 bg-gold-500/10 text-gold-400 rounded-full text-xs font-semibold uppercase tracking-wider border border-gold-500/20">
+                    <Crown className="w-3 h-3" />
                     Collection
                   </span>
                 </div>
-                <h2 className="text-3xl md:text-4xl font-display font-bold text-secondary-900 mb-3">
+                <h2 className="text-3xl md:text-4xl font-display font-bold text-cream-100 mb-3">
                   {categoryData.category.name}
                 </h2>
-                <p className="text-secondary-600 text-lg">
+                <p className="text-cream-500 text-lg">
                   Explore our curated {categoryData.category.name.toLowerCase()} collection
                 </p>
               </motion.div>
@@ -71,7 +71,7 @@ export default function CategoryProducts({ categoryProducts }) {
               >
                 <Link
                   href={`/category/${categoryData.category.slug}`}
-                  className="group inline-flex items-center gap-2 px-6 py-3 bg-secondary-900 text-white rounded-xl font-semibold hover:bg-secondary-800 hover:shadow-lg transition-all duration-300 mt-6 md:mt-0"
+                  className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-400 text-charcoal-950 rounded-xl font-bold hover:from-gold-400 hover:to-gold-300 hover:shadow-lg hover:shadow-gold-500/20 transition-all duration-300 mt-6 md:mt-0"
                 >
                   View Collection
                   <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
