@@ -2,9 +2,10 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Layout from '@/components/layout/Layout';
 import HeroSection from '@/components/home/HeroSection';
+import FeaturedBanners from '@/components/home/FeaturedBanners';
 import CategorySection from '@/components/home/CategorySection';
 import FeaturedProducts from '@/components/home/FeaturedProducts';
-import CategoryProducts from '@/components/home/CategoryProducts';
+import CategoryShowcase from '@/components/home/CategoryShowcase';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import { fetchCategories, fetchFeaturedProducts, fetchProductsByCategory } from '@/store/slices/productsSlice';
 
@@ -18,13 +19,20 @@ export default function Home() {
     dispatch(fetchProductsByCategory());
   }, [dispatch]);
 
+  const hasFeaturedCategories = Array.isArray(categories) && categories.some(cat => cat.is_featured);
+
   return (
     <Layout title="Zzuhana - Premium Clothing Store">
-      <HeroSection />
+      {/* Show Featured Banners if categories are marked as featured, otherwise show default Hero */}
+      {hasFeaturedCategories ? (
+        <FeaturedBanners categories={categories} />
+      ) : (
+        <HeroSection />
+      )}
       <FeaturesSection />
       <CategorySection categories={categories} />
       <FeaturedProducts products={featuredProducts} />
-      <CategoryProducts categoryProducts={categoryProducts} />
+      <CategoryShowcase categoryProducts={categoryProducts} />
     </Layout>
   );
 }
