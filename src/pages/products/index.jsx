@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
-import { motion } from 'framer-motion';
 import { Filter, X, ChevronDown } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
@@ -290,7 +289,7 @@ export default function ProductsPage() {
 
           {/* Products Grid */}
           <div className="flex-1">
-            {loading ? (
+            {loading && products.length === 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                 {[...Array(6)].map((_, i) => (
                   <div key={i} className="animate-pulse">
@@ -301,16 +300,11 @@ export default function ProductsPage() {
                 ))}
               </div>
             ) : products.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                {products.map((product, index) => (
-                  <motion.div
-                    key={product.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                  >
+              <div className={`grid grid-cols-2 md:grid-cols-3 gap-6 transition-opacity duration-200 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+                {products.map((product) => (
+                  <div key={product.id}>
                     <ProductCard product={product} />
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             ) : (
