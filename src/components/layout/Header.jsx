@@ -4,8 +4,9 @@ import { useRouter } from 'next/router';
 import { useSelector, useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ShoppingBag, User, Menu, X, Search, ChevronDown
+  ShoppingBag, User, Menu, X, Search, ChevronDown, Heart
 } from 'lucide-react';
+import SearchModal from '@/components/search/SearchModal';
 import { fetchCategories } from '@/store/slices/productsSlice';
 import { checkAuth, logout } from '@/store/slices/authSlice';
 
@@ -393,6 +394,9 @@ export default function Header() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Search Modal */}
+      <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </header>
   );
 }
