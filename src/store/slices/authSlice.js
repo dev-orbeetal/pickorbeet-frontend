@@ -6,6 +6,7 @@ const initialState = {
   isAuthenticated: false,
   loading: false,
   error: null,
+  pendingVerification: null,
 };
 
 export const login = createAsyncThunk(
@@ -30,12 +31,12 @@ export const register = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const response = await authAPI.register(data);
-      const { tokens, user } = response.data;
-      
-      localStorage.setItem('access_token', tokens.access);
-      localStorage.setItem('refresh_token', tokens.refresh);
-      
-      return user;
+      // Don't store tokens - user needs to verify email first
+      return {
+        user: response.data.user,
+        requires_verification: response.data.requires_verification,
+        email: data.email
+      };
     } catch (error) {
       return rejectWithValue(error.response?.data || 'Registration failed');
     }
@@ -93,6 +94,9 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    clearPendingVerification: (state) => {
+      state.pendingVerification = null;
+    },
     checkAuth: (state) => {
       const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
       state.isAuthenticated = !!token;
@@ -121,8 +125,8 @@ const authSlice = createSlice({
       })
       .addCase(register.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
-        state.isAuthenticated = true;
+        state.pendingVerification = action.payload;
+        // Don't set isAuthenticated - user needs to verify email first
       })
       .addCase(register.rejected, (state, action) => {
         state.loading = false;
@@ -155,5 +159,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearError, checkAuth } = authSlice.actions;
+export const { clearError, clearPendingVerification, checkAuth } = authSlice.actions;
 export default authSlice.reducer;

@@ -14,7 +14,7 @@ const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 export default function RegisterPage() {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { isAuthenticated, loading, error } = useSelector((state) => state.auth);
+  const { isAuthenticated, loading, error, pendingVerification } = useSelector((state) => state.auth);
 
   const [showPassword, setShowPassword] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -31,9 +31,16 @@ export default function RegisterPage() {
   useEffect(() => {
     if (isAuthenticated) {
       router.push('/');
-      toast.success('Account created successfully!');
     }
   }, [isAuthenticated, router]);
+
+  useEffect(() => {
+    // Redirect to verify email page after registration
+    if (pendingVerification?.requires_verification) {
+      router.push(`/verify-email?email=${encodeURIComponent(pendingVerification.email)}`);
+      toast.success('Please check your email for verification code!');
+    }
+  }, [pendingVerification, router]);
 
   useEffect(() => {
     if (error) {
