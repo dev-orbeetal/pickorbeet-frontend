@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,6 +15,7 @@ export default function LoginPage() {
   const router = useRouter();
   const dispatch = useDispatch();
   const { isAuthenticated, loading, error } = useSelector((state) => state.auth);
+  const hasShownWelcome = useRef(false);
 
   const [showPassword, setShowPassword] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -24,12 +25,13 @@ export default function LoginPage() {
   });
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && !hasShownWelcome.current) {
+      hasShownWelcome.current = true;
       const redirect = router.query.redirect || '/';
       router.push(redirect);
       toast.success('Welcome back!');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (error) {
@@ -57,7 +59,7 @@ export default function LoginPage() {
       setGoogleLoading(true);
       try {
         await dispatch(googleAuth(response.credential)).unwrap();
-        toast.success('Welcome!');
+        // Toast is handled by the isAuthenticated useEffect
       } catch (err) {
         toast.error('Google sign-in failed');
       } finally {

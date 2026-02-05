@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,6 +15,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const dispatch = useDispatch();
   const { isAuthenticated, loading, error, pendingVerification } = useSelector((state) => state.auth);
+  const hasRedirected = useRef(false);
 
   const [showPassword, setShowPassword] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -32,15 +33,16 @@ export default function RegisterPage() {
     if (isAuthenticated) {
       router.push('/');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     // Redirect to verify email page after registration
-    if (pendingVerification?.requires_verification) {
+    if (pendingVerification?.requires_verification && !hasRedirected.current) {
+      hasRedirected.current = true;
       router.push(`/verify-email?email=${encodeURIComponent(pendingVerification.email)}`);
       toast.success('Please check your email for verification code!');
     }
-  }, [pendingVerification, router]);
+  }, [pendingVerification]);
 
   useEffect(() => {
     if (error) {
@@ -87,7 +89,7 @@ export default function RegisterPage() {
       setGoogleLoading(true);
       try {
         await dispatch(googleAuth(response.credential)).unwrap();
-        toast.success('Welcome to Zzuhana!');
+        // Redirect handled by isAuthenticated effect
       } catch (err) {
         toast.error('Google sign-up failed');
       } finally {
