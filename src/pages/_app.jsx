@@ -54,7 +54,7 @@ export default function App({ Component, pageProps }) {
       <AuthHydrator>
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
-            key={router.asPath}
+            key={router.pathname}
             variants={pageVariants}
             initial="initial"
             animate="animate"
