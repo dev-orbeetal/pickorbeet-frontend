@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import Script from 'next/script';
 import Layout from '@/components/layout/Layout';
 import { login, googleAuth, clearError } from '@/store/slices/authSlice';
+import { fetchCart } from '@/store/slices/cartSlice';
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
@@ -27,11 +28,13 @@ export default function LoginPage() {
   useEffect(() => {
     if (isAuthenticated && !hasShownWelcome.current) {
       hasShownWelcome.current = true;
+      // Fetch cart after login to merge/show user's cart
+      dispatch(fetchCart());
       const redirect = router.query.redirect || '/';
       router.push(redirect);
       toast.success('Welcome back!');
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, dispatch]);
 
   useEffect(() => {
     if (error) {

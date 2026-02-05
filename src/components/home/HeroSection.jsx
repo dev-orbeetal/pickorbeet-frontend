@@ -97,13 +97,13 @@ export default function HeroSection() {
     setCurrentSlide(index);
   };
 
+  // Auto-slide every 5 seconds - always active
   useEffect(() => {
-    if (!isAutoPlaying) return;
     const timer = setInterval(() => {
       paginate(1);
-    }, 6000);
+    }, 5000);
     return () => clearInterval(timer);
-  }, [isAutoPlaying, paginate]);
+  }, [paginate]);
 
   const handleMouseMove = (e) => {
     const { clientX, clientY, currentTarget } = e;
@@ -116,8 +116,6 @@ export default function HeroSection() {
     <section
       className="relative h-screen min-h-[700px] max-h-[900px] overflow-hidden -mt-16 md:-mt-20"
       onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsAutoPlaying(false)}
-      onMouseLeave={() => setIsAutoPlaying(true)}
     >
       <AnimatePresence initial={false} custom={direction} mode="sync">
         <motion.div
@@ -234,23 +232,23 @@ export default function HeroSection() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Navigation Arrows */}
+      {/* Navigation Arrows - Lower opacity, visible on hover */}
       <div className="absolute inset-y-0 left-4 md:left-8 flex items-center z-20">
         <motion.button
-          whileHover={{ scale: 1.1 }}
+          whileHover={{ scale: 1.1, opacity: 1 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => paginate(-1)}
-          className="p-3 md:p-4 bg-charcoal-900/50 backdrop-blur-md rounded-full text-gold-400 border border-gold-500/20 hover:bg-gold-500/10 hover:border-gold-500/40 transition-all duration-300 group"
+          className="p-3 md:p-4 bg-charcoal-900/30 backdrop-blur-md rounded-full text-gold-400/50 border border-gold-500/10 hover:bg-gold-500/10 hover:border-gold-500/40 hover:text-gold-400 transition-all duration-300 group opacity-40 hover:opacity-100"
         >
           <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 transition-transform duration-300 group-hover:-translate-x-0.5" />
         </motion.button>
       </div>
       <div className="absolute inset-y-0 right-4 md:right-8 flex items-center z-20">
         <motion.button
-          whileHover={{ scale: 1.1 }}
+          whileHover={{ scale: 1.1, opacity: 1 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => paginate(1)}
-          className="p-3 md:p-4 bg-charcoal-900/50 backdrop-blur-md rounded-full text-gold-400 border border-gold-500/20 hover:bg-gold-500/10 hover:border-gold-500/40 transition-all duration-300 group"
+          className="p-3 md:p-4 bg-charcoal-900/30 backdrop-blur-md rounded-full text-gold-400/50 border border-gold-500/10 hover:bg-gold-500/10 hover:border-gold-500/40 hover:text-gold-400 transition-all duration-300 group opacity-40 hover:opacity-100"
         >
           <ChevronRight className="w-5 h-5 md:w-6 md:h-6 transition-transform duration-300 group-hover:translate-x-0.5" />
         </motion.button>

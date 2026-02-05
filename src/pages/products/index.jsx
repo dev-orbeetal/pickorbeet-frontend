@@ -11,7 +11,7 @@ export default function ProductsPage() {
   const router = useRouter();
   const dispatch = useDispatch();
   const { products, categories, loading, pagination } = useSelector((state) => state.products);
-  
+
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     category: '',
@@ -33,12 +33,12 @@ export default function ProductsPage() {
   const handleFilterChange = (key, value) => {
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
-    
+
     const query = {};
     Object.entries(newFilters).forEach(([k, v]) => {
       if (v) query[k] = v;
     });
-    
+
     router.push({ pathname: '/products', query }, undefined, { shallow: true });
   };
 
@@ -68,7 +68,7 @@ export default function ProductsPage() {
               {pagination.count} products found
             </p>
           </div>
-          
+
           <div className="flex items-center space-x-4 mt-4 md:mt-0">
             <button
               onClick={() => setShowFilters(!showFilters)}
@@ -77,7 +77,7 @@ export default function ProductsPage() {
               <Filter className="w-4 h-4" />
               <span>Filters</span>
             </button>
-            
+
             <select
               value={filters.ordering}
               onChange={(e) => handleFilterChange('ordering', e.target.value)}
@@ -91,6 +91,43 @@ export default function ProductsPage() {
             </select>
           </div>
         </div>
+
+        {/* Active Filter Tags */}
+        {(filters.category || filters.min_price || filters.max_price || filters.size) && (
+          <div className="flex flex-wrap items-center gap-2 mb-6 p-4 bg-cream-50 rounded-xl border border-cream-200">
+            <span className="text-sm text-secondary-600 font-medium">Active Filters:</span>
+            {filters.category && (
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm">
+                {categories.find(c => c.id === filters.category)?.name || 'Category'}
+                <button onClick={() => handleFilterChange('category', '')} className="hover:text-primary-900">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+            {filters.size && (
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm">
+                Size: {filters.size}
+                <button onClick={() => handleFilterChange('size', '')} className="hover:text-primary-900">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+            {(filters.min_price || filters.max_price) && (
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm">
+                Price: ৳{filters.min_price || '0'} - ৳{filters.max_price || '∞'}
+                <button onClick={() => { handleFilterChange('min_price', ''); handleFilterChange('max_price', ''); }} className="hover:text-primary-900">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+            <button
+              onClick={clearFilters}
+              className="text-sm text-red-600 hover:text-red-700 font-medium ml-2"
+            >
+              Clear All
+            </button>
+          </div>
+        )}
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Filters */}
@@ -156,11 +193,10 @@ export default function ProductsPage() {
                     <button
                       key={size}
                       onClick={() => handleFilterChange('size', filters.size === size ? '' : size)}
-                      className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
-                        filters.size === size
+                      className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${filters.size === size
                           ? 'bg-primary-600 text-white border-primary-600'
                           : 'bg-white text-secondary-700 border-gray-300 hover:border-primary-600'
-                      }`}
+                        }`}
                     >
                       {size}
                     </button>
