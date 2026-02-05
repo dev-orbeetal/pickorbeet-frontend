@@ -11,10 +11,11 @@ import { ordersAPI, paymentsAPI } from '@/lib/api';
 export default function CheckoutPage() {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { items, subtotal, deliveryChargeInsideDhaka, deliveryChargeOutsideDhaka } = useSelector((state) => state.cart);
+  const { items, subtotal, deliveryChargeInsideDhaka, deliveryChargeOutsideDhaka, loading: cartLoading } = useSelector((state) => state.cart);
   const { isAuthenticated, user } = useSelector((state) => state.auth);
 
   const [loading, setLoading] = useState(false);
+  const [cartLoaded, setCartLoaded] = useState(false);
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     guest_name: '',
@@ -41,7 +42,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     // Only run on client side
     if (typeof window !== 'undefined') {
-      dispatch(fetchCart());
+      dispatch(fetchCart()).finally(() => setCartLoaded(true));
     }
   }, [dispatch]);
 
@@ -128,6 +129,21 @@ export default function CheckoutPage() {
       setLoading(false);
     }
   };
+
+  // Show loading while cart is being fetched
+  if (!cartLoaded || cartLoading) {
+    return (
+      <Layout title="Checkout - Zzuhana">
+        <div className="container-custom py-16">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-gray-200 rounded w-48" />
+            <div className="h-4 bg-gray-200 rounded w-full" />
+            <div className="h-64 bg-gray-200 rounded-xl" />
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   if (!items || items.length === 0) {
     router.push('/cart');
