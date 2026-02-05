@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
@@ -7,52 +7,136 @@ import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
 import { fetchProducts, fetchCategories } from '@/store/slices/productsSlice';
 
+// Build query params object from filters, skipping empty values
+function buildQuery(filters) {
+  const query = {};
+  if (filters.category.length > 0) query.category = filters.category.join(',');
+  if (filters.size.length > 0) query.size = filters.size.join(',');
+  if (filters.min_price) query.min_price = filters.min_price;
+  if (filters.max_price) query.max_price = filters.max_price;
+  if (filters.ordering && filters.ordering !== '-created_at') query.ordering = filters.ordering;
+  return query;
+}
+
+// Parse URL query params into filters state
+function parseQuery(query) {
+  return {
+    category: query.category ? query.category.split(',').filter(Boolean) : [],
+    size: query.size ? query.size.split(',').filter(Boolean) : [],
+    min_price: query.min_price || '',
+    max_price: query.max_price || '',
+    ordering: query.ordering || '-created_at',
+  };
+}
+
+const defaultFilters = {
+  category: [],
+  size: [],
+  min_price: '',
+  max_price: '',
+  ordering: '-created_at',
+};
+
 export default function ProductsPage() {
   const router = useRouter();
   const dispatch = useDispatch();
   const { products, categories, loading, pagination } = useSelector((state) => state.products);
 
   const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState({
-    category: '',
-    min_price: '',
-    max_price: '',
-    size: '',
-    ordering: '-created_at',
-  });
+  const [filters, setFilters] = useState(defaultFilters);
+  const [initialized, setInitialized] = useState(false);
+  const priceTimerRef = useRef(null);
 
+  // Initialize filters from URL on mount and fetch categories
   useEffect(() => {
     dispatch(fetchCategories());
   }, [dispatch]);
 
+  // Sync filters from URL on first load and on browser back/forward
   useEffect(() => {
-    const params = { ...router.query };
-    dispatch(fetchProducts(params));
-  }, [dispatch, router.query]);
-
-  const handleFilterChange = (key, value) => {
-    const newFilters = { ...filters, [key]: value };
-    setFilters(newFilters);
-
+    if (!router.isReady) return;
+    const parsed = parseQuery(router.query);
+    setFilters(parsed);
+    // Dispatch fetch with the URL params directly
     const query = {};
-    Object.entries(newFilters).forEach(([k, v]) => {
-      if (v) query[k] = v;
-    });
+    Object.entries(router.query).forEach(([k, v]) => { if (v) query[k] = v; });
+    if (!query.ordering) query.ordering = '-created_at';
+    dispatch(fetchProducts(query));
+    setInitialized(true);
+  }, [router.isReady, router.asPath, dispatch]);
 
+  // Core: apply filters by dispatching fetch AND updating URL
+  const applyFilters = useCallback((newFilters) => {
+    setFilters(newFilters);
+    const query = buildQuery(newFilters);
+    // Always include ordering for consistent results
+    const fetchParams = { ...query };
+    if (!fetchParams.ordering) fetchParams.ordering = '-created_at';
+    // Dispatch immediately — no reliance on router.query useEffect
+    dispatch(fetchProducts(fetchParams));
+    // Sync URL (shallow so page doesn't remount)
     router.push({ pathname: '/products', query }, undefined, { shallow: true });
-  };
+  }, [dispatch, router]);
 
-  const clearFilters = () => {
-    setFilters({
-      category: '',
-      min_price: '',
-      max_price: '',
-      size: '',
-      ordering: '-created_at',
+  // Toggle a value in an array filter (category or size)
+  const toggleArrayFilter = useCallback((key, value) => {
+    setFilters((prev) => {
+      const arr = prev[key];
+      const newArr = arr.includes(value)
+        ? arr.filter((v) => v !== value)
+        : [...arr, value];
+      const newFilters = { ...prev, [key]: newArr };
+      applyFilters(newFilters);
+      return newFilters;
     });
-    router.push('/products');
-  };
+  }, [applyFilters]);
 
+  // Set a scalar filter value
+  const setScalarFilter = useCallback((key, value) => {
+    setFilters((prev) => {
+      const newFilters = { ...prev, [key]: value };
+      applyFilters(newFilters);
+      return newFilters;
+    });
+  }, [applyFilters]);
+
+  // Debounced price filter — waits 600ms after user stops typing
+  const handlePriceChange = useCallback((key, value) => {
+    setFilters((prev) => {
+      const newFilters = { ...prev, [key]: value };
+      // Debounce the actual fetch
+      if (priceTimerRef.current) clearTimeout(priceTimerRef.current);
+      priceTimerRef.current = setTimeout(() => {
+        applyFilters(newFilters);
+      }, 600);
+      return newFilters;
+    });
+  }, [applyFilters]);
+
+  const clearFilters = useCallback(() => {
+    const cleared = { ...defaultFilters };
+    setFilters(cleared);
+    dispatch(fetchProducts({ ordering: '-created_at' }));
+    router.push('/products', undefined, { shallow: true });
+  }, [dispatch, router]);
+
+  // Remove a single category from the active tags
+  const removeCategory = useCallback((catId) => {
+    const newCats = filters.category.filter((c) => c !== catId);
+    applyFilters({ ...filters, category: newCats });
+  }, [filters, applyFilters]);
+
+  // Remove a single size from the active tags
+  const removeSize = useCallback((size) => {
+    const newSizes = filters.size.filter((s) => s !== size);
+    applyFilters({ ...filters, size: newSizes });
+  }, [filters, applyFilters]);
+
+  const clearPriceFilter = useCallback(() => {
+    applyFilters({ ...filters, min_price: '', max_price: '' });
+  }, [filters, applyFilters]);
+
+  const hasActiveFilters = filters.category.length > 0 || filters.size.length > 0 || filters.min_price || filters.max_price;
   const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'FREE'];
 
   return (
@@ -80,7 +164,7 @@ export default function ProductsPage() {
 
             <select
               value={filters.ordering}
-              onChange={(e) => handleFilterChange('ordering', e.target.value)}
+              onChange={(e) => setScalarFilter('ordering', e.target.value)}
               className="input max-w-[200px]"
             >
               <option value="-created_at">Newest First</option>
@@ -93,29 +177,29 @@ export default function ProductsPage() {
         </div>
 
         {/* Active Filter Tags */}
-        {(filters.category || filters.min_price || filters.max_price || filters.size) && (
+        {hasActiveFilters && (
           <div className="flex flex-wrap items-center gap-2 mb-6 p-4 bg-cream-50 rounded-xl border border-cream-200">
             <span className="text-sm text-secondary-600 font-medium">Active Filters:</span>
-            {filters.category && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm">
-                {categories.find(c => c.id === filters.category)?.name || 'Category'}
-                <button onClick={() => handleFilterChange('category', '')} className="hover:text-primary-900">
+            {filters.category.map((catId) => (
+              <span key={catId} className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm">
+                {categories.find(c => c.id === catId)?.name || 'Category'}
+                <button onClick={() => removeCategory(catId)} className="hover:text-primary-900">
                   <X className="w-3 h-3" />
                 </button>
               </span>
-            )}
-            {filters.size && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm">
-                Size: {filters.size}
-                <button onClick={() => handleFilterChange('size', '')} className="hover:text-primary-900">
+            ))}
+            {filters.size.map((s) => (
+              <span key={s} className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm">
+                Size: {s}
+                <button onClick={() => removeSize(s)} className="hover:text-primary-900">
                   <X className="w-3 h-3" />
                 </button>
               </span>
-            )}
+            ))}
             {(filters.min_price || filters.max_price) && (
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm">
                 Price: ৳{filters.min_price || '0'} - ৳{filters.max_price || '∞'}
-                <button onClick={() => { handleFilterChange('min_price', ''); handleFilterChange('max_price', ''); }} className="hover:text-primary-900">
+                <button onClick={clearPriceFilter} className="hover:text-primary-900">
                   <X className="w-3 h-3" />
                 </button>
               </span>
@@ -143,21 +227,19 @@ export default function ProductsPage() {
                 </button>
               </div>
 
-              {/* Category Filter */}
+              {/* Category Filter - Checkboxes for multi-select */}
               <div className="mb-6">
                 <h4 className="font-medium text-secondary-800 mb-3">Category</h4>
                 <div className="space-y-2">
                   {categories.map((category) => (
-                    <label key={category.id} className="flex items-center">
+                    <label key={category.id} className="flex items-center cursor-pointer group">
                       <input
-                        type="radio"
-                        name="category"
-                        value={category.id}
-                        checked={filters.category === category.id}
-                        onChange={(e) => handleFilterChange('category', e.target.value)}
-                        className="text-primary-600 focus:ring-primary-500"
+                        type="checkbox"
+                        checked={filters.category.includes(category.id)}
+                        onChange={() => toggleArrayFilter('category', category.id)}
+                        className="rounded text-primary-600 focus:ring-primary-500 border-gray-300"
                       />
-                      <span className="ml-2 text-secondary-700">{category.name}</span>
+                      <span className="ml-2 text-secondary-700 group-hover:text-secondary-900">{category.name}</span>
                     </label>
                   ))}
                 </div>
@@ -171,7 +253,7 @@ export default function ProductsPage() {
                     type="number"
                     placeholder="Min"
                     value={filters.min_price}
-                    onChange={(e) => handleFilterChange('min_price', e.target.value)}
+                    onChange={(e) => handlePriceChange('min_price', e.target.value)}
                     className="input text-sm py-2"
                   />
                   <span className="text-secondary-500">-</span>
@@ -179,23 +261,23 @@ export default function ProductsPage() {
                     type="number"
                     placeholder="Max"
                     value={filters.max_price}
-                    onChange={(e) => handleFilterChange('max_price', e.target.value)}
+                    onChange={(e) => handlePriceChange('max_price', e.target.value)}
                     className="input text-sm py-2"
                   />
                 </div>
               </div>
 
-              {/* Size Filter */}
+              {/* Size Filter - Multi-select toggle buttons */}
               <div className="mb-6">
                 <h4 className="font-medium text-secondary-800 mb-3">Size</h4>
                 <div className="flex flex-wrap gap-2">
                   {sizes.map((size) => (
                     <button
                       key={size}
-                      onClick={() => handleFilterChange('size', filters.size === size ? '' : size)}
-                      className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${filters.size === size
-                          ? 'bg-primary-600 text-white border-primary-600'
-                          : 'bg-white text-secondary-700 border-gray-300 hover:border-primary-600'
+                      onClick={() => toggleArrayFilter('size', size)}
+                      className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${filters.size.includes(size)
+                        ? 'bg-primary-600 text-white border-primary-600'
+                        : 'bg-white text-secondary-700 border-gray-300 hover:border-primary-600'
                         }`}
                     >
                       {size}
