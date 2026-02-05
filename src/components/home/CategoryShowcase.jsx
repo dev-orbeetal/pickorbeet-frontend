@@ -85,12 +85,12 @@ export default function CategoryShowcase({ categoryProducts }) {
                     variants={itemVariants}
                     className="group"
                   >
-                    <Link href={`/products/${product.slug}`}>
+                    <Link href={`/product/${product.slug}`}>
                       <div className="relative bg-gradient-to-b from-cream-200 to-cream-300 rounded-2xl overflow-hidden aspect-[3/4] shadow-lg hover:shadow-xl transition-shadow duration-500">
                         {/* Product Image */}
                         {product.primary_image ? (
                           <img
-                            src={product.primary_image}
+                            src={product.primary_image.startsWith('http') ? product.primary_image : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:8000'}${product.primary_image}`}
                             alt={product.name}
                             className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
                           />
