@@ -238,7 +238,7 @@ export default function HeroSection() {
           whileHover={{ scale: 1.1, opacity: 1 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => paginate(-1)}
-          className="p-3 md:p-4 bg-charcoal-900/30 backdrop-blur-md rounded-full text-gold-400/50 border border-gold-500/10 hover:bg-gold-500/10 hover:border-gold-500/40 hover:text-gold-400 transition-all duration-300 group opacity-40 hover:opacity-100"
+          className="p-3 md:p-4 bg-charcoal-900/10 backdrop-blur-sm rounded-full text-gold-400/30 border border-gold-500/5 hover:bg-gold-500/10 hover:border-gold-500/40 hover:text-gold-400 transition-all duration-300 group opacity-15 hover:opacity-90"
         >
           <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 transition-transform duration-300 group-hover:-translate-x-0.5" />
         </motion.button>
@@ -248,7 +248,7 @@ export default function HeroSection() {
           whileHover={{ scale: 1.1, opacity: 1 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => paginate(1)}
-          className="p-3 md:p-4 bg-charcoal-900/30 backdrop-blur-md rounded-full text-gold-400/50 border border-gold-500/10 hover:bg-gold-500/10 hover:border-gold-500/40 hover:text-gold-400 transition-all duration-300 group opacity-40 hover:opacity-100"
+          className="p-3 md:p-4 bg-charcoal-900/10 backdrop-blur-sm rounded-full text-gold-400/30 border border-gold-500/5 hover:bg-gold-500/10 hover:border-gold-500/40 hover:text-gold-400 transition-all duration-300 group opacity-15 hover:opacity-90"
         >
           <ChevronRight className="w-5 h-5 md:w-6 md:h-6 transition-transform duration-300 group-hover:translate-x-0.5" />
         </motion.button>

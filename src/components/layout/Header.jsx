@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ShoppingBag, User, Menu, X, Search, ChevronDown, Heart
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import SearchModal from '@/components/search/SearchModal';
 import { fetchCategories } from '@/store/slices/productsSlice';
 import { checkAuth, logout } from '@/store/slices/authSlice';
@@ -82,6 +83,7 @@ export default function Header() {
 
   const handleLogout = () => {
     dispatch(logout());
+    toast.success('You have been logged out successfully');
     router.push('/');
   };
 

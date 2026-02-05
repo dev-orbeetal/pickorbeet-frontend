@@ -108,7 +108,15 @@ export default function CheckoutPage() {
 
     setLoading(true);
     try {
-      const response = await ordersAPI.checkout(formData);
+      // Clean data - remove empty optional fields to avoid validation errors
+      const cleanData = {};
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value !== '' && value !== null && value !== undefined) {
+          cleanData[key] = value;
+        }
+      });
+      cleanData.payment_method = paymentMethod;
+      const response = await ordersAPI.checkout(cleanData);
       const order = response.data.order;
 
       if (paymentMethod === 'cod') {
