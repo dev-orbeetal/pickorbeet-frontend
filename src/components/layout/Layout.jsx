@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { motion } from 'framer-motion';
 import Header from './Header';
 import Footer from './Footer';
+import SEO from '@/components/SEO';
 import { fetchCart } from '@/store/slices/cartSlice';
 import { getProfile, checkAuth } from '@/store/slices/authSlice';
 
@@ -18,7 +19,17 @@ const mainVariants = {
   },
 };
 
-export default function Layout({ children, title = 'Zzuhana - Premium Clothing Store', description = 'Your destination for premium quality clothing. Discover the latest fashion trends with exceptional quality.' }) {
+export default function Layout({
+  children,
+  title,
+  description,
+  image,
+  type,
+  url,
+  noindex,
+  product,
+  jsonLd,
+}) {
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -33,12 +44,18 @@ export default function Layout({ children, title = 'Zzuhana - Premium Clothing S
 
   return (
     <>
+      <SEO
+        title={title}
+        description={description}
+        image={image}
+        type={type}
+        url={url}
+        noindex={noindex}
+        product={product}
+        jsonLd={jsonLd}
+      />
       <Head>
-        <title>{title}</title>
-        <meta name="description" content={description} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#cb4539" />
-        <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <div className="min-h-screen flex flex-col bg-white">

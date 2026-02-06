@@ -1,0 +1,11 @@
+# Robots.txt for Zzuhana
+User-agent: *
+Allow: /
+Disallow: /account
+Disallow: /orders
+Disallow: /profile
+Disallow: /verify-email
+Disallow: /reset-password
+Disallow: /api/
+
+Sitemap: https://zzuhana.com/sitemap.xml

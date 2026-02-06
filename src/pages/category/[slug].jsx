@@ -7,6 +7,7 @@ import { ArrowRight, Grid, List } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
 import { fetchProducts, fetchCategories } from '@/store/slices/productsSlice';
+import siteConfig, { getAbsoluteImageUrl } from '@/lib/siteConfig';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -16,7 +17,7 @@ const getImageUrl = (url) => {
   return `${API_BASE_URL}${url}`;
 };
 
-export default function CategoryPage() {
+export default function CategoryPage({ initialCategory }) {
   const router = useRouter();
   const { slug } = router.query;
   const dispatch = useDispatch();
@@ -51,7 +52,11 @@ export default function CategoryPage() {
   };
 
   return (
-    <Layout title={`${category?.name || 'Category'} - Zzuhana`}>
+    <Layout
+      title={`${category?.name || 'Category'} - Zzuhana`}
+      description={category?.tagline || `Shop ${category?.name || 'products'} at Zzuhana. Premium quality clothing and accessories.`}
+      image={category?.banner_image ? getAbsoluteImageUrl(category.banner_image) : undefined}
+    >
       {/* Hero Banner */}
       <section className="relative h-56 md:h-72 bg-gradient-to-br from-primary-700 via-primary-600 to-primary-800 overflow-hidden">
         {category?.banner_image && (
@@ -251,4 +256,22 @@ export default function CategoryPage() {
       )}
     </Layout>
   );
+}
+
+export async function getServerSideProps(context) {
+  const { slug } = context.params;
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://server.zzuhana.com/api/v1';
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/products/categories/${slug}/`, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!res.ok) return { props: { initialCategory: null } };
+
+    const category = await res.json();
+    return { props: { initialCategory: category } };
+  } catch (error) {
+    return { props: { initialCategory: null } };
+  }
 }

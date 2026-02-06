@@ -11,7 +11,10 @@ export default function AboutPage() {
   ];
 
   return (
-    <Layout title="About Us - Zzuhana">
+    <Layout
+      title="About Us - Zzuhana"
+      description="Learn about Zzuhana - your trusted destination for premium modest fashion. Our story, mission, and commitment to quality clothing."
+    >
       {/* Hero Section */}
       <section className="relative bg-gradient-to-r from-primary-600 to-primary-800 text-white py-20">
         <div className="container-custom">
@@ -69,22 +72,22 @@ export default function AboutPage() {
               </h2>
               <div className="space-y-4 text-secondary-600 leading-relaxed">
                 <p>
-                  Founded in 2019, Zzuhana started as a small boutique in Dhaka with a simple vision: 
+                  Founded in 2019, Zzuhana started as a small boutique in Dhaka with a simple vision:
                   to bring premium quality clothing to the Bangladeshi market at affordable prices.
                 </p>
                 <p>
-                  What began as a passion project has grown into one of the most trusted fashion 
-                  destinations in Bangladesh. We carefully curate our collections, ensuring every 
+                  What began as a passion project has grown into one of the most trusted fashion
+                  destinations in Bangladesh. We carefully curate our collections, ensuring every
                   piece meets our high standards for quality, comfort, and style.
                 </p>
                 <p>
-                  Today, we serve customers across all 64 districts of Bangladesh, offering fast 
-                  delivery, secure payment options, and exceptional customer service. Our commitment 
+                  Today, we serve customers across all 64 districts of Bangladesh, offering fast
+                  delivery, secure payment options, and exceptional customer service. Our commitment
                   to quality and customer satisfaction remains at the heart of everything we do.
                 </p>
               </div>
             </motion.div>
-            
+
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}

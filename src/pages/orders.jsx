@@ -73,7 +73,7 @@ export default function OrdersPage() {
   if (!isAuthenticated) return null;
 
   return (
-    <Layout title="My Orders - Zzuhana">
+    <Layout title="My Orders - Zzuhana" noindex>
       <div className="container-custom py-8 max-w-5xl">
         <AnimatePresence mode="wait">
           {selectedOrder ? (

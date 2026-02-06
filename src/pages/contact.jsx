@@ -70,7 +70,10 @@ export default function ContactPage() {
   ];
 
   return (
-    <Layout title="Contact Us - Zzuhana">
+    <Layout
+      title="Contact Us - Zzuhana"
+      description="Get in touch with Zzuhana. Visit our store, call us, or send us a message. We're here to help with your orders and inquiries."
+    >
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-16">
         <div className="container-custom text-center">

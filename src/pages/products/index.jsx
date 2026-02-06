@@ -139,7 +139,10 @@ export default function ProductsPage() {
   const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'FREE'];
 
   return (
-    <Layout title="Shop All Products - Zzuhana">
+    <Layout
+      title="Shop All Products - Zzuhana"
+      description="Browse our complete collection of premium Borkha, Hijab, Abaya, Niqab and modest fashion. Filter by category, size, and price."
+    >
       <div className="container-custom py-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">

@@ -22,7 +22,10 @@ export default function Home() {
   const hasFeaturedCategories = Array.isArray(categories) && categories.some(cat => cat.is_featured);
 
   return (
-    <Layout title="Zzuhana - Premium Clothing Store">
+    <Layout
+      title="Zzuhana - Premium Clothing Store"
+      description="Shop premium quality Borkha, Hijab, Abaya, Niqab and modest fashion at Zzuhana. Discover the latest trends with exceptional quality and fast delivery in Bangladesh."
+    >
       {/* Show Featured Banners if categories are marked as featured, otherwise show default Hero */}
       {hasFeaturedCategories ? (
         <FeaturedBanners categories={categories} />

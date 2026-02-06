@@ -105,7 +105,7 @@ export default function ProfilePage() {
   ];
 
   return (
-    <Layout title="My Account - Zzuhana">
+    <Layout title="My Account - Zzuhana" noindex>
       <div className="container-custom py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar */}
@@ -129,8 +129,8 @@ export default function ProfilePage() {
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors ${activeTab === tab.id
-                        ? 'bg-primary-50 text-primary-700'
-                        : 'text-charcoal-600 hover:bg-cream-50'
+                      ? 'bg-primary-50 text-primary-700'
+                      : 'text-charcoal-600 hover:bg-cream-50'
                       }`}
                   >
                     <tab.icon className="w-5 h-5" />

@@ -8,14 +8,16 @@ import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
 import { fetchProduct, fetchProducts, clearProduct } from '@/store/slices/productsSlice';
 import { addToCart } from '@/store/slices/cartSlice';
+import siteConfig, { getAbsoluteImageUrl } from '@/lib/siteConfig';
 
-export default function ProductDetailPage() {
+export default function ProductDetailPage({ initialProduct }) {
   const router = useRouter();
   const { slug } = router.query;
   const dispatch = useDispatch();
-  
-  const { product, products, loading } = useSelector((state) => state.products);
-  
+
+  const { product: storeProduct, products, loading } = useSelector((state) => state.products);
+  const product = storeProduct || initialProduct;
+
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
@@ -55,7 +57,24 @@ export default function ProductDetailPage() {
       });
   };
 
-  if (loading || !product) {
+  // SEO data derived from server-side fetched product
+  const seoTitle = product ? `${product.name} - Zzuhana` : 'Product - Zzuhana';
+  const seoDescription = product
+    ? (product.short_description || product.description?.replace(/<[^>]*>/g, '')?.slice(0, 160) || `Buy ${product.name} at Zzuhana. Premium quality clothing at ৳${product.price}.`)
+    : siteConfig.description;
+  const seoImage = product ? getAbsoluteImageUrl(product.primary_image) : undefined;
+  const seoProduct = product
+    ? {
+      name: product.name,
+      description: seoDescription,
+      price: product.price,
+      sku: product.sku,
+      in_stock: !product.is_out_of_stock,
+      images: product.images?.map((img) => getAbsoluteImageUrl(img.image)) || [seoImage],
+    }
+    : null;
+
+  if ((loading && !product) || !product) {
     return (
       <Layout>
         <div className="container-custom py-16">
@@ -72,14 +91,20 @@ export default function ProductDetailPage() {
     );
   }
 
-  const images = product.images?.length > 0 
-    ? product.images 
+  const images = product.images?.length > 0
+    ? product.images
     : [{ image: product.primary_image || '/images/placeholder.jpg' }];
 
   const relatedProducts = products.filter(p => p.id !== product.id).slice(0, 4);
 
   return (
-    <Layout title={`${product.name} - Zzuhana`}>
+    <Layout
+      title={seoTitle}
+      description={seoDescription}
+      image={seoImage}
+      type="product"
+      product={seoProduct}
+    >
       <div className="container-custom py-8">
         {/* Breadcrumb */}
         <nav className="text-sm text-secondary-500 mb-8">
@@ -87,8 +112,8 @@ export default function ProductDetailPage() {
             Home
           </span>
           <span className="mx-2">/</span>
-          <span 
-            className="hover:text-primary-600 cursor-pointer" 
+          <span
+            className="hover:text-primary-600 cursor-pointer"
             onClick={() => router.push(`/category/${product.category?.slug}`)}
           >
             {product.category?.name}
@@ -112,16 +137,15 @@ export default function ProductDetailPage() {
                 className="w-full h-full object-cover"
               />
             </motion.div>
-            
+
             {images.length > 1 && (
               <div className="flex space-x-3 overflow-x-auto pb-2">
                 {images.map((img, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
-                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
-                      selectedImage === index ? 'border-primary-600' : 'border-transparent'
-                    }`}
+                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-primary-600' : 'border-transparent'
+                      }`}
                   >
                     <img
                       src={img.image}
@@ -143,7 +167,7 @@ export default function ProductDetailPage() {
               <h1 className="text-3xl md:text-4xl font-display font-bold text-secondary-900 mb-4">
                 {product.name}
               </h1>
-              
+
               <div className="flex items-center space-x-4 mb-6">
                 <span className="text-3xl font-bold text-primary-600">
                   ৳{parseFloat(product.price).toLocaleString()}
@@ -197,11 +221,10 @@ export default function ProductDetailPage() {
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}
-                      className={`px-4 py-2 rounded-lg border-2 transition-colors ${
-                        selectedSize === size
-                          ? 'bg-primary-600 text-white border-primary-600'
-                          : 'bg-white text-secondary-700 border-gray-300 hover:border-primary-600'
-                      }`}
+                      className={`px-4 py-2 rounded-lg border-2 transition-colors ${selectedSize === size
+                        ? 'bg-primary-600 text-white border-primary-600'
+                        : 'bg-white text-secondary-700 border-gray-300 hover:border-primary-600'
+                        }`}
                     >
                       {size}
                     </button>
@@ -268,7 +291,7 @@ export default function ProductDetailPage() {
             {product.description && (
               <div className="mt-8">
                 <h3 className="font-semibold text-secondary-900 mb-4">Product Details</h3>
-                <div 
+                <div
                   className="text-secondary-600 prose prose-sm max-w-none"
                   dangerouslySetInnerHTML={{ __html: product.description }}
                 />
@@ -293,4 +316,29 @@ export default function ProductDetailPage() {
       </div>
     </Layout>
   );
+}
+
+/**
+ * Server-side fetch product data so that OG meta tags are present
+ * in the initial HTML response — required for social media crawlers
+ * (WhatsApp, Facebook, Twitter, LinkedIn, Telegram).
+ */
+export async function getServerSideProps(context) {
+  const { slug } = context.params;
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://server.zzuhana.com/api/v1';
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/products/${slug}/`, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!res.ok) {
+      return { props: { initialProduct: null } };
+    }
+
+    const product = await res.json();
+    return { props: { initialProduct: product } };
+  } catch (error) {
+    return { props: { initialProduct: null } };
+  }
 }
