@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
+import { storeSettingsAPI } from '@/lib/api';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -13,6 +14,13 @@ export default function ContactPage() {
     message: '',
   });
   const [loading, setLoading] = useState(false);
+  const [settings, setSettings] = useState(null);
+
+  useEffect(() => {
+    storeSettingsAPI.getPublicSettings()
+      .then((res) => setSettings(res.data))
+      .catch(() => { });
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -21,35 +29,43 @@ export default function ContactPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
+
     // Simulate form submission
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     toast.success('Message sent successfully! We\'ll get back to you soon.');
     setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
     setLoading(false);
   };
 
+  const addressLines = (settings?.contact_address || '123 Fashion Street, Gulshan, Dhaka 1212, Bangladesh')
+    .split(',').map((s) => s.trim());
+  const phoneNumbers = [settings?.contact_phone_1 || '+880 1234-567890', settings?.contact_phone_2].filter(Boolean);
+  const emails = [settings?.contact_email_1 || 'contact@zzuhana.com', settings?.contact_email_2].filter(Boolean);
+  const hoursLines = (settings?.business_hours || 'Sat - Thu: 10:00 AM - 8:00 PM\nFriday: Closed')
+    .split('\n').filter(Boolean);
+  const mapUrl = settings?.map_embed_url || 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14602.254272231177!2d90.41259!3d23.7925!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c7a0f70deb73%3A0x30c36498f90fe23!2sGulshan%2C%20Dhaka!5e0!3m2!1sen!2sbd!4v1640000000000!5m2!1sen!2sbd';
+
   const contactInfo = [
     {
       icon: MapPin,
       title: 'Visit Us',
-      details: ['123 Fashion Street', 'Gulshan, Dhaka 1212', 'Bangladesh'],
+      details: addressLines,
     },
     {
       icon: Phone,
       title: 'Call Us',
-      details: ['+880 1234-567890', '+880 1234-567891'],
+      details: phoneNumbers,
     },
     {
       icon: Mail,
       title: 'Email Us',
-      details: ['contact@zzuhana.com', 'support@zzuhana.com'],
+      details: emails,
     },
     {
       icon: Clock,
       title: 'Business Hours',
-      details: ['Sat - Thu: 10:00 AM - 8:00 PM', 'Friday: Closed'],
+      details: hoursLines,
     },
   ];
 
@@ -116,7 +132,7 @@ export default function ContactPage() {
                 <h2 className="text-2xl font-semibold text-secondary-900 mb-6">
                   Send us a Message
                 </h2>
-                
+
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
@@ -218,7 +234,7 @@ export default function ContactPage() {
       {/* Map */}
       <section className="h-96 bg-gray-200">
         <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14602.254272231177!2d90.41259!3d23.7925!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c7a0f70deb73%3A0x30c36498f90fe23!2sGulshan%2C%20Dhaka!5e0!3m2!1sen!2sbd!4v1640000000000!5m2!1sen!2sbd"
+          src={mapUrl}
           width="100%"
           height="100%"
           style={{ border: 0 }}

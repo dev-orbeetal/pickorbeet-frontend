@@ -1,6 +1,8 @@
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, ArrowRight, Heart, Crown } from 'lucide-react';
+import { storeSettingsAPI } from '@/lib/api';
 
 const footerLinks = {
   quickLinks: [
@@ -47,6 +49,18 @@ const itemVariants = {
 };
 
 export default function Footer() {
+  const [settings, setSettings] = useState(null);
+
+  useEffect(() => {
+    storeSettingsAPI.getPublicSettings()
+      .then((res) => setSettings(res.data))
+      .catch(() => { });
+  }, []);
+
+  const address = settings?.contact_address || '123 Fashion Street, Gulshan, Dhaka 1212, Bangladesh';
+  const phone = settings?.contact_phone_1 || '+880 1234-567890';
+  const email = settings?.contact_email_1 || 'contact@zzuhana.com';
+
   return (
     <footer className="bg-charcoal-950 text-cream-100 relative overflow-hidden border-t border-charcoal-800">
       {/* Background decoration */}
@@ -144,27 +158,27 @@ export default function Footer() {
                     <MapPin className="w-5 h-5 text-gold-600" />
                   </div>
                   <span className="text-cream-400 group-hover:text-cream-200 transition-colors pt-1">
-                    123 Fashion Street, Gulshan, Dhaka 1212, Bangladesh
+                    {address}
                   </span>
                 </a>
               </li>
               <li>
-                <a href="tel:+8801234567890" className="flex items-center gap-4 group">
+                <a href={`tel:${phone.replace(/[\s-]/g, '')}`} className="flex items-center gap-4 group">
                   <div className="p-2.5 bg-charcoal-800 rounded-lg group-hover:bg-gold-500/20 transition-colors duration-300 border border-charcoal-700 shadow-sm">
                     <Phone className="w-5 h-5 text-gold-600" />
                   </div>
                   <span className="text-cream-400 group-hover:text-cream-200 transition-colors">
-                    +880 1234-567890
+                    {phone}
                   </span>
                 </a>
               </li>
               <li>
-                <a href="mailto:contact@zzuhana.com" className="flex items-center gap-4 group">
+                <a href={`mailto:${email}`} className="flex items-center gap-4 group">
                   <div className="p-2.5 bg-charcoal-800 rounded-lg group-hover:bg-gold-500/20 transition-colors duration-300 border border-charcoal-700 shadow-sm">
                     <Mail className="w-5 h-5 text-gold-600" />
                   </div>
                   <span className="text-cream-400 group-hover:text-cream-200 transition-colors">
-                    contact@zzuhana.com
+                    {email}
                   </span>
                 </a>
               </li>

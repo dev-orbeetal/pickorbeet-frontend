@@ -104,4 +104,9 @@ export const paymentsAPI = {
   initiatePayment: (data) => api.post('/payments/initiate/', data),
 };
 
+// Store Settings API (public)
+export const storeSettingsAPI = {
+  getPublicSettings: () => api.get('/products/settings/public/'),
+};
+
 export default api;

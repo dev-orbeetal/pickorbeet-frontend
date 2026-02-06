@@ -1,9 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, Clock, TrendingUp, ArrowRight, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useSearch, useEscapeKey, useClickOutside } from '@/hooks';
+import { storeSettingsAPI } from '@/lib/api';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -15,15 +16,15 @@ const overlayVariants = {
 
 const modalVariants = {
   hidden: { opacity: 0, y: -20, scale: 0.95 },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
+  visible: {
+    opacity: 1,
+    y: 0,
     scale: 1,
     transition: { type: 'spring', damping: 25, stiffness: 300 }
   },
-  exit: { 
-    opacity: 0, 
-    y: -10, 
+  exit: {
+    opacity: 0,
+    y: -10,
     scale: 0.98,
     transition: { duration: 0.15 }
   },
@@ -41,6 +42,7 @@ const resultVariants = {
 export default function SearchModal({ isOpen, onClose }) {
   const router = useRouter();
   const inputRef = useRef(null);
+  const [popularSearches, setPopularSearches] = useState(['Borkha', 'Hijab', 'Abaya', 'Niqab']);
   const {
     query,
     setQuery,
@@ -51,6 +53,18 @@ export default function SearchModal({ isOpen, onClose }) {
     clearSearch,
     handleSubmit,
   } = useSearch({ debounceDelay: 300, minQueryLength: 2 });
+
+  // Fetch popular searches from store settings
+  useEffect(() => {
+    storeSettingsAPI.getPublicSettings()
+      .then((res) => {
+        const terms = res.data?.popular_searches;
+        if (terms) {
+          setPopularSearches(terms.split(',').map((s) => s.trim()).filter(Boolean));
+        }
+      })
+      .catch(() => { });
+  }, []);
 
   const modalRef = useClickOutside(() => {
     if (isOpen) onClose();
@@ -294,7 +308,7 @@ export default function SearchModal({ isOpen, onClose }) {
                       Popular Categories
                     </p>
                     <div className="flex flex-wrap gap-2 px-2">
-                      {['Borkha', 'Hijab', 'Abaya', 'Niqab'].map((term) => (
+                      {popularSearches.map((term) => (
                         <Link
                           key={term}
                           href={`/products?search=${encodeURIComponent(term)}`}
