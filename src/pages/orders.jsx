@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Package, ChevronRight, Search, Filter, ShoppingBag, Truck, CheckCircle, XCircle, Clock, ArrowLeft } from 'lucide-react';
+import { Package, ChevronRight, Search, Filter, ShoppingBag, Truck, CheckCircle, XCircle, Clock, ArrowLeft, Copy } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
 import { ordersAPI } from '@/lib/api';
@@ -96,18 +96,28 @@ export default function OrdersPage() {
                 {/* Order Header */}
                 <div className="bg-gradient-to-r from-burgundy-600 to-burgundy-800 px-6 py-5">
                   <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div>
+                    <div className="flex items-center gap-3">
                       <h2 className="text-lg font-semibold text-white">Order #{selectedOrder.order_number}</h2>
-                      <p className="text-burgundy-200 text-sm mt-0.5">
-                        Placed on {new Date(selectedOrder.created_at).toLocaleDateString('en-US', {
-                          day: 'numeric', month: 'long', year: 'numeric'
-                        })}
-                      </p>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(selectedOrder.order_number);
+                          toast.success('Order ID copied to clipboard');
+                        }}
+                        className="p-1.5 hover:bg-white/20 rounded transition-colors"
+                        title="Copy order ID"
+                      >
+                        <Copy className="w-4 h-4 text-white" />
+                      </button>
                     </div>
                     <span className={`px-4 py-1.5 rounded-full text-sm font-medium border ${statusConfig[selectedOrder.order_status]?.color || 'bg-gray-100 text-gray-800'}`}>
                       {statusConfig[selectedOrder.order_status]?.label || selectedOrder.order_status}
                     </span>
                   </div>
+                  <p className="text-burgundy-200 text-sm mt-0.5">
+                    Placed on {new Date(selectedOrder.created_at).toLocaleDateString('en-US', {
+                      day: 'numeric', month: 'long', year: 'numeric'
+                    })}
+                  </p>
                 </div>
 
                 <div className="p-6 space-y-6">
@@ -247,11 +257,10 @@ export default function OrdersPage() {
                     <button
                       key={status}
                       onClick={() => setFilterStatus(status)}
-                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors capitalize ${
-                        filterStatus === status
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors capitalize ${filterStatus === status
                           ? 'bg-burgundy-600 text-white'
                           : 'bg-white border text-charcoal-600 hover:bg-cream-50'
-                      }`}
+                        }`}
                     >
                       {status}
                     </button>
@@ -309,7 +318,20 @@ export default function OrdersPage() {
                               <StatusIcon className="w-5 h-5" />
                             </div>
                             <div>
-                              <p className="font-semibold text-charcoal-800">#{order.order_number}</p>
+                              <div className="flex items-center gap-2">
+                                <p className="font-semibold text-charcoal-800">#{order.order_number}</p>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigator.clipboard.writeText(order.order_number);
+                                    toast.success('Order ID copied to clipboard');
+                                  }}
+                                  className="p-1 hover:bg-cream-200 rounded transition-colors"
+                                  title="Copy order ID"
+                                >
+                                  <Copy className="w-3.5 h-3.5 text-charcoal-400" />
+                                </button>
+                              </div>
                               <p className="text-sm text-charcoal-500">
                                 {new Date(order.created_at).toLocaleDateString('en-US', {
                                   day: 'numeric', month: 'short', year: 'numeric'

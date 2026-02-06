@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
-import { User, Mail, Phone, MapPin, Edit2, Save, X, ShieldCheck, Calendar } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Edit2, Save, X, ShieldCheck, Calendar, Copy } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
 import { logout, getProfile } from '@/store/slices/authSlice';
@@ -86,7 +86,7 @@ export default function AccountPage() {
               </div>
               <div>
                 <h2 className="text-xl font-semibold text-white">{user?.full_name || 'User'}</h2>
-                <p className="text-burgundy-200 text-sm flex items-center gap-1.5 mt-1">
+                <p className="text-burgundy-200 text-sm flex items-center gap-2 mt-1">
                   <Mail className="w-3.5 h-3.5" />
                   {user?.email}
                 </p>
@@ -166,11 +166,23 @@ export default function AccountPage() {
                     type="email"
                     value={user?.email || ''}
                     disabled
-                    className="input bg-cream-50 text-charcoal-500 pr-10"
+                    className="input bg-cream-50 text-charcoal-500 pr-20"
                   />
-                  {user?.is_verified && (
-                    <ShieldCheck className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
-                  )}
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(user?.email || '');
+                        toast.success('Email copied to clipboard');
+                      }}
+                      className="p-1.5 hover:bg-cream-200 rounded transition-colors"
+                      title="Copy email"
+                    >
+                      <Copy className="w-3.5 h-3.5 text-charcoal-400" />
+                    </button>
+                    {user?.is_verified && (
+                      <ShieldCheck className="w-4 h-4 text-green-500" />
+                    )}
+                  </div>
                 </div>
               </div>
               <div>
