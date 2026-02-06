@@ -133,7 +133,7 @@ export default function VerifyEmailPage() {
             <p className="text-charcoal-600 mb-6">Please register first to verify your email.</p>
             <Link
               href="/register"
-              className="inline-block py-3 px-6 bg-burgundy-600 text-white font-semibold rounded-xl hover:bg-burgundy-700 transition-colors"
+              className="inline-block py-3 px-6 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition-colors"
             >
               Register Now
             </Link>
@@ -176,8 +176,8 @@ export default function VerifyEmailPage() {
             ) : (
               <>
                 <div className="text-center mb-8">
-                  <div className="w-16 h-16 bg-burgundy-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Mail className="w-8 h-8 text-burgundy-600" />
+                  <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Mail className="w-8 h-8 text-primary-600" />
                   </div>
                   <h1 className="text-2xl font-display font-bold text-charcoal-800 mb-2">
                     Verify Your Email
@@ -206,8 +206,8 @@ export default function VerifyEmailPage() {
                         onPaste={handlePaste}
                         disabled={loading}
                         className={`w-12 h-14 text-center text-2xl font-bold rounded-xl border-2 transition-all focus:outline-none focus:ring-2 focus:ring-gold-500 ${error
-                            ? 'border-red-300 bg-red-50'
-                            : 'border-cream-200 bg-cream-50 focus:border-burgundy-500'
+                          ? 'border-red-300 bg-red-50'
+                          : 'border-cream-200 bg-cream-50 focus:border-primary-500'
                           } disabled:opacity-50`}
                       />
                     ))}
@@ -220,7 +220,7 @@ export default function VerifyEmailPage() {
                 <button
                   onClick={() => verifyOtp(otp.join(''))}
                   disabled={loading || otp.some(d => !d)}
-                  className="w-full py-3 px-4 bg-gradient-to-r from-burgundy-600 to-burgundy-700 hover:from-burgundy-700 hover:to-burgundy-800 text-white font-semibold rounded-xl shadow-lg shadow-burgundy-500/25 hover:shadow-burgundy-500/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                  className="w-full py-3 px-4 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold rounded-xl shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 >
                   {loading ? (
                     <>
@@ -239,7 +239,7 @@ export default function VerifyEmailPage() {
                   <button
                     onClick={handleResend}
                     disabled={resending || countdown > 0}
-                    className="inline-flex items-center text-burgundy-600 font-semibold hover:text-burgundy-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="inline-flex items-center text-primary-600 font-semibold hover:text-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {resending ? (
                       <>
@@ -262,7 +262,7 @@ export default function VerifyEmailPage() {
                     href="/register"
                     className="text-sm text-charcoal-500 hover:text-charcoal-700"
                   >
-                    Wrong email? <span className="text-burgundy-600 font-semibold">Go back</span>
+                    Wrong email? <span className="text-primary-600 font-semibold">Go back</span>
                   </Link>
                 </div>
               </>

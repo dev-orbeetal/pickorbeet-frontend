@@ -324,15 +324,15 @@ export default function RegisterPage() {
                   type="checkbox"
                   checked={agreeTerms}
                   onChange={(e) => setAgreeTerms(e.target.checked)}
-                  className="mt-0.5 w-4 h-4 text-burgundy-600 bg-cream-50 border-cream-300 rounded focus:ring-gold-500"
+                  className="mt-0.5 w-4 h-4 text-primary-600 bg-cream-50 border-cream-300 rounded focus:ring-gold-500"
                 />
                 <span className="ml-2.5 text-sm text-charcoal-600">
                   I agree to the{' '}
-                  <Link href="/terms" className="text-burgundy-600 hover:underline font-medium">
+                  <Link href="/terms" className="text-primary-600 hover:underline font-medium">
                     Terms of Service
                   </Link>{' '}
                   and{' '}
-                  <Link href="/privacy" className="text-burgundy-600 hover:underline font-medium">
+                  <Link href="/privacy" className="text-primary-600 hover:underline font-medium">
                     Privacy Policy
                   </Link>
                 </span>
@@ -341,7 +341,7 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={loading || !agreeTerms}
-                className="w-full py-3 px-4 bg-gradient-to-r from-burgundy-600 to-burgundy-700 hover:from-burgundy-700 hover:to-burgundy-800 text-white font-semibold rounded-xl shadow-lg shadow-burgundy-500/25 hover:shadow-burgundy-500/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center mt-6"
+                className="w-full py-3 px-4 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold rounded-xl shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center mt-6"
               >
                 {loading ? (
                   <>
@@ -359,7 +359,7 @@ export default function RegisterPage() {
                 Already have an account?{' '}
                 <Link
                   href="/login"
-                  className="text-burgundy-600 font-semibold hover:text-burgundy-700 transition-colors"
+                  className="text-primary-600 font-semibold hover:text-primary-700 transition-colors"
                 >
                   Sign in
                 </Link>

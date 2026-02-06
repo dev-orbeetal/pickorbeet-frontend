@@ -77,7 +77,7 @@ export default function AccountPage() {
           className="bg-white rounded-2xl shadow-sm border overflow-hidden"
         >
           {/* Header Banner */}
-          <div className="bg-gradient-to-r from-burgundy-600 to-burgundy-800 px-6 py-8">
+          <div className="bg-gradient-to-r from-primary-600 to-primary-800 px-6 py-8">
             <div className="flex items-center gap-5">
               <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/30">
                 <span className="text-2xl font-bold text-white">
@@ -86,12 +86,12 @@ export default function AccountPage() {
               </div>
               <div>
                 <h2 className="text-xl font-semibold text-white">{user?.full_name || 'User'}</h2>
-                <p className="text-burgundy-200 text-sm flex items-center gap-2 mt-1">
+                <p className="text-primary-200 text-sm flex items-center gap-2 mt-1">
                   <Mail className="w-3.5 h-3.5" />
                   {user?.email}
                 </p>
                 {user?.date_joined && (
-                  <p className="text-burgundy-200 text-xs flex items-center gap-1.5 mt-1">
+                  <p className="text-primary-200 text-xs flex items-center gap-1.5 mt-1">
                     <Calendar className="w-3 h-3" />
                     Member since {new Date(user.date_joined).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                   </p>
@@ -104,13 +104,13 @@ export default function AccountPage() {
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-charcoal-800 flex items-center gap-2">
-                <User className="w-5 h-5 text-burgundy-600" />
+                <User className="w-5 h-5 text-primary-600" />
                 Personal Information
               </h3>
               {!editing ? (
                 <button
                   onClick={() => setEditing(true)}
-                  className="flex items-center gap-2 px-4 py-2 text-burgundy-600 hover:bg-burgundy-50 rounded-lg transition-colors text-sm font-medium"
+                  className="flex items-center gap-2 px-4 py-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors text-sm font-medium"
                 >
                   <Edit2 className="w-4 h-4" />
                   Edit Profile
@@ -127,7 +127,7 @@ export default function AccountPage() {
                   <button
                     onClick={handleUpdate}
                     disabled={loading}
-                    className="flex items-center gap-2 px-4 py-2 bg-burgundy-600 text-white rounded-lg hover:bg-burgundy-700 disabled:opacity-50 transition-colors text-sm font-medium"
+                    className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 transition-colors text-sm font-medium"
                   >
                     <Save className="w-4 h-4" />
                     {loading ? 'Saving...' : 'Save Changes'}
@@ -240,10 +240,10 @@ export default function AccountPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
             onClick={() => router.push('/orders')}
-            className="bg-white rounded-xl shadow-sm border p-5 hover:border-burgundy-300 transition-colors text-left group"
+            className="bg-white rounded-xl shadow-sm border p-5 hover:border-primary-300 transition-colors text-left group"
           >
-            <div className="w-10 h-10 bg-burgundy-50 rounded-lg flex items-center justify-center mb-3 group-hover:bg-burgundy-100 transition-colors">
-              <MapPin className="w-5 h-5 text-burgundy-600" />
+            <div className="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center mb-3 group-hover:bg-primary-100 transition-colors">
+              <MapPin className="w-5 h-5 text-primary-600" />
             </div>
             <h3 className="font-medium text-charcoal-800">My Orders</h3>
             <p className="text-sm text-charcoal-500 mt-1">View your order history</p>
@@ -254,10 +254,10 @@ export default function AccountPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
             onClick={() => router.push('/forgot-password')}
-            className="bg-white rounded-xl shadow-sm border p-5 hover:border-burgundy-300 transition-colors text-left group"
+            className="bg-white rounded-xl shadow-sm border p-5 hover:border-primary-300 transition-colors text-left group"
           >
-            <div className="w-10 h-10 bg-burgundy-50 rounded-lg flex items-center justify-center mb-3 group-hover:bg-burgundy-100 transition-colors">
-              <ShieldCheck className="w-5 h-5 text-burgundy-600" />
+            <div className="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center mb-3 group-hover:bg-primary-100 transition-colors">
+              <ShieldCheck className="w-5 h-5 text-primary-600" />
             </div>
             <h3 className="font-medium text-charcoal-800">Change Password</h3>
             <p className="text-sm text-charcoal-500 mt-1">Update your password</p>

@@ -190,13 +190,13 @@ export default function LoginPage() {
                 <label className="flex items-center cursor-pointer">
                   <input
                     type="checkbox"
-                    className="w-4 h-4 text-burgundy-600 bg-cream-50 border-cream-300 rounded focus:ring-gold-500"
+                    className="w-4 h-4 text-primary-600 bg-cream-50 border-cream-300 rounded focus:ring-gold-500"
                   />
                   <span className="ml-2 text-sm text-charcoal-600">Remember me</span>
                 </label>
                 <Link
                   href="/forgot-password"
-                  className="text-sm text-burgundy-600 hover:text-burgundy-700 font-medium transition-colors"
+                  className="text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
                 >
                   Forgot password?
                 </Link>
@@ -205,7 +205,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 px-4 bg-gradient-to-r from-burgundy-600 to-burgundy-700 hover:from-burgundy-700 hover:to-burgundy-800 text-white font-semibold rounded-xl shadow-lg shadow-burgundy-500/25 hover:shadow-burgundy-500/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                className="w-full py-3 px-4 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold rounded-xl shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
                 {loading ? (
                   <>
@@ -223,7 +223,7 @@ export default function LoginPage() {
                 Don't have an account?{' '}
                 <Link
                   href="/register"
-                  className="text-burgundy-600 font-semibold hover:text-burgundy-700 transition-colors"
+                  className="text-primary-600 font-semibold hover:text-primary-700 transition-colors"
                 >
                   Sign up
                 </Link>
@@ -233,9 +233,9 @@ export default function LoginPage() {
 
           <p className="mt-6 text-center text-xs text-charcoal-500">
             By signing in, you agree to our{' '}
-            <Link href="/terms" className="text-burgundy-600 hover:underline">Terms of Service</Link>
+            <Link href="/terms" className="text-primary-600 hover:underline">Terms of Service</Link>
             {' '}and{' '}
-            <Link href="/privacy" className="text-burgundy-600 hover:underline">Privacy Policy</Link>
+            <Link href="/privacy" className="text-primary-600 hover:underline">Privacy Policy</Link>
           </p>
         </motion.div>
       </div>

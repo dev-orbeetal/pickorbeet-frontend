@@ -53,7 +53,7 @@ export default function CategoryPage() {
   return (
     <Layout title={`${category?.name || 'Category'} - Zzuhana`}>
       {/* Hero Banner */}
-      <section className="relative h-56 md:h-72 bg-gradient-to-br from-burgundy-700 via-burgundy-600 to-burgundy-800 overflow-hidden">
+      <section className="relative h-56 md:h-72 bg-gradient-to-br from-primary-700 via-primary-600 to-primary-800 overflow-hidden">
         {category?.banner_image && (
           <div className="absolute inset-0">
             <img
@@ -63,7 +63,7 @@ export default function CategoryPage() {
             />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-burgundy-900/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-primary-900/50 to-transparent" />
         <div className="container-custom h-full flex items-center relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -143,7 +143,7 @@ export default function CategoryPage() {
             <div className="text-center mt-10">
               <button
                 onClick={handleShowAll}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-burgundy-600 hover:bg-burgundy-700 text-white rounded-xl font-medium transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-colors"
               >
                 <Grid className="w-4 h-4" />
                 View All Products in {category.name}
@@ -170,8 +170,8 @@ export default function CategoryPage() {
                   dispatch(fetchProducts({ category_slug: slug }));
                 }}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeSubcategory === 'all'
-                    ? 'bg-burgundy-600 text-white'
-                    : 'bg-white border border-charcoal-200 text-charcoal-700 hover:border-gold-500'
+                  ? 'bg-primary-600 text-white'
+                  : 'bg-white border border-charcoal-200 text-charcoal-700 hover:border-gold-500'
                   }`}
               >
                 All
@@ -181,8 +181,8 @@ export default function CategoryPage() {
                   key={sub.id}
                   onClick={() => handleSubcategoryFilter(sub.slug)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeSubcategory === sub.slug
-                      ? 'bg-burgundy-600 text-white'
-                      : 'bg-white border border-charcoal-200 text-charcoal-700 hover:border-gold-500'
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-white border border-charcoal-200 text-charcoal-700 hover:border-gold-500'
                     }`}
                 >
                   {sub.name}
@@ -240,7 +240,7 @@ export default function CategoryPage() {
                 </p>
                 <button
                   onClick={() => router.push('/products')}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-burgundy-600 hover:bg-burgundy-700 text-white rounded-xl font-medium transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-colors"
                 >
                   Browse All Products
                 </button>

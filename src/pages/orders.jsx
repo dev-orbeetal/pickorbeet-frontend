@@ -86,7 +86,7 @@ export default function OrdersPage() {
               {/* Order Detail View */}
               <button
                 onClick={() => setSelectedOrder(null)}
-                className="flex items-center gap-2 text-charcoal-600 hover:text-burgundy-600 mb-6 transition-colors"
+                className="flex items-center gap-2 text-charcoal-600 hover:text-primary-600 mb-6 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back to Orders
@@ -94,7 +94,7 @@ export default function OrdersPage() {
 
               <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
                 {/* Order Header */}
-                <div className="bg-gradient-to-r from-burgundy-600 to-burgundy-800 px-6 py-5">
+                <div className="bg-gradient-to-r from-primary-600 to-primary-800 px-6 py-5">
                   <div className="flex flex-wrap items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
                       <h2 className="text-lg font-semibold text-white">Order #{selectedOrder.order_number}</h2>
@@ -113,7 +113,7 @@ export default function OrdersPage() {
                       {statusConfig[selectedOrder.order_status]?.label || selectedOrder.order_status}
                     </span>
                   </div>
-                  <p className="text-burgundy-200 text-sm mt-0.5">
+                  <p className="text-primary-200 text-sm mt-0.5">
                     Placed on {new Date(selectedOrder.created_at).toLocaleDateString('en-US', {
                       day: 'numeric', month: 'long', year: 'numeric'
                     })}
@@ -135,7 +135,7 @@ export default function OrdersPage() {
                               <span>Qty: {item.quantity}</span>
                             </div>
                           </div>
-                          <p className="font-semibold text-burgundy-600">
+                          <p className="font-semibold text-primary-600">
                             ৳{parseFloat(item.total_price || item.unit_price * item.quantity).toLocaleString()}
                           </p>
                         </div>
@@ -176,7 +176,7 @@ export default function OrdersPage() {
                         )}
                         <div className="flex justify-between font-semibold text-charcoal-800 border-t pt-2 mt-2">
                           <span>Total</span>
-                          <span className="text-burgundy-600">৳{parseFloat(selectedOrder.total).toLocaleString()}</span>
+                          <span className="text-primary-600">৳{parseFloat(selectedOrder.total).toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between text-charcoal-500 pt-1">
                           <span>Payment</span>
@@ -198,7 +198,7 @@ export default function OrdersPage() {
                         {selectedOrder.status_history.map((entry, i) => (
                           <div key={entry.id} className="flex gap-3">
                             <div className="flex flex-col items-center">
-                              <div className={`w-3 h-3 rounded-full ${i === 0 ? 'bg-burgundy-500' : 'bg-charcoal-300'}`} />
+                              <div className={`w-3 h-3 rounded-full ${i === 0 ? 'bg-primary-500' : 'bg-charcoal-300'}`} />
                               {i < selectedOrder.status_history.length - 1 && <div className="w-0.5 h-full bg-charcoal-200 mt-1" />}
                             </div>
                             <div className="pb-4">
@@ -234,7 +234,7 @@ export default function OrdersPage() {
                 <h1 className="text-3xl font-display font-bold text-charcoal-900">My Orders</h1>
                 <button
                   onClick={() => router.push('/account')}
-                  className="text-sm text-burgundy-600 hover:text-burgundy-700 font-medium"
+                  className="text-sm text-primary-600 hover:text-primary-700 font-medium"
                 >
                   Back to Account
                 </button>
@@ -258,8 +258,8 @@ export default function OrdersPage() {
                       key={status}
                       onClick={() => setFilterStatus(status)}
                       className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors capitalize ${filterStatus === status
-                          ? 'bg-burgundy-600 text-white'
-                          : 'bg-white border text-charcoal-600 hover:bg-cream-50'
+                        ? 'bg-primary-600 text-white'
+                        : 'bg-white border text-charcoal-600 hover:bg-cream-50'
                         }`}
                     >
                       {status}
@@ -310,7 +310,7 @@ export default function OrdersPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 }}
                         onClick={() => fetchOrderDetail(order.id)}
-                        className="w-full bg-white rounded-xl border p-5 hover:border-burgundy-300 hover:shadow-sm transition-all text-left group"
+                        className="w-full bg-white rounded-xl border p-5 hover:border-primary-300 hover:shadow-sm transition-all text-left group"
                       >
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div className="flex items-center gap-3">
@@ -342,13 +342,13 @@ export default function OrdersPage() {
 
                           <div className="flex items-center gap-4">
                             <div className="text-right">
-                              <p className="font-semibold text-burgundy-600">৳{parseFloat(order.total).toLocaleString()}</p>
+                              <p className="font-semibold text-primary-600">৳{parseFloat(order.total).toLocaleString()}</p>
                               <p className="text-xs text-charcoal-500">{order.item_count} item(s)</p>
                             </div>
                             <span className={`px-3 py-1 rounded-full text-xs font-medium border ${config.color}`}>
                               {config.label}
                             </span>
-                            <ChevronRight className="w-5 h-5 text-charcoal-400 group-hover:text-burgundy-600 transition-colors" />
+                            <ChevronRight className="w-5 h-5 text-charcoal-400 group-hover:text-primary-600 transition-colors" />
                           </div>
                         </div>
                       </motion.button>

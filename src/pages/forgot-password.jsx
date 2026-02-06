@@ -13,7 +13,7 @@ export default function ForgotPasswordPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!email) {
       toast.error('Please enter your email address');
       return;
@@ -47,8 +47,8 @@ export default function ForgotPasswordPage() {
               {sent ? 'Check Your Email' : 'Forgot Password'}
             </h1>
             <p className="mt-2 text-charcoal-600">
-              {sent 
-                ? 'We sent you a password reset link' 
+              {sent
+                ? 'We sent you a password reset link'
                 : 'Enter your email and we\'ll send you a reset link'}
             </p>
           </div>
@@ -67,7 +67,7 @@ export default function ForgotPasswordPage() {
                 </p>
                 <button
                   onClick={() => setSent(false)}
-                  className="text-burgundy-600 font-semibold hover:text-burgundy-700 transition-colors"
+                  className="text-primary-600 font-semibold hover:text-primary-700 transition-colors"
                 >
                   Try a different email
                 </button>
@@ -94,7 +94,7 @@ export default function ForgotPasswordPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 px-4 bg-gradient-to-r from-burgundy-600 to-burgundy-700 hover:from-burgundy-700 hover:to-burgundy-800 text-white font-semibold rounded-xl shadow-lg shadow-burgundy-500/25 hover:shadow-burgundy-500/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                  className="w-full py-3 px-4 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold rounded-xl shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 >
                   {loading ? (
                     <>
@@ -111,7 +111,7 @@ export default function ForgotPasswordPage() {
             <div className="mt-6 text-center">
               <Link
                 href="/login"
-                className="inline-flex items-center text-burgundy-600 font-semibold hover:text-burgundy-700 transition-colors"
+                className="inline-flex items-center text-primary-600 font-semibold hover:text-primary-700 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Login

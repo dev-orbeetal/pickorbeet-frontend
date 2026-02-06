@@ -12,7 +12,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const dispatch = useDispatch();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
-  
+
   const [activeTab, setActiveTab] = useState('profile');
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -113,7 +113,7 @@ export default function ProfilePage() {
             <div className="bg-white rounded-2xl shadow-sm border p-6">
               {/* User Info */}
               <div className="text-center mb-6">
-                <div className="w-20 h-20 bg-gradient-to-br from-burgundy-500 to-burgundy-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-2xl font-bold text-white">
                     {user?.first_name?.[0]}{user?.last_name?.[0]}
                   </span>
@@ -128,11 +128,10 @@ export default function ProfilePage() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors ${
-                      activeTab === tab.id
-                        ? 'bg-burgundy-50 text-burgundy-700'
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors ${activeTab === tab.id
+                        ? 'bg-primary-50 text-primary-700'
                         : 'text-charcoal-600 hover:bg-cream-50'
-                    }`}
+                      }`}
                   >
                     <tab.icon className="w-5 h-5" />
                     {tab.label}
@@ -165,7 +164,7 @@ export default function ProfilePage() {
                     {!editing ? (
                       <button
                         onClick={() => setEditing(true)}
-                        className="flex items-center gap-2 text-burgundy-600 hover:text-burgundy-700"
+                        className="flex items-center gap-2 text-primary-600 hover:text-primary-700"
                       >
                         <Edit2 className="w-4 h-4" />
                         Edit
@@ -181,7 +180,7 @@ export default function ProfilePage() {
                         <button
                           onClick={handleUpdate}
                           disabled={loading}
-                          className="flex items-center gap-2 px-4 py-2 bg-burgundy-600 text-white rounded-lg hover:bg-burgundy-700 disabled:opacity-50"
+                          className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50"
                         >
                           <Save className="w-4 h-4" />
                           Save
@@ -268,7 +267,7 @@ export default function ProfilePage() {
               {activeTab === 'orders' && (
                 <div>
                   <h2 className="text-xl font-semibold text-charcoal-800 mb-6">My Orders</h2>
-                  
+
                   {ordersLoading ? (
                     <div className="space-y-4">
                       {[1, 2, 3].map((i) => (
@@ -292,7 +291,7 @@ export default function ProfilePage() {
                   ) : (
                     <div className="space-y-4">
                       {orders.map((order) => (
-                        <div key={order.id} className="border rounded-xl p-4 hover:border-burgundy-200 transition-colors">
+                        <div key={order.id} className="border rounded-xl p-4 hover:border-primary-200 transition-colors">
                           <div className="flex flex-wrap items-center justify-between gap-4 mb-3">
                             <div>
                               <span className="font-semibold text-charcoal-800">#{order.order_number}</span>
@@ -306,7 +305,7 @@ export default function ProfilePage() {
                           </div>
                           <div className="flex flex-wrap items-center justify-between gap-4">
                             <span className="text-charcoal-600">{order.item_count} item(s)</span>
-                            <span className="font-semibold text-burgundy-600">৳{parseFloat(order.total).toLocaleString()}</span>
+                            <span className="font-semibold text-primary-600">৳{parseFloat(order.total).toLocaleString()}</span>
                           </div>
                         </div>
                       ))}
@@ -319,7 +318,7 @@ export default function ProfilePage() {
               {activeTab === 'settings' && (
                 <div>
                   <h2 className="text-xl font-semibold text-charcoal-800 mb-6">Account Settings</h2>
-                  
+
                   <div className="space-y-6">
                     <div className="p-4 border rounded-xl">
                       <h3 className="font-medium text-charcoal-800 mb-2">Change Password</h3>

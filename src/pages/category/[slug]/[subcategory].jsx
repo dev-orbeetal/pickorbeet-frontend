@@ -20,7 +20,7 @@ export default function SubcategoryPage() {
   const router = useRouter();
   const { slug, subcategory } = router.query;
   const dispatch = useDispatch();
-  
+
   const { products, categories, loading } = useSelector((state) => state.products);
   const category = categories.find(c => c.slug === slug);
   const subcategoryData = category?.subcategories?.find(s => s.slug === subcategory);
@@ -38,7 +38,7 @@ export default function SubcategoryPage() {
   return (
     <Layout title={`${subcategoryData?.name || 'Subcategory'} - ${category?.name || 'Category'} - Zzuhana`}>
       {/* Hero Banner */}
-      <section className="relative h-48 md:h-64 bg-gradient-to-br from-burgundy-700 via-burgundy-600 to-burgundy-800 overflow-hidden">
+      <section className="relative h-48 md:h-64 bg-gradient-to-br from-primary-700 via-primary-600 to-primary-800 overflow-hidden">
         {subcategoryData?.image && (
           <div className="absolute inset-0">
             <img
@@ -48,7 +48,7 @@ export default function SubcategoryPage() {
             />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-burgundy-900/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-primary-900/50 to-transparent" />
         <div className="container-custom h-full flex items-center relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -92,11 +92,10 @@ export default function SubcategoryPage() {
                 <Link
                   key={sub.id}
                   href={`/category/${slug}/${sub.slug}`}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    sub.slug === subcategory
-                      ? 'bg-burgundy-600 text-white'
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${sub.slug === subcategory
+                      ? 'bg-primary-600 text-white'
                       : 'bg-white border border-charcoal-200 text-charcoal-700 hover:border-gold-500'
-                  }`}
+                    }`}
                 >
                   {sub.name}
                 </Link>
@@ -152,7 +151,7 @@ export default function SubcategoryPage() {
               </p>
               <Link
                 href={`/category/${slug}`}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-burgundy-600 hover:bg-burgundy-700 text-white rounded-xl font-medium transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-colors"
               >
                 Browse {category?.name || 'Category'}
               </Link>

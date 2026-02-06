@@ -10,7 +10,7 @@ import { authAPI } from '@/lib/api';
 export default function ResetPasswordPage() {
   const router = useRouter();
   const { token } = router.query;
-  
+
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -45,7 +45,7 @@ export default function ResetPasswordPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!token) {
       toast.error('Invalid reset link');
       return;
@@ -63,7 +63,7 @@ export default function ResetPasswordPage() {
 
     setLoading(true);
     setError('');
-    
+
     try {
       await authAPI.resetPassword({
         token,
@@ -91,7 +91,7 @@ export default function ResetPasswordPage() {
             <p className="text-charcoal-600 mb-6">This password reset link is invalid or has expired.</p>
             <Link
               href="/forgot-password"
-              className="inline-block py-3 px-6 bg-burgundy-600 text-white font-semibold rounded-xl hover:bg-burgundy-700 transition-colors"
+              className="inline-block py-3 px-6 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition-colors"
             >
               Request New Link
             </Link>
@@ -117,8 +117,8 @@ export default function ResetPasswordPage() {
               {success ? 'Password Reset!' : 'Create New Password'}
             </h1>
             <p className="mt-2 text-charcoal-600">
-              {success 
-                ? 'Your password has been reset successfully' 
+              {success
+                ? 'Your password has been reset successfully'
                 : 'Enter your new password below'}
             </p>
           </div>
@@ -134,7 +134,7 @@ export default function ResetPasswordPage() {
                 </p>
                 <Link
                   href="/login"
-                  className="inline-block w-full py-3 px-4 bg-gradient-to-r from-burgundy-600 to-burgundy-700 hover:from-burgundy-700 hover:to-burgundy-800 text-white font-semibold rounded-xl text-center transition-all"
+                  className="inline-block w-full py-3 px-4 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold rounded-xl text-center transition-all"
                 >
                   Sign In
                 </Link>
@@ -210,7 +210,7 @@ export default function ResetPasswordPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 px-4 bg-gradient-to-r from-burgundy-600 to-burgundy-700 hover:from-burgundy-700 hover:to-burgundy-800 text-white font-semibold rounded-xl shadow-lg shadow-burgundy-500/25 hover:shadow-burgundy-500/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                  className="w-full py-3 px-4 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold rounded-xl shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 >
                   {loading ? (
                     <>
