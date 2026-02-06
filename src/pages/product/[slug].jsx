@@ -62,7 +62,8 @@ export default function ProductDetailPage({ initialProduct }) {
   const seoDescription = product
     ? (product.short_description || product.description?.replace(/<[^>]*>/g, '')?.slice(0, 160) || `Buy ${product.name} at Zzuhana. Premium quality clothing at ৳${product.price}.`)
     : siteConfig.description;
-  const seoImage = product ? getAbsoluteImageUrl(product.primary_image) : undefined;
+  const productImage = product?.primary_image || product?.images?.[0]?.image || null;
+  const seoImage = product ? getAbsoluteImageUrl(productImage) : undefined;
   const seoProduct = product
     ? {
       name: product.name,
