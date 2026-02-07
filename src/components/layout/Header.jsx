@@ -8,8 +8,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import SearchModal from '@/components/search/SearchModal';
-import { fetchCategories } from '@/store/slices/productsSlice';
-import { checkAuth, logout } from '@/store/slices/authSlice';
+import { logout } from '@/store/slices/authSlice';
 
 const navLinkVariants = {
   hover: { y: -2 },
@@ -70,16 +69,13 @@ export default function Header() {
   const { categories } = useSelector((state) => state.products);
 
   useEffect(() => {
-    dispatch(fetchCategories());
-    dispatch(checkAuth());
-
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [dispatch]);
+  }, []);
 
   const handleLogout = () => {
     dispatch(logout());

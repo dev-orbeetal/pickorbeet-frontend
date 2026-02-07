@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Filter, X, ChevronDown } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
-import { fetchProducts, fetchCategories } from '@/store/slices/productsSlice';
+import { fetchProducts } from '@/store/slices/productsSlice';
 
 // Build query params object from filters, skipping empty values
 function buildQuery(filters) {
@@ -46,10 +46,7 @@ export default function ProductsPage() {
   const [initialized, setInitialized] = useState(false);
   const priceTimerRef = useRef(null);
 
-  // Initialize filters from URL on mount and fetch categories
-  useEffect(() => {
-    dispatch(fetchCategories());
-  }, [dispatch]);
+  // Categories are fetched globally in _app.jsx
 
   // Sync filters from URL on first load and on browser back/forward
   useEffect(() => {

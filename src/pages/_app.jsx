@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter } from 'next/router';
 import store from '@/store/store';
 import { getProfile, checkAuth } from '@/store/slices/authSlice';
+import { fetchCategories } from '@/store/slices/productsSlice';
 import '@/styles/globals.css';
 
 const pageVariants = {
@@ -30,10 +31,13 @@ const pageVariants = {
   },
 };
 
-function AuthHydrator({ children }) {
+function AppHydrator({ children }) {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    // Fetch categories globally (needed by Header on all pages)
+    dispatch(fetchCategories());
+
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('access_token');
       if (token) {
@@ -51,7 +55,7 @@ export default function App({ Component, pageProps }) {
 
   return (
     <Provider store={store}>
-      <AuthHydrator>
+      <AppHydrator>
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={router.pathname}
@@ -102,7 +106,7 @@ export default function App({ Component, pageProps }) {
             },
           }}
         />
-      </AuthHydrator>
+      </AppHydrator>
     </Provider>
   );
 }

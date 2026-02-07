@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { ArrowRight, Grid, List } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
-import { fetchProducts, fetchCategories } from '@/store/slices/productsSlice';
+import { fetchProducts } from '@/store/slices/productsSlice';
 import siteConfig, { getAbsoluteImageUrl } from '@/lib/siteConfig';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -27,9 +27,7 @@ export default function CategoryPage({ initialCategory }) {
   const category = categories.find(c => c.slug === slug);
   const hasSubcategories = category?.subcategories?.length > 0;
 
-  useEffect(() => {
-    dispatch(fetchCategories());
-  }, [dispatch]);
+  // Categories are fetched globally in _app.jsx
 
   useEffect(() => {
     if (slug) {

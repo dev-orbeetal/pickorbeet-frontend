@@ -8,6 +8,9 @@ const initialState = {
   featuredProducts: [],
   categoryProducts: [],
   loading: false,
+  categoriesLoading: true,
+  featuredLoading: true,
+  categoryProductsLoading: true,
   error: null,
   pagination: {
     count: 0,
@@ -90,10 +93,19 @@ const productsSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // Fetch Categories
+      .addCase(fetchCategories.pending, (state) => {
+        if (state.categories.length === 0) {
+          state.categoriesLoading = true;
+        }
+      })
       .addCase(fetchCategories.fulfilled, (state, action) => {
-        // Handle paginated response - extract results if present
         const categoriesData = action.payload.results || action.payload;
         state.categories = Array.isArray(categoriesData) ? categoriesData : [];
+        state.categoriesLoading = false;
+      })
+      .addCase(fetchCategories.rejected, (state, action) => {
+        state.categoriesLoading = false;
+        state.error = action.payload;
       })
       // Fetch Products
       .addCase(fetchProducts.pending, (state) => {
@@ -125,16 +137,34 @@ const productsSlice = createSlice({
         state.error = action.payload;
       })
       // Fetch Featured Products
+      .addCase(fetchFeaturedProducts.pending, (state) => {
+        if (state.featuredProducts.length === 0) {
+          state.featuredLoading = true;
+        }
+      })
       .addCase(fetchFeaturedProducts.fulfilled, (state, action) => {
-        // Handle paginated response - extract results if present
         const productsData = action.payload.results || action.payload;
         state.featuredProducts = Array.isArray(productsData) ? productsData : [];
+        state.featuredLoading = false;
+      })
+      .addCase(fetchFeaturedProducts.rejected, (state, action) => {
+        state.featuredLoading = false;
+        state.error = action.payload;
       })
       // Fetch Products by Category
+      .addCase(fetchProductsByCategory.pending, (state) => {
+        if (state.categoryProducts.length === 0) {
+          state.categoryProductsLoading = true;
+        }
+      })
       .addCase(fetchProductsByCategory.fulfilled, (state, action) => {
-        // Handle paginated response - extract results if present
         const categoryData = action.payload.results || action.payload;
         state.categoryProducts = Array.isArray(categoryData) ? categoryData : [];
+        state.categoryProductsLoading = false;
+      })
+      .addCase(fetchProductsByCategory.rejected, (state, action) => {
+        state.categoryProductsLoading = false;
+        state.error = action.payload;
       });
   },
 });

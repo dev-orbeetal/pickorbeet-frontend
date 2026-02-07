@@ -8,6 +8,24 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: true,
+  timeout: 15000,
+});
+
+// Retry logic for GET requests (handles cold starts)
+api.interceptors.response.use(null, async (error) => {
+  const config = error.config;
+  if (!config) return Promise.reject(error);
+  config._retryCount = config._retryCount || 0;
+  const shouldRetry =
+    config.method === 'get' &&
+    config._retryCount < 2 &&
+    (!error.response || error.code === 'ECONNABORTED' || error.response.status >= 500);
+  if (shouldRetry) {
+    config._retryCount += 1;
+    await new Promise((r) => setTimeout(r, 1000 * config._retryCount));
+    return api(config);
+  }
+  return Promise.reject(error);
 });
 
 // Request interceptor for adding auth token
