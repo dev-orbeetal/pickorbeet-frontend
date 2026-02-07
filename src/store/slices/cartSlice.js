@@ -5,8 +5,6 @@ const initialState = {
   items: [],
   totalItems: 0,
   subtotal: 0,
-  deliveryChargeInsideDhaka: 60,
-  deliveryChargeOutsideDhaka: 120,
   loading: false,
   error: null,
 };
@@ -90,8 +88,6 @@ const cartSlice = createSlice({
         state.items = action.payload.items || [];
         state.totalItems = action.payload.total_items || 0;
         state.subtotal = action.payload.subtotal || 0;
-        state.deliveryChargeInsideDhaka = action.payload.delivery_charge_inside_dhaka || 60;
-        state.deliveryChargeOutsideDhaka = action.payload.delivery_charge_outside_dhaka || 120;
       })
       .addCase(fetchCart.rejected, (state, action) => {
         state.loading = false;

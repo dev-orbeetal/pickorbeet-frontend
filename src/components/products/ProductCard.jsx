@@ -44,6 +44,12 @@ export default function ProductCard({ product }) {
 
     if (isAddingToCart || product.is_out_of_stock) return;
 
+    // If product has variants, go to product page to select size/color
+    if (product.variants?.length > 0) {
+      window.location.href = `/product/${product.slug}`;
+      return;
+    }
+
     setIsAddingToCart(true);
     try {
       await dispatch(addToCart({ product_id: product.id, quantity: 1 })).unwrap();

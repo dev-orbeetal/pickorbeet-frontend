@@ -39,13 +39,27 @@ export default function ProductDetailPage({ initialProduct }) {
   }, [dispatch, product]);
 
   const handleAddToCart = () => {
-    if (!selectedSize && product?.size) {
+    if (product?.variants?.length > 0 && !selectedSize) {
       toast.error('Please select a size');
       return;
     }
 
+    // Find matching variant by selected size/color
+    let variant_id = null;
+    if (product?.variants?.length > 0) {
+      const matchedVariant = product.variants.find(v => {
+        const sizeMatch = !selectedSize || v.size === selectedSize;
+        const colorMatch = !selectedColor || v.color === selectedColor;
+        return sizeMatch && colorMatch;
+      });
+      if (matchedVariant) {
+        variant_id = matchedVariant.id;
+      }
+    }
+
     dispatch(addToCart({
       product_id: product.id,
+      variant_id,
       quantity,
     }))
       .unwrap()
