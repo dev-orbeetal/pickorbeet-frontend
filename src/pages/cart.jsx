@@ -12,7 +12,7 @@ import { getMediaUrl } from '@/lib/siteConfig';
 export default function CartPage() {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { items, totalItems, subtotal, deliveryChargeInsideDhaka, deliveryChargeOutsideDhaka, loading } = useSelector((state) => state.cart);
+  const { items, totalItems, subtotal, loading } = useSelector((state) => state.cart);
 
   useEffect(() => {
     dispatch(fetchCart());
@@ -188,19 +188,17 @@ export default function CartPage() {
                 </div>
                 <div className="flex justify-between text-secondary-600">
                   <span>Delivery</span>
-                  <span className="text-sm">
-                    Inside Dhaka: ৳{deliveryChargeInsideDhaka} | Outside: ৳{deliveryChargeOutsideDhaka}
-                  </span>
+                  <span className="text-sm text-secondary-500">Calculated at checkout</span>
                 </div>
                 <div className="border-t pt-4">
                   <div className="flex justify-between text-lg font-semibold text-secondary-900">
-                    <span>Estimated Total</span>
+                    <span>Subtotal</span>
                     <span className="text-primary-600">
-                      ৳{(parseFloat(subtotal) + deliveryChargeInsideDhaka).toLocaleString()}
+                      ৳{parseFloat(subtotal).toLocaleString()}
                     </span>
                   </div>
                   <p className="text-xs text-secondary-500 mt-1">
-                    (with delivery inside Dhaka)
+                    Delivery charge will be added at checkout
                   </p>
                 </div>
               </div>

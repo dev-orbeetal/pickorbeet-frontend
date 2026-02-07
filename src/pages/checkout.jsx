@@ -12,12 +12,14 @@ import { getMediaUrl } from '@/lib/siteConfig';
 export default function CheckoutPage() {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { items, subtotal, deliveryChargeInsideDhaka, deliveryChargeOutsideDhaka, loading: cartLoading } = useSelector((state) => state.cart);
+  const { items, subtotal, loading: cartLoading } = useSelector((state) => state.cart);
   const { isAuthenticated, user } = useSelector((state) => state.auth);
 
   const [loading, setLoading] = useState(false);
   const [cartLoaded, setCartLoaded] = useState(false);
   const [step, setStep] = useState(1);
+  const [deliveryOptions, setDeliveryOptions] = useState([]);
+  const [selectedDeliveryOption, setSelectedDeliveryOption] = useState(null);
   const [formData, setFormData] = useState({
     guest_name: '',
     guest_email: '',
@@ -38,12 +40,15 @@ export default function CheckoutPage() {
     notes: '',
   });
 
-  const [isInsideDhaka, setIsInsideDhaka] = useState(true);
-
   useEffect(() => {
     // Only run on client side
     if (typeof window !== 'undefined') {
       dispatch(fetchCart()).finally(() => setCartLoaded(true));
+      ordersAPI.getDeliveryOptions().then(res => {
+        const opts = res.data?.results || res.data || [];
+        setDeliveryOptions(opts);
+        if (opts.length > 0) setSelectedDeliveryOption(opts[0]);
+      }).catch(() => { });
     }
   }, [dispatch]);
 
@@ -60,14 +65,7 @@ export default function CheckoutPage() {
     }
   }, [isAuthenticated, user]);
 
-  useEffect(() => {
-    const dhakaAreas = ['dhaka', 'mirpur', 'uttara', 'gulshan', 'banani', 'dhanmondi', 'mohammadpur'];
-    const city = formData.shipping_city.toLowerCase();
-    const district = formData.shipping_district.toLowerCase();
-    setIsInsideDhaka(dhakaAreas.includes(city) || district === 'dhaka');
-  }, [formData.shipping_city, formData.shipping_district]);
-
-  const deliveryCharge = isInsideDhaka ? deliveryChargeInsideDhaka : deliveryChargeOutsideDhaka;
+  const deliveryCharge = selectedDeliveryOption ? parseFloat(selectedDeliveryOption.charge) : 0;
   const total = parseFloat(subtotal) + deliveryCharge;
 
   const handleChange = (e) => {
@@ -384,6 +382,39 @@ export default function CheckoutPage() {
                         placeholder="Any special instructions for delivery..."
                       />
                     </div>
+
+                    {/* Delivery Option Selection */}
+                    {deliveryOptions.length > 0 && (
+                      <div>
+                        <label className="block text-sm font-medium text-secondary-700 mb-2">
+                          <Truck className="w-4 h-4 inline mr-1" />
+                          Delivery Option *
+                        </label>
+                        <div className="space-y-2">
+                          {deliveryOptions.map((opt) => (
+                            <label
+                              key={opt.id}
+                              className={`flex items-center justify-between p-3 rounded-lg border-2 cursor-pointer transition-all ${selectedDeliveryOption?.id === opt.id
+                                ? 'border-primary-500 bg-primary-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="delivery_option"
+                                  checked={selectedDeliveryOption?.id === opt.id}
+                                  onChange={() => setSelectedDeliveryOption(opt)}
+                                  className="w-4 h-4 text-primary-600 focus:ring-primary-500"
+                                />
+                                <span className="font-medium text-secondary-800">{opt.name}</span>
+                              </div>
+                              <span className="font-semibold text-primary-700">৳{parseFloat(opt.charge).toLocaleString()}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex gap-4 mt-6">
@@ -487,8 +518,8 @@ export default function CheckoutPage() {
                   <span>৳{parseFloat(subtotal).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-secondary-600">
-                  <span>Delivery {isInsideDhaka ? '(Dhaka)' : '(Outside Dhaka)'}</span>
-                  <span>৳{deliveryCharge}</span>
+                  <span>Delivery{selectedDeliveryOption ? ` (${selectedDeliveryOption.name})` : ''}</span>
+                  <span>৳{deliveryCharge.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-lg font-semibold text-secondary-900 border-t pt-3">
                   <span>Total</span>

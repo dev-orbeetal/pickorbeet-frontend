@@ -115,6 +115,7 @@ export const ordersAPI = {
   getMyOrders: () => api.get('/orders/my-orders/'),
   getOrder: (id) => api.get(`/orders/my-orders/${id}/`),
   trackOrder: (data) => api.post('/orders/track/', data),
+  getDeliveryOptions: () => api.get('/orders/delivery-options/'),
 };
 
 // Payments API
