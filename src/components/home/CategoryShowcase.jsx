@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import { getMediaUrl } from '@/lib/siteConfig';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -90,7 +91,7 @@ export default function CategoryShowcase({ categoryProducts }) {
                         {/* Product Image */}
                         {product.primary_image ? (
                           <img
-                            src={product.primary_image.startsWith('http') ? product.primary_image : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:8000'}${product.primary_image}`}
+                            src={getMediaUrl(product.primary_image)}
                             alt={product.name}
                             className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
                           />

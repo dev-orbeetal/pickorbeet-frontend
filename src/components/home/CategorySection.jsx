@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight, Crown } from 'lucide-react';
+import { getMediaUrl } from '@/lib/siteConfig';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -101,7 +102,7 @@ export default function CategorySection({ categories }) {
                   <div className="relative aspect-[4/5] bg-gradient-to-b from-cream-200 via-cream-100 to-cream-200 overflow-hidden">
                     {category.image ? (
                       <img
-                        src={category.image}
+                        src={getMediaUrl(category.image)}
                         alt={category.name}
                         className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110"
                       />

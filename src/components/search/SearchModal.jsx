@@ -5,8 +5,7 @@ import { Search, X, Clock, TrendingUp, ArrowRight, Loader2 } from 'lucide-react'
 import Link from 'next/link';
 import { useSearch, useEscapeKey, useClickOutside } from '@/hooks';
 import { storeSettingsAPI } from '@/lib/api';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+import { getMediaUrl } from '@/lib/siteConfig';
 
 const overlayVariants = {
   hidden: { opacity: 0 },
@@ -108,11 +107,7 @@ export default function SearchModal({ isOpen, onClose }) {
     setQuery(searchTerm);
   };
 
-  const getImageUrl = (url) => {
-    if (!url) return '/images/placeholder-product.png';
-    if (url.startsWith('http')) return url;
-    return `${API_BASE_URL}${url}`;
-  };
+  const getImageUrl = (url) => getMediaUrl(url, '/images/placeholder-product.png');
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('en-BD', {

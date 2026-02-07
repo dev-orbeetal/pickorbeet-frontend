@@ -7,6 +7,7 @@ import { Trash2, Minus, Plus, ShoppingBag, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
 import { fetchCart, updateCartItem, removeFromCart } from '@/store/slices/cartSlice';
+import { getMediaUrl } from '@/lib/siteConfig';
 
 export default function CartPage() {
   const router = useRouter();
@@ -87,7 +88,7 @@ export default function CartPage() {
                 <Link href={`/product/${item.product}`} className="flex-shrink-0">
                   <div className="w-24 h-24 md:w-32 md:h-32 rounded-lg overflow-hidden bg-gray-100">
                     <img
-                      src={item.product_image || '/images/placeholder.jpg'}
+                      src={getMediaUrl(item.product_image, '/images/placeholder.jpg')}
                       alt={item.product_name}
                       className="w-full h-full object-cover"
                     />
@@ -101,7 +102,7 @@ export default function CartPage() {
                       {item.product_name}
                     </h3>
                   </Link>
-                  
+
                   {(item.size || item.color) && (
                     <p className="text-sm text-secondary-500 mt-1">
                       {item.size && <span>Size: {item.size}</span>}
@@ -109,7 +110,7 @@ export default function CartPage() {
                       {item.color && <span>Color: {item.color}</span>}
                     </p>
                   )}
-                  
+
                   <p className="text-primary-600 font-semibold mt-2">
                     ৳{parseFloat(item.unit_price).toLocaleString()}
                   </p>

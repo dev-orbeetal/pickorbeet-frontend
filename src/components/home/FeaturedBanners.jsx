@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { getMediaUrl } from '@/lib/siteConfig';
 
 const slideVariants = {
   enter: (direction) => ({
@@ -76,7 +77,7 @@ export default function FeaturedBanners({ categories }) {
           <div className="absolute inset-0">
             {currentCategory.banner_image || currentCategory.image ? (
               <img
-                src={currentCategory.banner_image || currentCategory.image}
+                src={getMediaUrl(currentCategory.banner_image || currentCategory.image)}
                 alt={currentCategory.name}
                 className="w-full h-full object-cover"
               />
@@ -174,8 +175,8 @@ export default function FeaturedBanners({ categories }) {
               key={index}
               onClick={() => goToSlide(index)}
               className={`h-1.5 rounded-full transition-all duration-500 ${index === currentIndex
-                  ? 'w-12 bg-gold-500'
-                  : 'w-6 bg-cream-100/30 hover:bg-cream-100/50'
+                ? 'w-12 bg-gold-500'
+                : 'w-6 bg-cream-100/30 hover:bg-cream-100/50'
                 }`}
             />
           ))}
@@ -190,8 +191,8 @@ export default function FeaturedBanners({ categories }) {
               key={cat.id}
               onClick={() => goToSlide(index)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${index === currentIndex
-                  ? 'bg-gold-500 text-white'
-                  : 'bg-charcoal-900/50 backdrop-blur-sm text-cream-300 hover:bg-charcoal-800/70 border border-cream-100/10'
+                ? 'bg-gold-500 text-white'
+                : 'bg-charcoal-900/50 backdrop-blur-sm text-cream-300 hover:bg-charcoal-800/70 border border-cream-100/10'
                 }`}
             >
               {cat.name}

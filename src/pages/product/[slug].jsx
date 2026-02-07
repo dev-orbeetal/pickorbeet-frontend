@@ -8,7 +8,7 @@ import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
 import { fetchProduct, fetchProducts, clearProduct } from '@/store/slices/productsSlice';
 import { addToCart } from '@/store/slices/cartSlice';
-import siteConfig, { getAbsoluteImageUrl } from '@/lib/siteConfig';
+import siteConfig, { getAbsoluteImageUrl, getMediaUrl } from '@/lib/siteConfig';
 
 export default function ProductDetailPage({ initialProduct }) {
   const router = useRouter();
@@ -133,7 +133,7 @@ export default function ProductDetailPage({ initialProduct }) {
               className="aspect-square rounded-2xl overflow-hidden bg-gray-100"
             >
               <img
-                src={images[selectedImage]?.image}
+                src={getMediaUrl(images[selectedImage]?.image)}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
@@ -149,7 +149,7 @@ export default function ProductDetailPage({ initialProduct }) {
                       }`}
                   >
                     <img
-                      src={img.image}
+                      src={getMediaUrl(img.image)}
                       alt={`${product.name} ${index + 1}`}
                       className="w-full h-full object-cover"
                     />

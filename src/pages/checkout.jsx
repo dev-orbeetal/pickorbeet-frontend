@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
 import { fetchCart, clearCart } from '@/store/slices/cartSlice';
 import { ordersAPI, paymentsAPI } from '@/lib/api';
+import { getMediaUrl } from '@/lib/siteConfig';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -462,7 +463,7 @@ export default function CheckoutPage() {
                   <div key={item.id} className="flex gap-3">
                     <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                       <img
-                        src={item.product_image || '/images/placeholder.jpg'}
+                        src={getMediaUrl(item.product_image, '/images/placeholder.jpg')}
                         alt={item.product_name}
                         className="w-full h-full object-cover"
                       />

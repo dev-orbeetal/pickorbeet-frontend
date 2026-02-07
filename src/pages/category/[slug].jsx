@@ -7,15 +7,9 @@ import { ArrowRight, Grid, List } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
 import { fetchProducts } from '@/store/slices/productsSlice';
-import siteConfig, { getAbsoluteImageUrl } from '@/lib/siteConfig';
+import siteConfig, { getAbsoluteImageUrl, getMediaUrl } from '@/lib/siteConfig';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-
-const getImageUrl = (url) => {
-  if (!url) return '/images/placeholder-category.png';
-  if (url.startsWith('http')) return url;
-  return `${API_BASE_URL}${url}`;
-};
+const getImageUrl = (url) => getMediaUrl(url, '/images/placeholder-category.png');
 
 export default function CategoryPage({ initialCategory }) {
   const router = useRouter();

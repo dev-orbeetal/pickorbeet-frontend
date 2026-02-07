@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, Heart, Eye, Check, Crown } from 'lucide-react';
 import { addToCart } from '@/store/slices/cartSlice';
 import toast from 'react-hot-toast';
+import { getMediaUrl } from '@/lib/siteConfig';
 
 const quickActionVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -63,9 +64,7 @@ export default function ProductCard({ product }) {
     toast.success(isWishlisted ? 'Removed from wishlist' : 'Added to wishlist');
   };
 
-  const imageUrl = product.primary_image
-    ? (product.primary_image.startsWith('http') ? product.primary_image : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:8000'}${product.primary_image}`)
-    : '/images/placeholder.svg';
+  const imageUrl = getMediaUrl(product.primary_image, '/images/placeholder.svg');
 
   return (
     <motion.div

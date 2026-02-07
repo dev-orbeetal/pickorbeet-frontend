@@ -26,4 +26,15 @@ export function getAbsoluteImageUrl(imageUrl) {
   return `${siteConfig.siteUrl}${imageUrl}`;
 }
 
+/**
+ * Build a full media URL from an image path returned by the API.
+ * Handles: absolute URLs (returned as-is), relative /media paths, and missing values.
+ */
+export function getMediaUrl(url, placeholder) {
+  if (!url) return placeholder || '/images/placeholder-product.png';
+  if (url.startsWith('http')) return url;
+  const serverBase = siteConfig.apiUrl.replace('/api/v1', '');
+  return `${serverBase}${url}`;
+}
+
 export default siteConfig;

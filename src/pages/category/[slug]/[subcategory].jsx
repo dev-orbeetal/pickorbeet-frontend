@@ -7,14 +7,9 @@ import { Grid, ChevronRight } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
 import { fetchProducts, fetchCategories } from '@/store/slices/productsSlice';
+import { getMediaUrl } from '@/lib/siteConfig';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-
-const getImageUrl = (url) => {
-  if (!url) return '/images/placeholder-category.png';
-  if (url.startsWith('http')) return url;
-  return `${API_BASE_URL}${url}`;
-};
+const getImageUrl = (url) => getMediaUrl(url, '/images/placeholder-category.png');
 
 export default function SubcategoryPage() {
   const router = useRouter();
@@ -93,8 +88,8 @@ export default function SubcategoryPage() {
                   key={sub.id}
                   href={`/category/${slug}/${sub.slug}`}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${sub.slug === subcategory
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-white border border-charcoal-200 text-charcoal-700 hover:border-gold-500'
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-white border border-charcoal-200 text-charcoal-700 hover:border-gold-500'
                     }`}
                 >
                   {sub.name}
