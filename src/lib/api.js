@@ -128,4 +128,9 @@ export const storeSettingsAPI = {
   getPublicSettings: () => api.get('/products/settings/public/'),
 };
 
+// Contact API (public)
+export const contactAPI = {
+  submitMessage: (data) => api.post('/products/contact/', data),
+};
+
 export default api;
