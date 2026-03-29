@@ -12,10 +12,10 @@ const footerLinks = {
     { href: '/track-order', label: 'Track Order' },
   ],
   customerService: [
-    { href: '/faq', label: 'FAQ' },
-    { href: '/shipping', label: 'Shipping Info' },
-    { href: '/returns', label: 'Returns & Exchanges' },
+    { href: '/returns', label: 'Return & Refund Policy' },
     { href: '/privacy', label: 'Privacy Policy' },
+    { href: '/terms', label: 'Terms & Conditions' },
+    { href: '/contact', label: 'Contact Us' },
   ],
 };
 
