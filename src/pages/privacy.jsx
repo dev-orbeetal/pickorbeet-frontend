@@ -55,8 +55,8 @@ export default function PrivacyPage() {
 
   return (
     <Layout
-      title="Privacy Policy - Zzuhana"
-      description="Learn how Zzuhana collects, uses, and protects your personal information. Read our full Privacy Policy."
+      title="Privacy Policy - Pickorbeet"
+      description="Learn how Pickorbeet collects, uses, and protects your personal information. Read our full Privacy Policy."
     >
       {/* Hero */}
       <section className="relative bg-gradient-to-br from-charcoal-900 via-charcoal-800 to-charcoal-950 text-white py-20 md:py-28 overflow-hidden">
@@ -83,7 +83,7 @@ export default function PrivacyPage() {
               Privacy Policy
             </motion.h1>
             <motion.p variants={fadeUp} custom={2} className="text-lg text-cream-300 leading-relaxed max-w-2xl">
-              At Z ZUHANA, we respect your privacy and are committed to protecting your personal information. This policy explains how we collect, use, and safeguard your data.
+              At Pickorbeet, we respect your privacy and are committed to protecting your personal information. This policy explains how we collect, use, and safeguard your data.
             </motion.p>
             <motion.p variants={fadeUp} custom={3} className="text-sm text-cream-500 mt-4">
               Last Updated: March 9, 2026
@@ -123,7 +123,7 @@ export default function PrivacyPage() {
             <div className="flex-1 min-w-0">
               <div className="bg-white rounded-2xl shadow-sm border border-cream-200 p-8 md:p-12">
                 <p className="text-charcoal-600 leading-relaxed mb-10">
-                  At Z ZUHANA, we respect your privacy and are committed to protecting your personal information. This Privacy Policy explains how we collect, use, and safeguard your information when you visit our website <a href="https://www.zzuhana.com" className="text-primary-600 hover:underline">https://www.zzuhana.com</a>.
+                  At Pickorbeet, we respect your privacy and are committed to protecting your personal information. This Privacy Policy explains how we collect, use, and safeguard your information when you visit our website <a href="https://www.pickorbeet.com" className="text-primary-600 hover:underline">https://www.pickorbeet.com</a>.
                 </p>
 
                 {/* Section 1 */}
@@ -168,7 +168,7 @@ export default function PrivacyPage() {
 
                 {/* Section 3 */}
                 <PolicySection id="sharing" number="3" title="Sharing of Information">
-                  <p>Z ZUHANA does not sell or rent personal information to third parties.</p>
+                  <p>Pickorbeet does not sell or rent personal information to third parties.</p>
                   <p>However, information may be shared with:</p>
                   <ul>
                     <li>Delivery partners</li>
@@ -213,7 +213,7 @@ export default function PrivacyPage() {
 
                 {/* Section 8 */}
                 <PolicySection id="updates" number="8" title="Updates to This Policy">
-                  <p>Z ZUHANA may update this Privacy Policy occasionally. Updates will be posted on this page with a revised date.</p>
+                  <p>Pickorbeet may update this Privacy Policy occasionally. Updates will be posted on this page with a revised date.</p>
                 </PolicySection>
 
                 {/* Section 9 */}
@@ -222,11 +222,11 @@ export default function PrivacyPage() {
                   <div className="mt-4 p-5 bg-cream-50 rounded-xl border border-cream-200">
                     <p className="flex items-center gap-2 mb-2">
                       <span className="font-medium text-charcoal-800">Website:</span>
-                      <a href="https://www.zzuhana.com" className="text-primary-600 hover:underline">https://www.zzuhana.com</a>
+                      <a href="https://www.pickorbeet.com" className="text-primary-600 hover:underline">https://www.pickorbeet.com</a>
                     </p>
                     <p className="flex items-center gap-2">
                       <span className="font-medium text-charcoal-800">Email:</span>
-                      <a href="mailto:support@zzuhana.com" className="text-primary-600 hover:underline">support@zzuhana.com</a>
+                      <a href="mailto:support@pickorbeet.com" className="text-primary-600 hover:underline">support@pickorbeet.com</a>
                     </p>
                   </div>
                 </PolicySection>

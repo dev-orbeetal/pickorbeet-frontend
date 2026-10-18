@@ -44,7 +44,7 @@ export default function ContactPage() {
   const addressLines = (settings?.contact_address || '123 Fashion Street, Gulshan, Dhaka 1212, Bangladesh')
     .split(',').map((s) => s.trim());
   const phoneNumbers = [settings?.contact_phone_1 || '+880 1234-567890', settings?.contact_phone_2].filter(Boolean);
-  const emails = [settings?.contact_email_1 || 'contact@zzuhana.com', settings?.contact_email_2].filter(Boolean);
+  const emails = [settings?.contact_email_1 || 'contact@pickorbeet.com', settings?.contact_email_2].filter(Boolean);
   const hoursLines = (settings?.business_hours || 'Sat - Thu: 10:00 AM - 8:00 PM\nFriday: Closed')
     .split('\n').filter(Boolean);
   const mapUrl = settings?.map_embed_url || 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14602.254272231177!2d90.41259!3d23.7925!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c7a0f70deb73%3A0x30c36498f90fe23!2sGulshan%2C%20Dhaka!5e0!3m2!1sen!2sbd!4v1640000000000!5m2!1sen!2sbd';
@@ -74,8 +74,8 @@ export default function ContactPage() {
 
   return (
     <Layout
-      title="Contact Us - Zzuhana"
-      description="Get in touch with Zzuhana. Visit our store, call us, or send us a message. We're here to help with your orders and inquiries."
+      title="Contact Us - Pickorbeet"
+      description="Get in touch with Pickorbeet. Visit our store, call us, or send us a message. We're here to help with your orders and inquiries."
     >
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-16">

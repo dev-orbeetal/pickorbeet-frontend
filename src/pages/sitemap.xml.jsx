@@ -3,8 +3,8 @@
  * Fetches all products and categories from the API and generates a sitemap.
  */
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://zzuhana.com';
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://server.zzuhana.com/api/v1';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://pickorbeet.com';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://server.pickorbeet.com/api/v1';
 
 function generateSiteMap(products, categories) {
   return `<?xml version="1.0" encoding="UTF-8"?>

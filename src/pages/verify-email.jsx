@@ -125,7 +125,7 @@ export default function VerifyEmailPage() {
 
   if (!email && router.isReady) {
     return (
-      <Layout title="Verify Email - Zzuhana">
+      <Layout title="Verify Email - Pickorbeet">
         <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
           <div className="text-center">
             <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
@@ -144,7 +144,7 @@ export default function VerifyEmailPage() {
   }
 
   return (
-    <Layout title="Verify Email - Zzuhana">
+    <Layout title="Verify Email - Pickorbeet">
       <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -153,7 +153,7 @@ export default function VerifyEmailPage() {
         >
           <div className="text-center mb-8">
             <Link href="/">
-              <img src="/images/logo.png" alt="Zzuhana" className="h-16 mx-auto" />
+              <img src="/images/logo.png" alt="Pickorbeet" className="h-16 mx-auto" />
             </Link>
           </div>
 
@@ -167,7 +167,7 @@ export default function VerifyEmailPage() {
                   Email Verified! 🎉
                 </h1>
                 <p className="text-charcoal-600 mb-4">
-                  Welcome to Zzuhana! Your account is now active.
+                  Welcome to Pickorbeet! Your account is now active.
                 </p>
                 <p className="text-sm text-charcoal-500">
                   Redirecting you to homepage...

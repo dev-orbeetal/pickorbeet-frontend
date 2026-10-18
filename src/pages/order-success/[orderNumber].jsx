@@ -8,7 +8,7 @@ export default function OrderSuccessPage() {
   const { orderNumber } = router.query;
 
   return (
-    <Layout title="Order Confirmed - Zzuhana">
+    <Layout title="Order Confirmed - Pickorbeet">
       <div className="container-custom py-16">
         <div className="max-w-lg mx-auto text-center">
           <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">

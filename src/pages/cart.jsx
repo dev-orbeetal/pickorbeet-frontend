@@ -33,7 +33,7 @@ export default function CartPage() {
 
   if (loading) {
     return (
-      <Layout title="Cart - Zzuhana">
+      <Layout title="Cart - Pickorbeet">
         <div className="container-custom py-16">
           <div className="animate-pulse space-y-4">
             {[1, 2, 3].map((i) => (
@@ -47,7 +47,7 @@ export default function CartPage() {
 
   if (!items || items.length === 0) {
     return (
-      <Layout title="Cart - Zzuhana">
+      <Layout title="Cart - Pickorbeet">
         <div className="container-custom py-16 text-center">
           <div className="max-w-md mx-auto">
             <ShoppingBag className="w-24 h-24 text-secondary-300 mx-auto mb-6" />
@@ -67,7 +67,7 @@ export default function CartPage() {
   }
 
   return (
-    <Layout title="Cart - Zzuhana">
+    <Layout title="Cart - Pickorbeet">
       <div className="container-custom py-8">
         <h1 className="text-3xl font-display font-bold text-secondary-900 mb-8">
           Shopping Cart ({totalItems} items)

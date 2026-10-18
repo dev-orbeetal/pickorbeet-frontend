@@ -1,68 +1,84 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 import Layout from '@/components/layout/Layout';
-import HeroSection from '@/components/home/HeroSection';
-import FeaturedBanners from '@/components/home/FeaturedBanners';
-import CategorySection from '@/components/home/CategorySection';
-import FeaturedProducts from '@/components/home/FeaturedProducts';
-import CategoryShowcase from '@/components/home/CategoryShowcase';
-import FeaturesSection from '@/components/home/FeaturesSection';
-import PageLoader from '@/components/ui/PageLoader';
-import { fetchFeaturedProducts, fetchProductsByCategory } from '@/store/slices/productsSlice';
+import HeroSlider from '@/components/home/HeroSlider';
+import CategoryIconRow from '@/components/home/CategoryIconRow';
+import TrustStrip from '@/components/home/TrustStrip';
+import HomeProductRow from '@/components/home/HomeProductRow';
+import PromoBanners from '@/components/home/PromoBanners';
+import ValueBand from '@/components/home/ValueBand';
+import { productsAPI } from '@/lib/api';
+import { useSelector } from 'react-redux';
+
+function asList(payload) {
+  if (!payload) return [];
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload.results)) return payload.results;
+  return [];
+}
 
 export default function Home() {
-  const dispatch = useDispatch();
-  const {
-    categories,
-    featuredProducts,
-    categoryProducts,
-    categoriesLoading,
-    featuredLoading,
-    categoryProductsLoading,
-  } = useSelector((state) => state.products);
+  const { categories } = useSelector((state) => state.products);
+  const [banners, setBanners] = useState([]);
+  const [deals, setDeals] = useState([]);
+  const [arrivals, setArrivals] = useState([]);
 
   useEffect(() => {
-    dispatch(fetchFeaturedProducts());
-    dispatch(fetchProductsByCategory());
-  }, [dispatch]);
+    let active = true;
 
-  const isInitialLoading = categoriesLoading && featuredLoading && categoryProductsLoading;
+    productsAPI.getBanners()
+      .then((response) => {
+        if (active) setBanners(asList(response.data));
+      })
+      .catch(() => {
+        if (active) setBanners([]);
+      });
 
-  const hasFeaturedCategories = Array.isArray(categories) && categories.some(cat => cat.is_featured);
+    productsAPI.getProducts({ on_sale: 1, ordering: '-created_at' })
+      .then((response) => {
+        if (active) setDeals(asList(response.data));
+      })
+      .catch(() => {
+        if (active) setDeals([]);
+      });
+
+    productsAPI.getProducts({ ordering: '-created_at' })
+      .then((response) => {
+        if (active) setArrivals(asList(response.data));
+      })
+      .catch(() => {
+        if (active) setArrivals([]);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const heroBanners = banners.filter((banner) => banner.placement === 'hero');
+  const promoBanners = banners.filter((banner) => banner.placement === 'promo');
 
   return (
-    <>
-      <AnimatePresence>
-        {isInitialLoading && (
-          <motion.div
-            key="loader"
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <PageLoader />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <Layout
-        title="Zzuhana - Premium Clothing Store"
-        description="Shop premium quality Borkha, Hijab, Abaya, Niqab and modest fashion at Zzuhana. Discover the latest trends with exceptional quality and fast delivery in Bangladesh."
-      >
-        {!categoriesLoading && (
-          <>
-            {hasFeaturedCategories ? (
-              <FeaturedBanners categories={categories} />
-            ) : (
-              <HeroSection />
-            )}
-          </>
-        )}
-        <FeaturesSection />
-        {!categoriesLoading && <CategorySection categories={categories} />}
-        {!featuredLoading && <FeaturedProducts products={featuredProducts} />}
-        {!categoryProductsLoading && <CategoryShowcase categoryProducts={categoryProducts} />}
-      </Layout>
-    </>
+    <Layout
+      title="PickOrbeet - Shop Smarter, Live Better"
+      description="Shop electronics, fashion, home, beauty, and everyday essentials at PickOrbeet. Original products, fast delivery, and secure payment across Bangladesh."
+    >
+      <HeroSlider banners={heroBanners} />
+      <CategoryIconRow categories={categories} />
+      <TrustStrip />
+      <HomeProductRow
+        title="Today's Deals"
+        viewAllHref="/products?on_sale=1"
+        viewAllLabel="View All Deals"
+        products={deals}
+      />
+      <PromoBanners banners={promoBanners} />
+      <HomeProductRow
+        title="New Arrivals"
+        viewAllHref="/products"
+        viewAllLabel="View All"
+        products={arrivals}
+      />
+      <ValueBand />
+    </Layout>
   );
 }

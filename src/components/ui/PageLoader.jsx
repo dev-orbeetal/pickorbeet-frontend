@@ -33,7 +33,7 @@ export default function PageLoader() {
         >
           <img
             src="/images/logo.png"
-            alt="Zzuhana"
+            alt="Pickorbeet"
             className="h-14 md:h-16 w-auto"
           />
         </motion.div>

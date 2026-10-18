@@ -59,10 +59,10 @@ export default function Footer() {
 
   const address = settings?.contact_address || '123 Fashion Street, Gulshan, Dhaka 1212, Bangladesh';
   const phone = settings?.contact_phone_1 || '+880 1234-567890';
-  const email = settings?.contact_email_1 || 'contact@zzuhana.com';
+  const email = settings?.contact_email_1 || 'contact@pickorbeet.com';
 
   return (
-    <footer className="bg-charcoal-950 text-cream-100 relative overflow-hidden border-t border-charcoal-800">
+    <footer className="bg-navy-900 text-cream-100 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gold-500/10 rounded-full blur-3xl" />
@@ -80,12 +80,16 @@ export default function Footer() {
         >
           {/* Brand */}
           <motion.div variants={itemVariants}>
-            <Link href="/" className="inline-block group">
-              <img src="/images/logo.png" alt="Zzuhana" className="h-10 w-auto" />
+            <Link href="/" className="inline-flex items-center gap-2 group">
+              <img src="/images/logo.png" alt="" className="h-10 w-auto" />
+              <span className="text-xl font-extrabold tracking-tight">
+                <span className="text-white">Pick</span>
+                <span className="text-gold-500">Orbeet</span>
+              </span>
             </Link>
             <p className="mt-5 text-cream-400 leading-relaxed">
-              Your destination for premium quality clothing. We bring you the latest fashion trends
-              with exceptional quality and unmatched style.
+              Shop electronics, fashion, home, and everyday essentials. Original products,
+              reliable delivery, and secure payment across Bangladesh.
             </p>
             <div className="flex gap-3 mt-6">
               {socialLinks.map((social) => (
@@ -195,7 +199,7 @@ export default function Footer() {
           className="border-t border-charcoal-800 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4"
         >
           <p className="text-cream-400 text-sm flex items-center gap-1">
-            © {new Date().getFullYear()} Zuhana. Made with
+            © {new Date().getFullYear()} PickOrbeet. Made with
             <Heart className="w-4 h-4 text-gold-500 fill-gold-500 inline" />
             in Bangladesh
           </p>

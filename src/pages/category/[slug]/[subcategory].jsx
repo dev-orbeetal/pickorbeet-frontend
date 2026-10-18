@@ -31,7 +31,7 @@ export default function SubcategoryPage() {
   }, [dispatch, subcategory]);
 
   return (
-    <Layout title={`${subcategoryData?.name || 'Subcategory'} - ${category?.name || 'Category'} - Zzuhana`}>
+    <Layout title={`${subcategoryData?.name || 'Subcategory'} - ${category?.name || 'Category'} - Pickorbeet`}>
       {/* Hero Banner */}
       <section className="relative h-48 md:h-64 bg-gradient-to-br from-primary-700 via-primary-600 to-primary-800 overflow-hidden">
         {subcategoryData?.image && (

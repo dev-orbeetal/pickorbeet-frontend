@@ -97,6 +97,7 @@ export const productsAPI = {
   getProducts: (params) => api.get('/products/', { params }),
   getProduct: (slug) => api.get(`/products/${slug}/`),
   getFeaturedProducts: () => api.get('/products/featured/'),
+  getBanners: (params) => api.get('/products/banners/', { params }),
   getProductsByCategory: () => api.get('/products/by-category/'),
 };
 

@@ -105,7 +105,7 @@ export default function ProfilePage() {
   ];
 
   return (
-    <Layout title="My Account - Zzuhana" noindex>
+    <Layout title="My Account - Pickorbeet" noindex>
       <div className="container-custom py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar */}

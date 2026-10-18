@@ -83,7 +83,7 @@ export default function ResetPasswordPage() {
 
   if (!token && router.isReady) {
     return (
-      <Layout title="Reset Password - Zzuhana">
+      <Layout title="Reset Password - Pickorbeet">
         <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
           <div className="text-center">
             <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
@@ -102,7 +102,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <Layout title="Reset Password - Zzuhana">
+    <Layout title="Reset Password - Pickorbeet">
       <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -111,7 +111,7 @@ export default function ResetPasswordPage() {
         >
           <div className="text-center mb-8">
             <Link href="/">
-              <img src="/images/logo.png" alt="Zzuhana" className="h-16 mx-auto" />
+              <img src="/images/logo.png" alt="Pickorbeet" className="h-16 mx-auto" />
             </Link>
             <h1 className="mt-6 text-2xl font-display font-bold text-charcoal-800">
               {success ? 'Password Reset!' : 'Create New Password'}

@@ -9,7 +9,7 @@ const nextConfig = {
     NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
   },
   images: {
-    domains: ['localhost', '127.0.0.1', 'server.zzuhana.com'],
+    domains: ['localhost', '127.0.0.1', 'server.pickorbeet.com'],
     remotePatterns: [
       {
         protocol: 'http',
@@ -18,8 +18,14 @@ const nextConfig = {
         pathname: '/media/**',
       },
       {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '8666',
+        pathname: '/media/**',
+      },
+      {
         protocol: 'https',
-        hostname: 'server.zzuhana.com',
+        hostname: 'server.pickorbeet.com',
         pathname: '/media/**',
       },
     ],

@@ -72,9 +72,9 @@ export default function ProductDetailPage({ initialProduct }) {
   };
 
   // SEO data derived from server-side fetched product
-  const seoTitle = product ? `${product.name} - Zzuhana` : 'Product - Zzuhana';
+  const seoTitle = product ? `${product.name} - Pickorbeet` : 'Product - Pickorbeet';
   const seoDescription = product
-    ? (product.short_description || product.description?.replace(/<[^>]*>/g, '')?.slice(0, 160) || `Buy ${product.name} at Zzuhana. Premium quality clothing at ৳${product.price}.`)
+    ? (product.short_description || product.description?.replace(/<[^>]*>/g, '')?.slice(0, 160) || `Buy ${product.name} at Pickorbeet. Premium quality clothing at ৳${product.price}.`)
     : siteConfig.description;
   const productImage = product?.primary_image || product?.images?.[0]?.image || null;
   const seoImage = product ? getAbsoluteImageUrl(productImage) : undefined;
@@ -340,7 +340,7 @@ export default function ProductDetailPage({ initialProduct }) {
  */
 export async function getServerSideProps(context) {
   const { slug } = context.params;
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://server.zzuhana.com/api/v1';
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://server.pickorbeet.com/api/v1';
 
   try {
     const res = await fetch(`${API_BASE_URL}/products/${slug}/`, {

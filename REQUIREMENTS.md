@@ -3,11 +3,11 @@ Terms and Conditions
 
 Last Updated: March 9, 2026
 
-Welcome to Z ZUHANA. By accessing or using our website (https://www.zzuhana.com), you agree to comply with and be bound by the following Terms and Conditions. Please read them carefully before using our services.
+Welcome to Pickorbeet. By accessing or using our website (https://www.pickorbeet.com), you agree to comply with and be bound by the following Terms and Conditions. Please read them carefully before using our services.
 
 1. General Information
 
-This website is operated by Z ZUHANA. Throughout the site, the terms “we”, “us”, and “our” refer to Z ZUHANA. By visiting our website and purchasing products from us, you engage in our service and agree to be bound by these Terms and Conditions.
+This website is operated by Pickorbeet. Throughout the site, the terms “we”, “us”, and “our” refer to Pickorbeet. By visiting our website and purchasing products from us, you engage in our service and agree to be bound by these Terms and Conditions.
 
 If you do not agree with any part of these terms, you should not use this website.
 
@@ -20,7 +20,7 @@ By using this website, you confirm that:
 
 3. Products and Pricing
 
-Z ZUHANA sells clothing and fashion products through this website.
+Pickorbeet sells clothing and fashion products through this website.
 
 - All prices are listed in Bangladeshi Taka (BDT).
 - Prices and product availability may change without prior notice.
@@ -33,7 +33,7 @@ We try to display product colors and images as accurately as possible, but actua
 When placing an order on our website:
 
 - You agree that all information provided is accurate.
-- Z ZUHANA reserves the right to cancel or refuse any order if necessary.
+- Pickorbeet reserves the right to cancel or refuse any order if necessary.
 - If a prepaid order is cancelled, the payment will be refunded according to our refund policy.
 
 5. Delivery Policy
@@ -77,7 +77,7 @@ All content on this website including:
 - Text
 - Website design
 
-are the property of Z ZUHANA and protected by copyright laws. Unauthorized use is prohibited.
+are the property of Pickorbeet and protected by copyright laws. Unauthorized use is prohibited.
 
 9. User Conduct
 
@@ -91,18 +91,18 @@ Violation may result in suspension of access.
 
 10. Limitation of Liability
 
-Z ZUHANA shall not be liable for any indirect, incidental, or consequential damages resulting from the use of our website or products.
+Pickorbeet shall not be liable for any indirect, incidental, or consequential damages resulting from the use of our website or products.
 
 11. Changes to Terms
 
-Z ZUHANA reserves the right to update or modify these Terms and Conditions at any time. Changes will be effective once posted on this page.
+Pickorbeet reserves the right to update or modify these Terms and Conditions at any time. Changes will be effective once posted on this page.
 
 12. Contact Information
 
 If you have any questions regarding these Terms and Conditions, please contact us:
 
-Website: https://www.zzuhana.com
-Email: support@zzuhana.com
+Website: https://www.pickorbeet.com
+Email: support@pickorbeet.com
 
 
 
@@ -111,7 +111,7 @@ Privacy Policy
 
 Last Updated: March 9, 2026
 
-At Z ZUHANA, we respect your privacy and are committed to protecting your personal information. This Privacy Policy explains how we collect, use, and safeguard your information when you visit our website https://www.zzuhana.com.
+At Pickorbeet, we respect your privacy and are committed to protecting your personal information. This Privacy Policy explains how we collect, use, and safeguard your information when you visit our website https://www.pickorbeet.com.
 
 1. Information We Collect
 
@@ -149,7 +149,7 @@ We use your information to:
 
 3. Sharing of Information
 
-Z ZUHANA does not sell or rent personal information to third parties.
+Pickorbeet does not sell or rent personal information to third parties.
 
 However, information may be shared with:
 
@@ -191,14 +191,14 @@ To make such requests, please contact us.
 
 8. Updates to This Policy
 
-Z ZUHANA may update this Privacy Policy occasionally. Updates will be posted on this page with a revised date.
+Pickorbeet may update this Privacy Policy occasionally. Updates will be posted on this page with a revised date.
 
 9. Contact Us
 
 For questions regarding this Privacy Policy, please contact us:
 
-Website: https://www.zzuhana.com
-Email: support@zzuhana.com
+Website: https://www.pickorbeet.com
+Email: support@pickorbeet.com
 
 
 
@@ -207,7 +207,7 @@ Return and Refund Policy (replace Retruns and Exchanges page)
 
 Last Updated: March 9, 2026
 
-At Z ZUHANA, customer satisfaction is our priority. If you are not completely satisfied with your purchase, please review our return and refund policy below.
+At Pickorbeet, customer satisfaction is our priority. If you are not completely satisfied with your purchase, please review our return and refund policy below.
 
 1. Return Eligibility
 
@@ -259,7 +259,7 @@ Refund processing time may take 5–7 business days depending on the payment met
 
 Return shipping conditions may vary:
 
-- If the return is due to our mistake (wrong or defective item), Z ZUHANA will cover the return delivery cost.
+- If the return is due to our mistake (wrong or defective item), Pickorbeet will cover the return delivery cost.
 - If the return is due to customer preference, the customer may need to bear the return delivery cost.
 
 6. Cash on Delivery (COD) Orders
@@ -283,9 +283,9 @@ To request a return or exchange, please contact us with the following informatio
 
 Contact us at:
 
-Website: https://www.zzuhana.com
-Email: support@zzuhana.com
+Website: https://www.pickorbeet.com
+Email: support@pickorbeet.com
 
 8. Policy Updates
 
-Z ZUHANA reserves the right to modify this Return and Refund Policy at any time. Any changes will be updated on this page.
+Pickorbeet reserves the right to modify this Return and Refund Policy at any time. Any changes will be updated on this page.

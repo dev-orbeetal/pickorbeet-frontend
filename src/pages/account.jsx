@@ -66,7 +66,7 @@ export default function AccountPage() {
   if (!isAuthenticated) return null;
 
   return (
-    <Layout title="My Account - Zzuhana" noindex>
+    <Layout title="My Account - Pickorbeet" noindex>
       <div className="container-custom py-8 max-w-4xl">
         <h1 className="text-3xl font-display font-bold text-charcoal-900 mb-8">My Account</h1>
 

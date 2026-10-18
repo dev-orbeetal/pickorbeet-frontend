@@ -58,8 +58,8 @@ export default function TermsPage() {
 
   return (
     <Layout
-      title="Terms and Conditions - Zzuhana"
-      description="Read the Terms and Conditions for using the Zzuhana website. Learn about our policies on orders, delivery, payment, returns, and more."
+      title="Terms and Conditions - Pickorbeet"
+      description="Read the Terms and Conditions for using the Pickorbeet website. Learn about our policies on orders, delivery, payment, returns, and more."
     >
       {/* Hero */}
       <section className="relative bg-gradient-to-br from-charcoal-900 via-charcoal-800 to-charcoal-950 text-white py-20 md:py-28 overflow-hidden">
@@ -86,7 +86,7 @@ export default function TermsPage() {
               Terms and Conditions
             </motion.h1>
             <motion.p variants={fadeUp} custom={2} className="text-lg text-cream-300 leading-relaxed max-w-2xl">
-              Please read these terms carefully before using our website. By accessing or using zzuhana.com, you agree to be bound by these terms.
+              Please read these terms carefully before using our website. By accessing or using pickorbeet.com, you agree to be bound by these terms.
             </motion.p>
             <motion.p variants={fadeUp} custom={3} className="text-sm text-cream-500 mt-4">
               Last Updated: March 9, 2026
@@ -126,12 +126,12 @@ export default function TermsPage() {
             <div className="flex-1 min-w-0">
               <div className="bg-white rounded-2xl shadow-sm border border-cream-200 p-8 md:p-12">
                 <p className="text-charcoal-600 leading-relaxed mb-10">
-                  Welcome to Z ZUHANA. By accessing or using our website (<a href="https://www.zzuhana.com" className="text-primary-600 hover:underline">https://www.zzuhana.com</a>), you agree to comply with and be bound by the following Terms and Conditions. Please read them carefully before using our services.
+                  Welcome to Pickorbeet. By accessing or using our website (<a href="https://www.pickorbeet.com" className="text-primary-600 hover:underline">https://www.pickorbeet.com</a>), you agree to comply with and be bound by the following Terms and Conditions. Please read them carefully before using our services.
                 </p>
 
                 {/* Section 1 */}
                 <PolicySection id="general" number="1" title="General Information">
-                  <p>This website is operated by Z ZUHANA. Throughout the site, the terms &quot;we&quot;, &quot;us&quot;, and &quot;our&quot; refer to Z ZUHANA. By visiting our website and purchasing products from us, you engage in our service and agree to be bound by these Terms and Conditions.</p>
+                  <p>This website is operated by Pickorbeet. Throughout the site, the terms &quot;we&quot;, &quot;us&quot;, and &quot;our&quot; refer to Pickorbeet. By visiting our website and purchasing products from us, you engage in our service and agree to be bound by these Terms and Conditions.</p>
                   <p>If you do not agree with any part of these terms, you should not use this website.</p>
                 </PolicySection>
 
@@ -146,7 +146,7 @@ export default function TermsPage() {
 
                 {/* Section 3 */}
                 <PolicySection id="products-pricing" number="3" title="Products and Pricing">
-                  <p>Z ZUHANA sells clothing and fashion products through this website.</p>
+                  <p>Pickorbeet sells clothing and fashion products through this website.</p>
                   <ul>
                     <li>All prices are listed in Bangladeshi Taka (BDT).</li>
                     <li>Prices and product availability may change without prior notice.</li>
@@ -160,7 +160,7 @@ export default function TermsPage() {
                   <p>When placing an order on our website:</p>
                   <ul>
                     <li>You agree that all information provided is accurate.</li>
-                    <li>Z ZUHANA reserves the right to cancel or refuse any order if necessary.</li>
+                    <li>Pickorbeet reserves the right to cancel or refuse any order if necessary.</li>
                     <li>If a prepaid order is cancelled, the payment will be refunded according to our refund policy.</li>
                   </ul>
                 </PolicySection>
@@ -208,7 +208,7 @@ export default function TermsPage() {
                     <li>Text</li>
                     <li>Website design</li>
                   </ul>
-                  <p>are the property of Z ZUHANA and protected by copyright laws. Unauthorized use is prohibited.</p>
+                  <p>are the property of Pickorbeet and protected by copyright laws. Unauthorized use is prohibited.</p>
                 </PolicySection>
 
                 {/* Section 9 */}
@@ -224,12 +224,12 @@ export default function TermsPage() {
 
                 {/* Section 10 */}
                 <PolicySection id="liability" number="10" title="Limitation of Liability">
-                  <p>Z ZUHANA shall not be liable for any indirect, incidental, or consequential damages resulting from the use of our website or products.</p>
+                  <p>Pickorbeet shall not be liable for any indirect, incidental, or consequential damages resulting from the use of our website or products.</p>
                 </PolicySection>
 
                 {/* Section 11 */}
                 <PolicySection id="changes" number="11" title="Changes to Terms">
-                  <p>Z ZUHANA reserves the right to update or modify these Terms and Conditions at any time. Changes will be effective once posted on this page.</p>
+                  <p>Pickorbeet reserves the right to update or modify these Terms and Conditions at any time. Changes will be effective once posted on this page.</p>
                 </PolicySection>
 
                 {/* Section 12 */}
@@ -238,11 +238,11 @@ export default function TermsPage() {
                   <div className="mt-4 p-5 bg-cream-50 rounded-xl border border-cream-200">
                     <p className="flex items-center gap-2 mb-2">
                       <span className="font-medium text-charcoal-800">Website:</span>
-                      <a href="https://www.zzuhana.com" className="text-primary-600 hover:underline">https://www.zzuhana.com</a>
+                      <a href="https://www.pickorbeet.com" className="text-primary-600 hover:underline">https://www.pickorbeet.com</a>
                     </p>
                     <p className="flex items-center gap-2">
                       <span className="font-medium text-charcoal-800">Email:</span>
-                      <a href="mailto:support@zzuhana.com" className="text-primary-600 hover:underline">support@zzuhana.com</a>
+                      <a href="mailto:support@pickorbeet.com" className="text-primary-600 hover:underline">support@pickorbeet.com</a>
                     </p>
                   </div>
                 </PolicySection>

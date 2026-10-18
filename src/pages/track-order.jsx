@@ -51,7 +51,7 @@ export default function TrackOrderPage() {
   const currentStatusIndex = orderData ? getStatusIndex(orderData.order_status) : -1;
 
   return (
-    <Layout title="Track Order - Zzuhana">
+    <Layout title="Track Order - Pickorbeet">
       <div className="container-custom py-16">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-12">

@@ -138,7 +138,7 @@ export default function RegisterPage() {
   const { strength, label, color } = passwordStrength();
 
   return (
-    <Layout title="Register - Zzuhana">
+    <Layout title="Register - Pickorbeet">
       <Script
         src="https://accounts.google.com/gsi/client"
         onLoad={initializeGoogle}
@@ -153,7 +153,7 @@ export default function RegisterPage() {
         >
           <div className="text-center mb-8">
             <Link href="/">
-              <img src="/images/logo.png" alt="Zzuhana" className="h-16 mx-auto" />
+              <img src="/images/logo.png" alt="Pickorbeet" className="h-16 mx-auto" />
             </Link>
             <h1 className="mt-6 text-2xl font-display font-bold text-charcoal-800">
               Create Account

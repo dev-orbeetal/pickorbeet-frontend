@@ -1,14 +1,14 @@
 const siteConfig = {
-  name: 'Zzuhana',
-  title: 'Zzuhana - Premium Clothing Store',
-  description: 'Your destination for premium quality clothing. Discover the latest fashion trends in Borkha, Hijab, Abaya, Niqab and more with exceptional quality.',
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://zzuhana.com',
-  apiUrl: process.env.NEXT_PUBLIC_API_URL || 'https://server.zzuhana.com/api/v1',
+  name: 'PickOrbeet',
+  title: 'PickOrbeet - Shop Smarter, Live Better',
+  description: 'Shop electronics, fashion, home, beauty, and everyday essentials at PickOrbeet. Original products, fast delivery, and secure payment across Bangladesh.',
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://pickorbeet.com',
+  apiUrl: process.env.NEXT_PUBLIC_API_URL || 'https://server.pickorbeet.com/api/v1',
   logo: '/images/logo.png',
   ogImage: '/images/og-default.jpg',
   locale: 'en_US',
-  themeColor: '#8B2942',
-  twitterHandle: '@zzuhana',
+  themeColor: '#141B4D',
+  twitterHandle: '@pickorbeet',
   currency: 'BDT',
 };
 

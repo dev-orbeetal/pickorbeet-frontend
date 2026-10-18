@@ -61,8 +61,8 @@ export default function ReturnsPage() {
 
   return (
     <Layout
-      title="Return and Refund Policy - Zzuhana"
-      description="Read the Zzuhana Return and Refund Policy. Learn about return eligibility, exchange process, refund timelines, and how to request a return."
+      title="Return and Refund Policy - Pickorbeet"
+      description="Read the Pickorbeet Return and Refund Policy. Learn about return eligibility, exchange process, refund timelines, and how to request a return."
     >
       {/* Hero */}
       <section className="relative bg-gradient-to-br from-charcoal-900 via-charcoal-800 to-charcoal-950 text-white py-20 md:py-28 overflow-hidden">
@@ -89,7 +89,7 @@ export default function ReturnsPage() {
               Return and Refund Policy
             </motion.h1>
             <motion.p variants={fadeUp} custom={2} className="text-lg text-cream-300 leading-relaxed max-w-2xl">
-              At Z ZUHANA, customer satisfaction is our priority. If you are not completely satisfied with your purchase, please review our return and refund policy below.
+              At Pickorbeet, customer satisfaction is our priority. If you are not completely satisfied with your purchase, please review our return and refund policy below.
             </motion.p>
             <motion.p variants={fadeUp} custom={3} className="text-sm text-cream-500 mt-4">
               Last Updated: March 9, 2026
@@ -214,7 +214,7 @@ export default function ReturnsPage() {
                 <PolicySection id="return-shipping" number="5" title="Return Shipping">
                   <p>Return shipping conditions may vary:</p>
                   <ul>
-                    <li>If the return is due to <strong>our mistake</strong> (wrong or defective item), Z ZUHANA will cover the return delivery cost.</li>
+                    <li>If the return is due to <strong>our mistake</strong> (wrong or defective item), Pickorbeet will cover the return delivery cost.</li>
                     <li>If the return is due to <strong>customer preference</strong>, the customer may need to bear the return delivery cost.</li>
                   </ul>
                 </PolicySection>
@@ -243,18 +243,18 @@ export default function ReturnsPage() {
                     <p className="font-medium text-charcoal-800 mb-3">Contact us at:</p>
                     <p className="flex items-center gap-2 mb-2">
                       <span className="font-medium text-charcoal-800">Website:</span>
-                      <a href="https://www.zzuhana.com" className="text-primary-600 hover:underline">https://www.zzuhana.com</a>
+                      <a href="https://www.pickorbeet.com" className="text-primary-600 hover:underline">https://www.pickorbeet.com</a>
                     </p>
                     <p className="flex items-center gap-2">
                       <span className="font-medium text-charcoal-800">Email:</span>
-                      <a href="mailto:support@zzuhana.com" className="text-primary-600 hover:underline">support@zzuhana.com</a>
+                      <a href="mailto:support@pickorbeet.com" className="text-primary-600 hover:underline">support@pickorbeet.com</a>
                     </p>
                   </div>
                 </PolicySection>
 
                 {/* Section 8 */}
                 <PolicySection id="policy-updates" number="8" title="Policy Updates" isLast>
-                  <p>Z ZUHANA reserves the right to modify this Return and Refund Policy at any time. Any changes will be updated on this page.</p>
+                  <p>Pickorbeet reserves the right to modify this Return and Refund Policy at any time. Any changes will be updated on this page.</p>
                 </PolicySection>
               </div>
 

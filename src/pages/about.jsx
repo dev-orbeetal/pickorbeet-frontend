@@ -12,8 +12,8 @@ export default function AboutPage() {
 
   return (
     <Layout
-      title="About Us - Zzuhana"
-      description="Learn about Zzuhana - your trusted destination for premium modest fashion. Our story, mission, and commitment to quality clothing."
+      title="About Us - Pickorbeet"
+      description="Learn about Pickorbeet - your trusted destination for premium modest fashion. Our story, mission, and commitment to quality clothing."
     >
       {/* Hero Section */}
       <section className="relative bg-gradient-to-r from-primary-600 to-primary-800 text-white py-20">
@@ -24,7 +24,7 @@ export default function AboutPage() {
             className="max-w-3xl"
           >
             <h1 className="text-4xl md:text-5xl font-display font-bold mb-6">
-              About Zzuhana
+              About Pickorbeet
             </h1>
             <p className="text-xl text-primary-100 leading-relaxed">
               We're on a mission to make premium fashion accessible to everyone in Bangladesh.
@@ -72,7 +72,7 @@ export default function AboutPage() {
               </h2>
               <div className="space-y-4 text-secondary-600 leading-relaxed">
                 <p>
-                  Founded in 2019, Zzuhana started as a small boutique in Dhaka with a simple vision:
+                  Founded in 2019, Pickorbeet started as a small boutique in Dhaka with a simple vision:
                   to bring premium quality clothing to the Bangladeshi market at affordable prices.
                 </p>
                 <p>
@@ -97,7 +97,7 @@ export default function AboutPage() {
               <div className="aspect-square rounded-2xl overflow-hidden bg-gray-200">
                 <img
                   src="/images/about/store.jpg"
-                  alt="Zzuhana Store"
+                  alt="Pickorbeet Store"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -114,7 +114,7 @@ export default function AboutPage() {
               Our Values
             </h2>
             <p className="text-secondary-600 max-w-2xl mx-auto">
-              These principles guide everything we do at Zzuhana
+              These principles guide everything we do at Pickorbeet
             </p>
           </div>
 

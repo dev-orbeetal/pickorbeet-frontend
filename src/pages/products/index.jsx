@@ -137,7 +137,7 @@ export default function ProductsPage() {
 
   return (
     <Layout
-      title="Shop All Products - Zzuhana"
+      title="Shop All Products - Pickorbeet"
       description="Browse our complete collection of premium Borkha, Hijab, Abaya, Niqab and modest fashion. Filter by category, size, and price."
     >
       <div className="container-custom py-8">

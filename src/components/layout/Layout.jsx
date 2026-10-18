@@ -58,13 +58,13 @@ export default function Layout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
-      <div className="min-h-screen flex flex-col bg-white">
+      <div className="min-h-screen flex flex-col bg-cream-200">
         <Header />
         <motion.main
           variants={mainVariants}
           initial="initial"
           animate="animate"
-          className="flex-grow pt-16 md:pt-20"
+          className="flex-grow"
         >
           {children}
         </motion.main>

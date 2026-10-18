@@ -45,8 +45,8 @@ export default function CategoryPage({ initialCategory }) {
 
   return (
     <Layout
-      title={`${category?.name || 'Category'} - Zzuhana`}
-      description={category?.tagline || `Shop ${category?.name || 'products'} at Zzuhana. Premium quality clothing and accessories.`}
+      title={`${category?.name || 'Category'} - Pickorbeet`}
+      description={category?.tagline || `Shop ${category?.name || 'products'} at Pickorbeet. Premium quality clothing and accessories.`}
       image={category?.banner_image ? getAbsoluteImageUrl(category.banner_image) : undefined}
     >
       {/* Hero Banner */}
@@ -252,7 +252,7 @@ export default function CategoryPage({ initialCategory }) {
 
 export async function getServerSideProps(context) {
   const { slug } = context.params;
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://server.zzuhana.com/api/v1';
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://server.pickorbeet.com/api/v1';
 
   try {
     const res = await fetch(`${API_BASE_URL}/products/categories/${slug}/`, {

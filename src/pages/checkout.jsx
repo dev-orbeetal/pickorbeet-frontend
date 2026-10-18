@@ -140,7 +140,7 @@ export default function CheckoutPage() {
   // Show loading while cart is being fetched
   if (!cartLoaded || cartLoading) {
     return (
-      <Layout title="Checkout - Zzuhana">
+      <Layout title="Checkout - Pickorbeet">
         <div className="container-custom py-16">
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-gray-200 rounded w-48" />
@@ -158,7 +158,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <Layout title="Checkout - Zzuhana">
+    <Layout title="Checkout - Pickorbeet">
       <div className="container-custom py-8">
         <h1 className="text-3xl font-display font-bold text-secondary-900 mb-8">
           Checkout
