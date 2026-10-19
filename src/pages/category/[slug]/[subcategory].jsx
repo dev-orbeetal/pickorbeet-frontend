@@ -74,7 +74,7 @@ export default function SubcategoryPage() {
 
       {/* Sibling Subcategories Navigation */}
       {category?.subcategories?.length > 1 && (
-        <section className="py-4 bg-cream-50 border-b border-cream-200">
+        <section className="py-4 border-b border-cream-400">
           <div className="container-custom">
             <div className="flex flex-wrap gap-2">
               <Link

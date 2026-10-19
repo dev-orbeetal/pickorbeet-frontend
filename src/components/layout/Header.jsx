@@ -133,11 +133,19 @@ export default function Header() {
             <Link href="/cart" className="relative flex flex-col items-center justify-center px-2 py-1 text-white/90 hover:text-white">
               <ShoppingCart className="w-5 h-5" />
               <span className="hidden sm:block text-[11px] mt-0.5 font-medium">Cart</span>
-              {totalItems > 0 && (
-                <span className="absolute -top-0.5 right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-gold-500 text-white text-[10px] font-bold flex items-center justify-center">
-                  {totalItems}
-                </span>
-              )}
+              <AnimatePresence>
+                {totalItems > 0 && (
+                  <motion.span
+                    key={totalItems}
+                    initial={{ scale: 0.6, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.6, opacity: 0 }}
+                    className="absolute -top-0.5 right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-gold-500 text-white text-[10px] font-bold flex items-center justify-center"
+                  >
+                    {totalItems}
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </Link>
 
             <button

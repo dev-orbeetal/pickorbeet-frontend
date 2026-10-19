@@ -99,7 +99,7 @@ export default function ReturnsPage() {
       </section>
 
       {/* Highlights Bar */}
-      <section className="bg-white border-b border-cream-200">
+      <section className="border-b border-cream-400">
         <div className="container-custom py-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {highlights.map((item, index) => (
@@ -124,7 +124,7 @@ export default function ReturnsPage() {
       </section>
 
       {/* Content */}
-      <section className="py-16 md:py-20 bg-cream-50">
+      <section className="py-16 md:py-20">
         <div className="container-custom">
           <div className="flex flex-col lg:flex-row gap-10 lg:gap-16">
             {/* Sidebar TOC */}

@@ -96,7 +96,7 @@ export default function TermsPage() {
       </section>
 
       {/* Content */}
-      <section className="py-16 md:py-20 bg-cream-50">
+      <section className="py-16 md:py-20">
         <div className="container-custom">
           <div className="flex flex-col lg:flex-row gap-10 lg:gap-16">
             {/* Sidebar TOC */}

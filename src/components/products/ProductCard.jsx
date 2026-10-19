@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useDispatch } from 'react-redux';
+import { motion } from 'framer-motion';
 import { Heart, ShoppingCart, Check } from 'lucide-react';
 import { addToCart } from '@/store/slices/cartSlice';
 import toast from 'react-hot-toast';
@@ -49,14 +50,14 @@ export default function ProductCard({ product }) {
   const hasDiscount = comparePrice && comparePrice > price;
 
   return (
-    <article className="group h-full bg-white rounded-xl border border-cream-400 shadow-sm hover:shadow-elegant transition-shadow flex flex-col">
+    <article className="product-card group h-full bg-white rounded-xl border border-cream-400 shadow-sm flex flex-col">
       <div className="relative">
         <Link href={`/product/${product.slug}`} className="block">
-          <div className="aspect-square bg-cream-100 rounded-t-xl overflow-hidden">
+          <div className="aspect-square bg-white rounded-t-xl overflow-hidden">
             <img
               src={imageUrl}
               alt={product.name}
-              className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300"
+              className="product-card-image h-full w-full object-contain p-3"
             />
           </div>
         </Link>
@@ -67,16 +68,18 @@ export default function ProductCard({ product }) {
           </span>
         )}
 
-        <button
+        <motion.button
           type="button"
           onClick={handleWishlist}
           aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+          whileTap={{ scale: 0.88 }}
+          animate={{ scale: isWishlisted ? 1.08 : 1 }}
           className={`absolute top-3 right-3 w-8 h-8 rounded-full border flex items-center justify-center bg-white ${
             isWishlisted ? 'text-gold-500 border-gold-500' : 'text-charcoal-400 border-cream-400 hover:text-gold-500'
           }`}
         >
           <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} />
-        </button>
+        </motion.button>
 
         {product.is_out_of_stock && (
           <div className="absolute inset-0 bg-white/70 flex items-center justify-center rounded-t-xl">
@@ -99,10 +102,11 @@ export default function ProductCard({ product }) {
           )}
         </div>
 
-        <button
+        <motion.button
           type="button"
           onClick={handleAddToCart}
           disabled={isAddingToCart || product.is_out_of_stock}
+          whileTap={{ scale: 0.98 }}
           className={`mt-3 w-full h-9 rounded-lg border text-sm font-semibold flex items-center justify-center gap-1.5 transition-colors ${
             justAdded
               ? 'border-emerald-500 text-emerald-600 bg-emerald-50'
@@ -111,7 +115,7 @@ export default function ProductCard({ product }) {
         >
           {justAdded ? <Check className="w-4 h-4" /> : <ShoppingCart className="w-4 h-4" />}
           {justAdded ? 'Added' : 'Add to Cart'}
-        </button>
+        </motion.button>
       </div>
     </article>
   );

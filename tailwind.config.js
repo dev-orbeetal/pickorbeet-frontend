@@ -8,6 +8,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        powder: '#F7F8FC',
         navy: {
           50: '#EEEDF8',
           100: '#D5D3EC',
@@ -18,7 +19,7 @@ module.exports = {
           600: '#34338A',
           700: '#2B2A78',
           800: '#2B2A78',
-          900: '#141B4D',
+          900: '#20295B',
           950: '#0E1438',
         },
         // Orange accent sampled from the PickOrbeet mark
@@ -27,8 +28,8 @@ module.exports = {
           100: '#FFEBD4',
           200: '#FFD4A8',
           300: '#FFB56B',
-          400: '#FF9433',
-          500: '#FF7A1B',
+          400: '#FFA51F',
+          500: '#FF791F',
           600: '#E86E00',
           700: '#C45C00',
           800: '#9A4800',
@@ -42,20 +43,20 @@ module.exports = {
           200: '#E8E8E8',
           300: '#D4D4D4',
           400: '#A3A3A3',
-          500: '#737373',
+          500: '#667085',
           600: '#525252',
           700: '#404040',
           800: '#2D2D2D',
-          900: '#1F1F1F', // Softer dark
+          900: '#20243A',
           950: '#171717',
         },
         // Cream palette - for light sections & text areas
         cream: {
           50: '#FFFFFF',
           100: '#F8F9FB',
-          200: '#F4F6F8',
-          300: '#F4F6F8',
-          400: '#E6E9EF',
+          200: '#F7F8FC',
+          300: '#F7F8FC',
+          400: '#E5E8F0',
           500: '#D5DAE3',
           600: '#B7BECB',
           700: '#8E97A8',
@@ -67,8 +68,8 @@ module.exports = {
           100: '#FFEBD4',
           200: '#FFD4A8',
           300: '#FFB56B',
-          400: '#FF9433',
-          500: '#FF7A1B',
+          400: '#FFA51F',
+          500: '#FF791F',
           600: '#E86E00',
           700: '#C45C00',
           800: '#9A4800',

@@ -86,7 +86,7 @@ export default function CategoryPage({ initialCategory }) {
 
       {/* Subcategories as Cards (when category has subcategories) */}
       {hasSubcategories && !activeSubcategory && (
-        <section className="py-12 bg-cream-50">
+        <section className="py-12">
           <div className="container-custom">
             <div className="text-center mb-10">
               <h2 className="text-2xl md:text-3xl font-display font-bold text-charcoal-800 mb-3">
@@ -152,7 +152,7 @@ export default function CategoryPage({ initialCategory }) {
 
       {/* Subcategory Filter Pills (when viewing products with subcategories) */}
       {hasSubcategories && activeSubcategory && (
-        <section className="py-6 bg-cream-50 border-b border-cream-200">
+        <section className="py-6 border-b border-cream-400">
           <div className="container-custom">
             <div className="flex flex-wrap gap-2">
               <button
