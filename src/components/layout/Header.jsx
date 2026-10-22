@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useSelector, useDispatch } from 'react-redux';
@@ -9,14 +9,85 @@ import {
 import toast from 'react-hot-toast';
 import { logout } from '@/store/slices/authSlice';
 import { storeSettingsAPI } from '@/lib/api';
+import { getMediaUrl } from '@/lib/siteConfig';
+import { useSearch } from '@/hooks';
 import { DesktopCategoryNav, MobileCategoryNav } from '@/components/layout/CategoryNav';
 
 function Wordmark() {
   return (
-    <span className="text-[22px] font-extrabold tracking-tight leading-none">
+    <span className="truncate text-[15px] font-extrabold leading-none tracking-tight min-[380px]:text-[18px] lg:text-[22px]">
       <span className="text-white">Pick</span>
       <span className="text-gold-500">Orbeet</span>
     </span>
+  );
+}
+
+function SearchSuggestions({ query, results, loading, recentSearches, onPick, onRecent }) {
+  const showRecent = query.trim().length < 2 && recentSearches.length > 0;
+  const showResults = query.trim().length >= 2;
+  if (!showRecent && !showResults) return null;
+
+  return (
+    <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-xl border border-[#E4E9F2] bg-white text-charcoal-900 shadow-elegant-lg">
+      {showRecent && (
+        <div className="py-1">
+          <p className="px-3 pt-2 text-[11px] font-semibold uppercase tracking-wide text-charcoal-500">Recent</p>
+          {recentSearches.map((term) => (
+            <button
+              key={term}
+              type="button"
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => onRecent(term)}
+              className="block w-full px-3 py-2.5 text-left text-sm hover:bg-[#F5F7FC] focus-visible:bg-[#F5F7FC] focus-visible:outline-none"
+            >
+              {term}
+            </button>
+          ))}
+        </div>
+      )}
+      {showResults && loading && (
+        <p className="px-3 py-3 text-sm text-charcoal-500">Searching...</p>
+      )}
+      {showResults && !loading && results.length === 0 && (
+        <p className="px-3 py-3 text-sm text-charcoal-500">No matching products</p>
+      )}
+      {showResults && !loading && results.length > 0 && (
+        <ul>
+          {results.slice(0, 6).map((product) => (
+            <li key={product.id}>
+              <Link
+                href={`/product/${product.slug}`}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => onPick(query)}
+                className="flex items-center gap-3 px-3 py-2 hover:bg-[#F5F7FC] focus-visible:bg-[#F5F7FC] focus-visible:outline-none"
+              >
+                <img
+                  src={getMediaUrl(product.primary_image)}
+                  alt=""
+                  width={40}
+                  height={40}
+                  className="h-10 w-10 shrink-0 rounded-md bg-[#F5F7FC] object-contain"
+                />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-medium">{product.name}</span>
+                  <span className="text-xs font-semibold text-action">৳{Number(product.price).toLocaleString()}</span>
+                </span>
+              </Link>
+            </li>
+          ))}
+          <li>
+            <button
+              type="button"
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => onRecent(query.trim())}
+              className="block w-full border-t border-[#E4E9F2] px-3 py-2.5 text-left text-sm font-semibold text-action hover:bg-[#F5F7FC]"
+            >
+              View all results
+            </button>
+          </li>
+        </ul>
+      )}
+    </div>
   );
 }
 
@@ -24,8 +95,28 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showCategories, setShowCategories] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [logo, setLogo] = useState('');
+  const [searchFocus, setSearchFocus] = useState(null);
+  const [desktopSearchLayout, setDesktopSearchLayout] = useState(false);
+  const desktopSearchRef = useRef(null);
+  const mobileSearchRef = useRef(null);
+
+  const {
+    query: searchQuery,
+    setQuery: setSearchQuery,
+    results,
+    isLoading,
+    recentSearches,
+    handleSubmit: rememberSearch,
+  } = useSearch({ debounceDelay: 300, minQueryLength: 2 });
+
+  useEffect(() => {
+    const media = window.matchMedia('(min-width: 768px)');
+    const update = () => setDesktopSearchLayout(media.matches);
+    update();
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
 
   useEffect(() => {
     storeSettingsAPI.getPublicSettings()
@@ -38,8 +129,22 @@ export default function Header() {
   const { totalItems } = useSelector((state) => state.cart);
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const { categories } = useSelector((state) => state.products);
-
   const categoryList = Array.isArray(categories) ? categories : [];
+
+  useEffect(() => {
+    setIsMenuOpen(false);
+    setSearchFocus(null);
+  }, [router.asPath]);
+
+  useEffect(() => {
+    const toggle = () => setIsMenuOpen((open) => !open);
+    window.addEventListener('pickorbeet:open-menu', toggle);
+    return () => window.removeEventListener('pickorbeet:open-menu', toggle);
+  }, []);
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('pickorbeet:menu-state', { detail: isMenuOpen }));
+  }, [isMenuOpen]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -48,44 +153,84 @@ export default function Header() {
     router.push('/');
   };
 
-  const handleSearch = (event) => {
-    event.preventDefault();
-    const query = searchQuery.trim();
+  const goToSearch = (term) => {
+    const query = (term || '').trim();
+    setSearchFocus(null);
+    setIsMenuOpen(false);
     if (!query) {
       router.push('/products');
       return;
     }
+    if (query === searchQuery.trim()) rememberSearch();
     router.push(`/products?search=${encodeURIComponent(query)}`);
-    setIsMenuOpen(false);
   };
+
+  const handleSearch = (event) => {
+    event.preventDefault();
+    goToSearch(searchQuery);
+  };
+
+  const suggestionProps = {
+    query: searchQuery,
+    results,
+    loading: isLoading,
+    recentSearches,
+    onPick: (term) => {
+      if (term?.trim()) rememberSearch();
+      setSearchFocus(null);
+      setIsMenuOpen(false);
+    },
+    onRecent: (term) => {
+      setSearchQuery(term);
+      goToSearch(term);
+    },
+  };
+
+  const iconClass = 'relative flex h-11 w-10 shrink-0 items-center justify-center rounded-lg text-white/95 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white min-[380px]:w-11 lg:h-auto lg:w-auto lg:flex-col lg:px-2 lg:py-1';
 
   return (
     <header className="sticky top-0 z-50 bg-navy-900 text-white">
       <div className="container-custom">
-        <div className="flex items-center gap-3 lg:gap-6 h-[72px]">
-          <Link href="/" className="flex items-center gap-2.5 shrink-0">
-            <img src={logo || '/images/logo.png'} alt="" className="h-11 w-auto" />
+        <div className="flex h-14 items-center justify-between gap-2 lg:h-[72px] lg:gap-6">
+          <Link href="/" className="flex min-w-0 items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:gap-2">
+            <img
+              src={logo || '/images/logo.png'}
+              alt=""
+              width={36}
+              height={36}
+              className="h-8 w-8 shrink-0 object-contain lg:h-11 lg:w-11"
+            />
             <Wordmark />
           </Link>
 
-          <form onSubmit={handleSearch} className="hidden md:flex flex-1 items-center min-w-0">
+          <form
+            ref={desktopSearchRef}
+            onSubmit={handleSearch}
+            role="search"
+            className="relative hidden min-w-0 flex-1 items-center md:flex"
+          >
+            <Search className="pointer-events-none absolute left-3 h-4 w-4 text-charcoal-500" aria-hidden="true" />
             <input
               type="search"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
+              onFocus={() => setSearchFocus('desktop')}
+              onBlur={() => setSearchFocus((current) => (current === 'desktop' ? null : current))}
               placeholder="Search for products, brands and more..."
-              className="w-full h-11 px-4 rounded-l-md bg-white text-charcoal-800 placeholder:text-charcoal-400 text-sm outline-none"
+              aria-label="Search products"
+              className="h-11 w-full rounded-l-lg bg-white pl-10 pr-3 text-sm text-charcoal-900 outline-none placeholder:text-charcoal-400 focus-visible:ring-2 focus-visible:ring-gold-500"
             />
             <button
               type="submit"
               aria-label="Search"
-              className="h-11 w-12 shrink-0 rounded-r-md bg-gold-500 hover:bg-gold-400 text-white flex items-center justify-center transition-colors"
+              className="flex h-11 w-12 shrink-0 items-center justify-center rounded-r-lg bg-gold-500 text-white transition-colors hover:bg-gold-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
-              <Search className="w-5 h-5" />
+              <Search className="h-5 w-5" />
             </button>
+            {desktopSearchLayout && (searchFocus === 'desktop' || searchQuery.trim().length >= 2) && <SearchSuggestions {...suggestionProps} />}
           </form>
 
-          <div className="ml-auto flex items-center gap-1 sm:gap-3">
+          <div className="flex shrink-0 items-center">
             <div
               className="relative"
               onMouseEnter={() => setShowUserMenu(true)}
@@ -93,10 +238,11 @@ export default function Header() {
             >
               <Link
                 href={isAuthenticated ? '/account' : '/login'}
-                className="flex flex-col items-center justify-center px-2 py-1 text-white/90 hover:text-white"
+                aria-label="Account"
+                className={iconClass}
               >
-                <User className="w-5 h-5" />
-                <span className="hidden sm:block text-[11px] mt-0.5 font-medium">Account</span>
+                <User className="h-5 w-5" />
+                <span className="mt-0.5 hidden text-[11px] font-medium lg:block">Account</span>
               </Link>
               <AnimatePresence>
                 {showUserMenu && (
@@ -104,17 +250,17 @@ export default function Header() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 8 }}
-                    className="absolute top-full right-0 mt-2 w-52 bg-white text-charcoal-700 rounded-xl shadow-elegant-lg border border-cream-400 py-2 overflow-hidden"
+                    className="absolute right-0 top-full z-50 mt-2 w-52 overflow-hidden rounded-xl border border-cream-400 bg-white py-2 text-charcoal-700 shadow-elegant-lg"
                   >
                     {isAuthenticated ? (
                       <>
-                        <div className="px-4 py-2 border-b border-cream-400">
+                        <div className="border-b border-cream-400 px-4 py-2">
                           <p className="text-[11px] uppercase tracking-wider text-gold-600">Welcome</p>
                           <p className="font-semibold text-charcoal-900">{user?.first_name || 'Account'}</p>
                         </div>
                         <Link href="/account" className="block px-4 py-2.5 hover:bg-cream-200">My Account</Link>
                         <Link href="/orders" className="block px-4 py-2.5 hover:bg-cream-200">My Orders</Link>
-                        <button onClick={handleLogout} className="w-full text-left px-4 py-2.5 hover:bg-red-50 hover:text-red-600">
+                        <button type="button" onClick={handleLogout} className="w-full px-4 py-2.5 text-left hover:bg-red-50 hover:text-red-600">
                           Logout
                         </button>
                       </>
@@ -130,60 +276,69 @@ export default function Header() {
               </AnimatePresence>
             </div>
 
-            <button
-              type="button"
-              aria-label="Wishlist"
-              className="flex flex-col items-center justify-center px-2 py-1 text-white/90 hover:text-white"
-            >
-              <Heart className="w-5 h-5" />
-              <span className="hidden sm:block text-[11px] mt-0.5 font-medium">Wishlist</span>
-            </button>
+            <Link href="/wishlist" aria-label="Wishlist" className={iconClass}>
+              <Heart className="h-5 w-5" />
+              <span className="mt-0.5 hidden text-[11px] font-medium lg:block">Wishlist</span>
+            </Link>
 
-            <Link href="/cart" className="relative flex flex-col items-center justify-center px-2 py-1 text-white/90 hover:text-white">
-              <ShoppingCart className="w-5 h-5" />
-              <span className="hidden sm:block text-[11px] mt-0.5 font-medium">Cart</span>
-              <AnimatePresence>
+            <Link href="/cart" aria-label={`Cart${totalItems ? `, ${totalItems} items` : ''}`} className={iconClass}>
+              <span className="relative">
+                <ShoppingCart className="h-5 w-5" />
                 {totalItems > 0 && (
-                  <motion.span
-                    key={totalItems}
-                    initial={{ scale: 0.6, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.6, opacity: 0 }}
-                    className="absolute -top-0.5 right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-gold-500 text-white text-[10px] font-bold flex items-center justify-center"
-                  >
-                    {totalItems}
-                  </motion.span>
+                  <span className="absolute -right-2 -top-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-gold-500 px-1 text-[10px] font-bold text-white">
+                    {totalItems > 99 ? '99+' : totalItems}
+                  </span>
                 )}
-              </AnimatePresence>
+              </span>
+              <span className="mt-0.5 hidden text-[11px] font-medium lg:block">Cart</span>
             </Link>
 
             <button
               type="button"
-              className="lg:hidden p-2"
+              className={`${iconClass} lg:hidden`}
               aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={isMenuOpen}
+              aria-controls="mobile-category-menu"
               onClick={() => setIsMenuOpen((open) => !open)}
             >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
 
-        <form onSubmit={handleSearch} className="md:hidden flex pb-3">
-          <input
-            type="search"
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder="Search for products, brands and more..."
-            className="w-full h-10 px-3 rounded-l-md bg-white text-charcoal-800 placeholder:text-charcoal-400 text-sm outline-none"
-          />
-          <button type="submit" aria-label="Search" className="h-10 w-11 rounded-r-md bg-gold-500 text-white flex items-center justify-center">
-            <Search className="w-4 h-4" />
+        <form
+          ref={mobileSearchRef}
+          onSubmit={handleSearch}
+          role="search"
+          className="relative flex pb-3 md:hidden"
+        >
+          <div className="relative min-w-0 flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-charcoal-500" aria-hidden="true" />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              onFocus={() => setSearchFocus('mobile')}
+              onBlur={() => setSearchFocus((current) => (current === 'mobile' ? null : current))}
+              placeholder="Search products, brands..."
+              aria-label="Search products"
+              enterKeyHint="search"
+              className="h-11 w-full rounded-l-lg bg-white pl-10 pr-3 text-sm text-charcoal-900 outline-none placeholder:text-charcoal-400 focus-visible:ring-2 focus-visible:ring-gold-500"
+            />
+          </div>
+          <button
+            type="submit"
+            aria-label="Search"
+            className="flex h-11 w-12 shrink-0 items-center justify-center rounded-r-lg bg-gold-500 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          >
+            <Search className="h-5 w-5" />
           </button>
+          {!desktopSearchLayout && (searchFocus === 'mobile' || searchQuery.trim().length >= 2) && <SearchSuggestions {...suggestionProps} />}
         </form>
       </div>
 
-      <div className="hidden lg:block border-t border-white/10">
-        <div className="container-custom flex items-center gap-1 h-12">
+      <div className="hidden border-t border-white/10 lg:block">
+        <div className="container-custom flex h-12 items-center gap-1">
           <div
             className="relative"
             onMouseEnter={() => setShowCategories(true)}
@@ -191,11 +346,11 @@ export default function Header() {
           >
             <button
               type="button"
-              className="flex items-center gap-2 h-9 px-3 rounded-md border border-white/25 text-sm font-medium hover:bg-white/10"
+              className="flex h-9 items-center gap-2 rounded-md border border-white/25 px-3 text-sm font-medium hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
-              <Menu className="w-4 h-4" />
+              <Menu className="h-4 w-4" />
               All Categories
-              <ChevronDown className={`w-4 h-4 transition-transform ${showCategories ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`h-4 w-4 transition-transform ${showCategories ? 'rotate-180' : ''}`} />
             </button>
             <AnimatePresence>
               {showCategories && (
@@ -203,7 +358,7 @@ export default function Header() {
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 8 }}
-                  className="absolute top-full left-0 mt-2 w-72 max-h-96 overflow-y-auto bg-white text-charcoal-700 rounded-xl shadow-elegant-lg py-2"
+                  className="absolute left-0 top-full z-50 mt-2 max-h-96 w-72 overflow-y-auto rounded-xl bg-white py-2 text-charcoal-700 shadow-elegant-lg"
                 >
                   {categoryList.length === 0 && (
                     <p className="px-4 py-3 text-sm text-charcoal-500">No categories yet</p>
@@ -226,7 +381,7 @@ export default function Header() {
 
           <Link
             href="/products?on_sale=1"
-            className="shrink-0 ml-2 h-8 px-4 rounded-md bg-gold-500 hover:bg-gold-400 text-sm font-semibold flex items-center"
+            className="ml-2 flex h-8 shrink-0 items-center rounded-md bg-gold-500 px-4 text-sm font-semibold hover:bg-gold-400"
           >
             Deals
           </Link>
@@ -236,13 +391,14 @@ export default function Header() {
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
+            id="mobile-category-menu"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="lg:hidden overflow-hidden border-t border-white/10"
+            className="overflow-hidden border-t border-white/10 lg:hidden"
           >
-            <nav className="container-custom py-3 flex flex-col">
-              <Link href="/products?on_sale=1" onClick={() => setIsMenuOpen(false)} className="py-2.5 text-gold-400 font-semibold">
+            <nav className="container-custom flex max-h-[min(70vh,28rem)] flex-col overflow-y-auto py-3">
+              <Link href="/products?on_sale=1" onClick={() => setIsMenuOpen(false)} className="py-2.5 font-semibold text-gold-400">
                 Deals
               </Link>
               <MobileCategoryNav categories={categoryList} onNavigate={() => setIsMenuOpen(false)} />

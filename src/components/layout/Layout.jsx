@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { motion } from 'framer-motion';
 import Header from './Header';
 import Footer from './Footer';
+import MobileNav from './MobileNav';
 import SEO from '@/components/SEO';
 import { fetchCart } from '@/store/slices/cartSlice';
 import { getProfile, checkAuth } from '@/store/slices/authSlice';
@@ -58,7 +59,7 @@ export default function Layout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
-      <div className="min-h-screen flex flex-col bg-cream-200">
+      <div className="flex min-h-screen flex-col bg-cream-200 pb-[calc(4rem+1px+env(safe-area-inset-bottom))] lg:pb-0">
         <Header />
         <motion.main
           variants={mainVariants}
@@ -69,6 +70,7 @@ export default function Layout({
           {children}
         </motion.main>
         <Footer />
+        <MobileNav />
       </div>
     </>
   );

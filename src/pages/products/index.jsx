@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Filter, X, ChevronDown } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
+import ProductGrid from '@/components/products/ProductGrid';
 import { fetchProducts } from '@/store/slices/productsSlice';
 
 // Build query params object from filters, skipping empty values
@@ -290,7 +291,7 @@ export default function ProductsPage() {
           {/* Products Grid */}
           <div className="flex-1">
             {loading && products.length === 0 ? (
-              <div className="product-grid">
+              <ProductGrid sidebar>
                 {[...Array(6)].map((_, i) => (
                   <div key={i} className="animate-pulse">
                     <div className="aspect-square bg-cream-300" />
@@ -298,15 +299,15 @@ export default function ProductsPage() {
                     <div className="mt-2 h-4 w-2/3 bg-cream-300" />
                   </div>
                 ))}
-              </div>
+              </ProductGrid>
             ) : products.length > 0 ? (
-              <div className={`product-grid transition-opacity duration-200 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+              <ProductGrid sidebar className={`transition-opacity duration-200 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 {products.map((product) => (
                   <div key={product.id}>
                     <ProductCard product={product} />
                   </div>
                 ))}
-              </div>
+              </ProductGrid>
             ) : (
               <div className="text-center py-16">
                 <p className="text-secondary-600 text-lg">No products found</p>

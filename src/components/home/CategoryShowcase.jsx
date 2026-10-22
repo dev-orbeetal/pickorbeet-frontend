@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import ProductCard from '@/components/products/ProductCard';
+import ProductGrid from '@/components/products/ProductGrid';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -79,13 +80,13 @@ export default function CategoryShowcase({ categoryProducts }) {
               </motion.div>
 
               {/* Products Grid - Illiyeen Style */}
-              <div className="product-grid">
+              <ProductGrid>
                 {products.map((product) => (
                   <motion.div key={product.id} variants={itemVariants}>
                     <ProductCard product={product} />
                   </motion.div>
                 ))}
-              </div>
+              </ProductGrid>
 
               {/* View Collection Button */}
               <motion.div

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight, Crown } from 'lucide-react';
 import ProductCard from '../products/ProductCard';
+import ProductGrid from '../products/ProductGrid';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -84,13 +85,14 @@ export default function CategoryProducts({ categoryProducts }) {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-50px" }}
-              className="product-grid"
             >
-              {categoryData.products.map((product) => (
-                <motion.div key={product.id} variants={itemVariants}>
-                  <ProductCard product={product} />
-                </motion.div>
-              ))}
+              <ProductGrid>
+                {categoryData.products.map((product) => (
+                  <motion.div key={product.id} variants={itemVariants}>
+                    <ProductCard product={product} />
+                  </motion.div>
+                ))}
+              </ProductGrid>
             </motion.div>
           </motion.div>
         ))}

@@ -8,6 +8,12 @@
   html {
     scroll-behavior: smooth;
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
   
   body {
     @apply font-sans text-charcoal-900 bg-cream-200 antialiased;
@@ -121,7 +127,7 @@
   
   .container-custom {
     /* Side gap is half of the previous 1440px cap: content grows by half the leftover viewport. */
-    @apply max-w-[min(100%,calc(50vw+720px))] mx-auto px-2 sm:px-3 lg:px-4;
+    @apply max-w-[min(100%,calc(50vw+720px))] mx-auto px-4;
   }
 
   .scrollbar-hide {
@@ -136,24 +142,41 @@
   .product-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: 0.75rem;
-    row-gap: 1.25rem;
+    column-gap: 10px;
+    row-gap: 14px;
   }
 
-  @media (min-width: 768px) {
+  .product-grid > * {
+    min-width: 0;
+  }
+
+  @media (min-width: 640px) {
     .product-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: 12px;
+      row-gap: 16px;
     }
   }
 
-  @media (min-width: 1024px) {
+  @media (min-width: 768px) {
     .product-grid {
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
 
-  @media (min-width: 1280px) {
+  @media (min-width: 1024px) {
     .product-grid {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    /* A filter sidebar leaves too little room for six columns until the viewport is wider. */
+    .product-grid.is-sidebar {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .product-grid.is-sidebar {
       grid-template-columns: repeat(6, minmax(0, 1fr));
     }
   }

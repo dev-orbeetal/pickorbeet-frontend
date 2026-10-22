@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Grid, ChevronRight } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
+import ProductGrid from '@/components/products/ProductGrid';
 import { fetchProducts, fetchCategories } from '@/store/slices/productsSlice';
 import { getMediaUrl } from '@/lib/siteConfig';
 
@@ -104,7 +105,7 @@ export default function SubcategoryPage() {
       <section className="py-12">
         <div className="container-custom">
           {loading ? (
-            <div className="product-grid">
+            <ProductGrid>
               {[...Array(8)].map((_, i) => (
                 <div key={i} className="animate-pulse">
                   <div className="aspect-square bg-cream-300" />
@@ -112,7 +113,7 @@ export default function SubcategoryPage() {
                   <div className="mt-2 h-4 w-2/3 bg-cream-300" />
                 </div>
               ))}
-            </div>
+            </ProductGrid>
           ) : products.length > 0 ? (
             <>
               <div className="flex items-center justify-between mb-6">
@@ -120,7 +121,7 @@ export default function SubcategoryPage() {
                   Showing <span className="font-semibold text-charcoal-800">{products.length}</span> products
                 </p>
               </div>
-              <div className="product-grid">
+              <ProductGrid>
                 {products.map((product, index) => (
                   <motion.div
                     key={product.id}
@@ -131,7 +132,7 @@ export default function SubcategoryPage() {
                     <ProductCard product={product} />
                   </motion.div>
                 ))}
-              </div>
+              </ProductGrid>
             </>
           ) : (
             <div className="text-center py-16">

@@ -6,6 +6,7 @@ import { ShoppingBag, Heart, Minus, Plus, Check, Truck, RotateCcw, Shield } from
 import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
+import ProductGrid from '@/components/products/ProductGrid';
 import { fetchProduct, fetchProducts, clearProduct } from '@/store/slices/productsSlice';
 import { addToCart } from '@/store/slices/cartSlice';
 import siteConfig, { getAbsoluteImageUrl, getMediaUrl } from '@/lib/siteConfig';
@@ -321,11 +322,11 @@ export default function ProductDetailPage({ initialProduct }) {
             <h2 className="text-2xl font-display font-semibold text-secondary-900 mb-8">
               Related Products
             </h2>
-            <div className="product-grid">
+            <ProductGrid>
               {relatedProducts.map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}
-            </div>
+            </ProductGrid>
           </section>
         )}
       </div>

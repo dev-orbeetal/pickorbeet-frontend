@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight, Crown, TrendingUp } from 'lucide-react';
 import ProductCard from '../products/ProductCard';
+import ProductGrid from '../products/ProductGrid';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -89,13 +90,14 @@ export default function FeaturedProducts({ products }) {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
-          className="product-grid"
         >
-          {productsArray.slice(0, 8).map((product) => (
-            <motion.div key={product.id} variants={itemVariants}>
-              <ProductCard product={product} />
-            </motion.div>
-          ))}
+          <ProductGrid>
+            {productsArray.slice(0, 8).map((product) => (
+              <motion.div key={product.id} variants={itemVariants}>
+                <ProductCard product={product} />
+              </motion.div>
+            ))}
+          </ProductGrid>
         </motion.div>
 
         {/* Trending indicator */}
