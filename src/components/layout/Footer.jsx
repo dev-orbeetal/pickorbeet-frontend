@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, ArrowRight, Heart, Crown } from 'lucide-react';
 import { storeSettingsAPI } from '@/lib/api';
+import LogoMark from '@/components/brand/LogoMark';
 
 const footerLinks = {
   quickLinks: [
@@ -81,7 +82,14 @@ export default function Footer() {
           {/* Brand */}
           <motion.div variants={itemVariants}>
             <Link href="/" className="inline-flex items-center gap-2 group">
-              <img src={settings?.logo || '/images/logo.png'} alt="" className="h-10 w-auto" />
+              <LogoMark
+                src={settings?.logo || '/images/logo.png'}
+                alt=""
+                width={settings?.logo ? undefined : 688}
+                height={settings?.logo ? undefined : 809}
+                className="-translate-y-[15%]"
+                imgClassName="block h-10 w-auto"
+              />
               <span className="text-xl font-extrabold tracking-tight">
                 <span className="text-white">Pick</span>
                 <span className="text-gold-500">Orbeet</span>

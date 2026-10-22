@@ -12,6 +12,7 @@ import { storeSettingsAPI } from '@/lib/api';
 import { getMediaUrl } from '@/lib/siteConfig';
 import { useSearch } from '@/hooks';
 import { DesktopCategoryNav, MobileCategoryNav } from '@/components/layout/CategoryNav';
+import LogoMark from '@/components/brand/LogoMark';
 
 function Wordmark() {
   return (
@@ -193,12 +194,13 @@ export default function Header() {
       <div className="container-custom">
         <div className="flex h-14 items-center justify-between gap-2 lg:h-[72px] lg:gap-6">
           <Link href="/" className="flex min-w-0 items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:gap-2">
-            <img
+            <LogoMark
               src={logo || '/images/logo.png'}
               alt=""
               width={36}
               height={36}
-              className="h-8 w-8 shrink-0 object-contain lg:h-11 lg:w-11"
+              className="h-8 w-8 shrink-0 -translate-y-[15%] lg:h-11 lg:w-11"
+              imgClassName="block h-full w-full object-contain"
             />
             <Wordmark />
           </Link>

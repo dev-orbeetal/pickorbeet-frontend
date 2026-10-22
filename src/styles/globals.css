@@ -396,3 +396,20 @@
   transform-origin: center;
   animation: trust-wheel-spin 0.84s linear infinite;
 }
+
+@keyframes logo-dot-travel {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: calc(var(--logo-path-length) * -1px); }
+}
+
+.logo-silhouette-dot {
+  stroke-dashoffset: 0;
+  animation: logo-dot-travel 5s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-silhouette-dot {
+    animation: none;
+    display: none;
+  }
+}

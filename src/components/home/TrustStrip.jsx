@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { CreditCard, RotateCcw, ShieldCheck, Truck } from 'lucide-react';
 
 const WIDE_QUERY = '(min-width: 420px)';
-const TRUCK_WIDTH = 76;
+const TRUCK_WIDTH = 114;
 const TRAVEL_SECONDS = 4.4;
 
 const fallback = [
@@ -47,7 +47,7 @@ function revealTransition(active, mode, index, part) {
 
 function DeliveryTruck() {
   return (
-    <svg viewBox="0 0 88 40" className="trust-truck is-moving h-9 w-[76px]" aria-hidden="true">
+    <svg viewBox="0 0 88 40" className="trust-truck is-moving h-[52px] w-[114px]" aria-hidden="true">
       <g className="trust-bob">
         <rect x="3" y="8" width="48" height="20" rx="2.5" fill="#202D70" />
         <rect x="3" y="8" width="48" height="5" rx="2" fill="#2864E8" />
@@ -79,10 +79,12 @@ export default function TrustStrip({ items }) {
   const trackRef = useRef(null);
   const statusRef = useRef('idle');
   const shownRef = useRef(hidden);
+  const driveRef = useRef(null);
   const [mode, setMode] = useState('off');
   const [status, setStatus] = useState('idle');
   const [shown, setShown] = useState(hidden);
   const [travel, setTravel] = useState(0);
+  const [run, setRun] = useState(0);
 
   useLayoutEffect(() => {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -110,9 +112,10 @@ export default function TrustStrip({ items }) {
 
     const reset = () => {
       statusRef.current = 'idle';
-      shownRef.current = hidden;
+      shownRef.current = hidden.slice();
       setStatus('idle');
-      setShown(hidden);
+      setShown(hidden.slice());
+      setTravel(0);
     };
 
     const begin = () => {
@@ -127,23 +130,22 @@ export default function TrustStrip({ items }) {
       }
       const distance = trackRef.current?.clientWidth || 0;
       if (!distance) return;
-      shownRef.current = hidden;
+      shownRef.current = hidden.slice();
       statusRef.current = 'playing';
-      setShown(hidden);
+      setShown(hidden.slice());
       setTravel(distance);
+      setRun((value) => value + 1);
       setStatus('playing');
     };
 
-    const assess = (ratio, intersecting) => {
-      if (intersecting && ratio >= 0.4) begin();
-      else if (!intersecting || ratio <= 0) reset();
-    };
-
-    const visibleRatio = () => {
+    const assess = () => {
       const rect = node.getBoundingClientRect();
-      if (rect.height <= 0) return 0;
+      if (rect.height <= 0) return;
       const visible = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
-      return Math.max(0, visible) / rect.height;
+      const ratio = Math.max(0, visible) / rect.height;
+      const offscreen = rect.bottom <= 0 || rect.top >= window.innerHeight;
+      if (ratio >= 0.4) begin();
+      else if (offscreen) reset();
     };
 
     let frame = 0;
@@ -151,46 +153,32 @@ export default function TrustStrip({ items }) {
       if (frame) return;
       frame = requestAnimationFrame(() => {
         frame = 0;
-        const ratio = visibleRatio();
-        assess(ratio, ratio > 0);
+        assess();
       });
     };
 
-    const observer = new IntersectionObserver(([entry]) => {
-      assess(entry.intersectionRatio, entry.isIntersecting);
-    }, { threshold: [0, 0.4] });
+    const observer = new IntersectionObserver(() => assess(), { threshold: [0, 0.4, 1] });
+    const resizeObserver = new ResizeObserver(() => assess());
 
     observer.observe(node);
-    onScroll();
+    if (trackRef.current) resizeObserver.observe(trackRef.current);
+    assess();
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
+    const onPageShow = (event) => {
+      if (event.persisted) reset();
+      requestAnimationFrame(assess);
+    };
+    window.addEventListener('pageshow', onPageShow);
     return () => {
       observer.disconnect();
+      resizeObserver.disconnect();
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
+      window.removeEventListener('pageshow', onPageShow);
       if (frame) cancelAnimationFrame(frame);
     };
   }, [mode, rows.length]);
-
-  const syncReveal = (latest) => {
-    const track = trackRef.current;
-    if (!track || statusRef.current !== 'playing') return;
-    const nose = latest.x + TRUCK_WIDTH * 0.9;
-    const nodes = track.querySelectorAll('[data-benefit]');
-    const next = shownRef.current.slice();
-    let changed = false;
-    nodes.forEach((item, index) => {
-      if (next[index]) return;
-      if (nose >= item.offsetLeft + item.offsetWidth * 0.22) {
-        next[index] = true;
-        changed = true;
-      }
-    });
-    if (changed) {
-      shownRef.current = next;
-      setShown(next);
-    }
-  };
 
   const finish = () => {
     if (statusRef.current !== 'playing') return;
@@ -201,6 +189,56 @@ export default function TrustStrip({ items }) {
     setStatus('done');
   };
 
+  useEffect(() => {
+    if (mode !== 'truck' || status !== 'playing' || travel <= 0) return undefined;
+    const el = driveRef.current;
+    if (!el) return undefined;
+    let cancelled = false;
+    const animation = el.animate(
+      [
+        { transform: `translateX(-${TRUCK_WIDTH}px)` },
+        { transform: `translateX(${travel}px)` },
+      ],
+      { duration: TRAVEL_SECONDS * 1000, easing: 'cubic-bezier(0.42, 0, 0.2, 1)', fill: 'both' },
+    );
+    animation.onfinish = () => {
+      if (!cancelled) finish();
+    };
+    return () => {
+      cancelled = true;
+      animation.cancel();
+    };
+  }, [mode, status, travel, run]);
+
+  useEffect(() => {
+    if (mode !== 'truck' || status !== 'playing') return undefined;
+    let frame = 0;
+    const tick = () => {
+      const track = trackRef.current;
+      const truck = track?.querySelector('.trust-truck');
+      if (track && truck && statusRef.current === 'playing') {
+        const nose = truck.getBoundingClientRect().left - track.getBoundingClientRect().left + TRUCK_WIDTH * 0.9;
+        const nodes = track.querySelectorAll('[data-benefit]');
+        const next = shownRef.current.slice();
+        let changed = false;
+        nodes.forEach((item, index) => {
+          if (next[index]) return;
+          if (nose >= item.offsetLeft + item.offsetWidth * 0.22) {
+            next[index] = true;
+            changed = true;
+          }
+        });
+        if (changed) {
+          shownRef.current = next;
+          setShown(next);
+        }
+      }
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [mode, status]);
+
   return (
     <section ref={sectionRef} className="bg-cream-200" aria-label="Service benefits">
       <div className="container-custom pb-2 pt-0 sm:py-3">
@@ -209,16 +247,13 @@ export default function TrustStrip({ items }) {
           className="relative overflow-hidden rounded-xl border border-[#E4E9F2] bg-white px-2 py-3 shadow-[0_1px_2px_rgba(23,32,51,0.04)] sm:px-4"
         >
           {mode === 'truck' && status === 'playing' && travel > 0 && (
-            <motion.div
-              className="pointer-events-none absolute left-0 top-2.5 z-10"
-              initial={{ x: -TRUCK_WIDTH }}
-              animate={{ x: travel }}
-              transition={{ duration: TRAVEL_SECONDS, ease: [0.42, 0, 0.2, 1] }}
-              onUpdate={syncReveal}
-              onAnimationComplete={finish}
+            <div
+              key={run}
+              ref={driveRef}
+              className="pointer-events-none absolute left-0 top-1 z-10"
             >
               <DeliveryTruck />
-            </motion.div>
+            </div>
           )}
           <ul className="grid grid-cols-2 gap-x-2 gap-y-3 min-[420px]:grid-cols-4">
             {rows.map((item, index) => {
