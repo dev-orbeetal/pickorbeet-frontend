@@ -61,7 +61,7 @@ export default function HeroSlider({ banners = [], cards = [] }) {
         <div className={`grid items-start gap-2.5 sm:gap-3 ${split ? 'min-[960px]:[grid-template-columns:minmax(0,calc((200%+0.75rem)/3))_minmax(0,calc((100%-3rem)/3))]' : ''}`}>
           {slides.length > 0 && (
             <div>
-              <div className="relative aspect-[16/9] overflow-hidden rounded-2xl bg-navy-900 sm:aspect-[2.2/1] min-[960px]:aspect-[3/1]">
+              <div className="relative aspect-[16/9] overflow-hidden rounded-md bg-navy-900 sm:aspect-[2.2/1] min-[960px]:aspect-[3/1] min-[960px]:rounded-2xl">
                 <AnimatePresence initial={false} custom={direction}>
                   {slide && (
                     <motion.div
@@ -148,10 +148,10 @@ export default function HeroSlider({ banners = [], cards = [] }) {
                 <BannerLink
                   key={card.id}
                   href={card.link || '/products'}
-                  label={`${card.title || 'Promotion'}. Shop now`}
-                  className="group relative block overflow-hidden rounded-2xl bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action"
+                  label={card.title || 'Promotion'}
+                  className="group relative block overflow-hidden rounded-md bg-navy-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action min-[960px]:rounded-2xl"
                 >
-                  <span className="relative block aspect-[3/1] overflow-hidden bg-navy-900">
+                  <span className="relative block aspect-[3/1] overflow-hidden">
                     <img
                       src={getMediaUrl(card.image)}
                       alt={card.title || 'Promotion'}
@@ -161,10 +161,6 @@ export default function HeroSlider({ banners = [], cards = [] }) {
                       decoding="async"
                       className="h-full w-full object-contain object-center"
                     />
-                  </span>
-                  <span className="flex items-center justify-between gap-1 bg-white px-2 py-1.5 text-[11px] font-bold text-navy-900 min-[960px]:absolute min-[960px]:bottom-2 min-[960px]:left-2 min-[960px]:w-auto min-[960px]:rounded-full min-[960px]:px-2.5 min-[960px]:py-1 min-[960px]:shadow-sm">
-                    {card.button_label || 'Shop Now'}
-                    <ChevronRight className="h-3.5 w-3.5 min-[960px]:hidden" aria-hidden="true" />
                   </span>
                 </BannerLink>
               ))}

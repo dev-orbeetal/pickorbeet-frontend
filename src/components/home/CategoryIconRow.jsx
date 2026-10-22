@@ -11,7 +11,7 @@ function SubcategoryTile({ href, name, image }) {
 
   return (
     <Link href={href} className="group/tile block min-w-0 rounded-lg text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action">
-      <span className="block aspect-square overflow-hidden rounded-lg border border-[#E4E9F2] bg-[#F5F7FC]">
+      <span className="block aspect-square overflow-hidden rounded-lg bg-[#F5F7FC]">
         {src ? (
           <img
             src={src}
@@ -20,7 +20,7 @@ function SubcategoryTile({ href, name, image }) {
             height={160}
             loading="lazy"
             decoding="async"
-            className="h-full w-full object-contain p-1"
+            className="h-full w-full object-cover"
           />
         ) : null}
       </span>

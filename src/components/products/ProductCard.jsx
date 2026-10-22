@@ -94,8 +94,8 @@ export default function ProductCard({ product }) {
   return (
     <article className="product-card group flex h-full min-w-0 flex-col rounded-xl border border-[#E4E9F2] bg-white p-2 shadow-[0_1px_2px_rgba(23,32,51,0.05)]">
       <div className="relative">
-        <Link href={`/product/${product.slug}`} className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action">
-          <div className="aspect-square overflow-hidden rounded-lg bg-[#F5F7FC]">
+        <Link href={`/product/${product.slug}`} className="block rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action">
+          <div className="aspect-square overflow-hidden rounded-md">
             <img
               src={imageUrl}
               alt={product.name}
@@ -103,7 +103,7 @@ export default function ProductCard({ product }) {
               height={400}
               loading="lazy"
               decoding="async"
-              className="h-full w-full object-contain p-2"
+              className="h-full w-full object-contain"
             />
           </div>
         </Link>
@@ -142,35 +142,33 @@ export default function ProductCard({ product }) {
           {product.is_out_of_stock ? 'Out of stock' : hasDiscount ? `Save ${money(saved)}` : '\u00A0'}
         </p>
 
-        <div className="mt-auto pt-1.5">
-          <div className="flex gap-1.5">
-            <button
-              type="button"
-              onClick={handleCompare}
-              aria-pressed={compared}
-              aria-label={compared ? 'Remove from compare' : 'Compare'}
-              className={`flex h-8 w-8 items-center justify-center rounded-md border border-[#E4E9F2] bg-white text-charcoal-500 transition-colors hover:text-navy-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action ${compared ? 'border-action text-action' : ''}`}
-            >
-              <ArrowLeftRight className="h-3.5 w-3.5" />
-            </button>
-            <button
-              type="button"
-              onClick={openQuickView}
-              aria-label="Quick view"
-              className="flex h-8 w-8 items-center justify-center rounded-md border border-[#E4E9F2] bg-white text-charcoal-500 transition-colors hover:text-navy-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action"
-            >
-              <Eye className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        <button
-          type="button"
-          onClick={handleAddToCart}
-          disabled={adding || product.is_out_of_stock}
-          className="mt-1.5 flex h-10 w-full items-center justify-center gap-1.5 rounded-lg bg-action text-[13px] font-semibold text-white transition-colors hover:bg-[#1d54cc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-[#C5CDD8]"
-        >
-          <ShoppingCart className="h-3.5 w-3.5" />
-          {product.is_out_of_stock ? 'Out of stock' : adding ? 'Adding...' : justAdded ? 'Added' : 'Add to Cart'}
-        </button>
+        <div className="mt-auto flex items-center gap-1 pt-1.5">
+          <button
+            type="button"
+            onClick={handleCompare}
+            aria-pressed={compared}
+            aria-label={compared ? 'Remove from compare' : 'Compare'}
+            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[#E4E9F2] bg-white text-charcoal-500 transition-colors hover:text-navy-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action ${compared ? 'border-action text-action' : ''}`}
+          >
+            <ArrowLeftRight className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={openQuickView}
+            aria-label="Quick view"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[#E4E9F2] bg-white text-charcoal-500 transition-colors hover:text-navy-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action"
+          >
+            <Eye className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            disabled={adding || product.is_out_of_stock}
+            className="flex h-7 min-w-0 flex-1 items-center justify-center gap-1 rounded-md bg-action px-1 text-[11px] font-semibold text-white transition-colors hover:bg-[#1d54cc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-[#C5CDD8]"
+          >
+            <ShoppingCart className="cart-action-icon h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">{product.is_out_of_stock ? 'Out of stock' : adding ? 'Adding...' : justAdded ? 'Added' : 'Add to Cart'}</span>
+          </button>
         </div>
       </div>
 

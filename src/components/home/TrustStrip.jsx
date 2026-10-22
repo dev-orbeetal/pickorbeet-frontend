@@ -1,4 +1,10 @@
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import { CreditCard, RotateCcw, ShieldCheck, Truck } from 'lucide-react';
+
+const WIDE_QUERY = '(min-width: 420px)';
+const TRUCK_WIDTH = 76;
+const TRAVEL_SECONDS = 2.2;
 
 const fallback = [
   {
@@ -30,29 +36,224 @@ const ICONS = {
   returns: { icon: RotateCcw, className: 'bg-[#E7F6EF] text-savings' },
 };
 
+const hidden = [false, false, false, false];
+
+function revealTransition(active, mode, index, part) {
+  if (!active || mode === 'off') return { duration: 0, delay: 0 };
+  const partDelay = part === 'title' ? 0.06 : part === 'copy' ? 0.12 : 0;
+  const itemDelay = mode === 'stagger' ? index * 0.1 : 0;
+  return { duration: 0.4, ease: [0.16, 1, 0.3, 1], delay: itemDelay + partDelay };
+}
+
+function DeliveryTruck() {
+  return (
+    <svg viewBox="0 0 88 40" className="trust-truck is-moving h-9 w-[76px]" aria-hidden="true">
+      <g className="trust-bob">
+        <rect x="3" y="8" width="48" height="20" rx="2.5" fill="#202D70" />
+        <rect x="3" y="8" width="48" height="5" rx="2" fill="#2864E8" />
+        <rect x="16" y="16" width="16" height="9" rx="1.2" fill="#FF861F" />
+        <path d="M16 20.5h16M24 16v9" stroke="#FFF6ED" strokeWidth="1" />
+        <path d="M51 13h14.5L75 21.2V28H51V13z" fill="#34338A" />
+        <path d="M58 15.2h7.2l6.2 6H58v-6z" fill="#E8F0FF" />
+        <rect x="73.5" y="23.2" width="5.2" height="2.4" rx="0.6" fill="#FF861F" />
+        <g className="trust-wheel">
+          <circle cx="20" cy="30.5" r="5.2" fill="#141824" />
+          <circle cx="20" cy="30.5" r="2" fill="#FF861F" />
+        </g>
+        <g className="trust-wheel">
+          <circle cx="64" cy="30.5" r="5.2" fill="#141824" />
+          <circle cx="64" cy="30.5" r="2" fill="#FF861F" />
+        </g>
+      </g>
+    </svg>
+  );
+}
+
 export default function TrustStrip({ items }) {
   const rows = (items && items.length ? items : fallback).slice(0, 4).map((item) => {
     const key = typeof item.icon === 'string' ? item.icon : 'shield';
     const visual = ICONS[key] || ICONS.shield;
     return { ...item, Icon: visual.icon, iconClass: visual.className };
   });
+  const sectionRef = useRef(null);
+  const trackRef = useRef(null);
+  const statusRef = useRef('idle');
+  const shownRef = useRef(hidden);
+  const [mode, setMode] = useState('off');
+  const [status, setStatus] = useState('idle');
+  const [shown, setShown] = useState(hidden);
+  const [travel, setTravel] = useState(0);
+
+  useLayoutEffect(() => {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const wide = window.matchMedia(WIDE_QUERY);
+    const apply = () => {
+      const next = reduce.matches ? 'off' : wide.matches ? 'truck' : 'stagger';
+      statusRef.current = 'idle';
+      shownRef.current = hidden;
+      setMode(next);
+      setStatus('idle');
+      setShown(hidden);
+    };
+    apply();
+    reduce.addEventListener('change', apply);
+    wide.addEventListener('change', apply);
+    return () => {
+      reduce.removeEventListener('change', apply);
+      wide.removeEventListener('change', apply);
+    };
+  }, []);
+
+  useEffect(() => {
+    const node = sectionRef.current;
+    if (!node || mode === 'off') return undefined;
+
+    const reset = () => {
+      statusRef.current = 'idle';
+      shownRef.current = hidden;
+      setStatus('idle');
+      setShown(hidden);
+    };
+
+    const begin = () => {
+      if (statusRef.current !== 'idle') return;
+      if (mode === 'stagger') {
+        const next = rows.map(() => true);
+        shownRef.current = next;
+        statusRef.current = 'playing';
+        setShown(next);
+        setStatus('playing');
+        return;
+      }
+      const distance = trackRef.current?.clientWidth || 0;
+      if (!distance) return;
+      shownRef.current = hidden;
+      statusRef.current = 'playing';
+      setShown(hidden);
+      setTravel(distance);
+      setStatus('playing');
+    };
+
+    const assess = (ratio, intersecting) => {
+      if (intersecting && ratio >= 0.4) begin();
+      else if (!intersecting || ratio <= 0) reset();
+    };
+
+    const visibleRatio = () => {
+      const rect = node.getBoundingClientRect();
+      if (rect.height <= 0) return 0;
+      const visible = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
+      return Math.max(0, visible) / rect.height;
+    };
+
+    let frame = 0;
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        const ratio = visibleRatio();
+        assess(ratio, ratio > 0);
+      });
+    };
+
+    const observer = new IntersectionObserver(([entry]) => {
+      assess(entry.intersectionRatio, entry.isIntersecting);
+    }, { threshold: [0, 0.4] });
+
+    observer.observe(node);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [mode, rows.length]);
+
+  const syncReveal = (latest) => {
+    const track = trackRef.current;
+    if (!track || statusRef.current !== 'playing') return;
+    const nose = latest.x + TRUCK_WIDTH * 0.9;
+    const nodes = track.querySelectorAll('[data-benefit]');
+    const next = shownRef.current.slice();
+    let changed = false;
+    nodes.forEach((item, index) => {
+      if (next[index]) return;
+      if (nose >= item.offsetLeft + item.offsetWidth * 0.22) {
+        next[index] = true;
+        changed = true;
+      }
+    });
+    if (changed) {
+      shownRef.current = next;
+      setShown(next);
+    }
+  };
+
+  const finish = () => {
+    if (statusRef.current !== 'playing') return;
+    const next = rows.map(() => true);
+    shownRef.current = next;
+    statusRef.current = 'done';
+    setShown(next);
+    setStatus('done');
+  };
 
   return (
-    <section className="bg-cream-200" aria-label="Service benefits">
+    <section ref={sectionRef} className="bg-cream-200" aria-label="Service benefits">
       <div className="container-custom py-2 sm:py-3">
-        <div className="rounded-xl border border-[#E4E9F2] bg-white px-2 py-3 shadow-[0_1px_2px_rgba(23,32,51,0.04)] sm:px-4">
+        <div
+          ref={trackRef}
+          className="relative overflow-hidden rounded-xl border border-[#E4E9F2] bg-white px-2 py-3 shadow-[0_1px_2px_rgba(23,32,51,0.04)] sm:px-4"
+        >
+          {mode === 'truck' && status === 'playing' && travel > 0 && (
+            <motion.div
+              className="pointer-events-none absolute left-0 top-2.5 z-10"
+              initial={{ x: -TRUCK_WIDTH }}
+              animate={{ x: travel }}
+              transition={{ duration: TRAVEL_SECONDS, ease: [0.42, 0, 0.2, 1] }}
+              onUpdate={syncReveal}
+              onAnimationComplete={finish}
+            >
+              <DeliveryTruck />
+            </motion.div>
+          )}
           <ul className="grid grid-cols-2 gap-x-2 gap-y-3 min-[420px]:grid-cols-4">
-            {rows.map((item) => (
-              <li key={item.title} className="flex min-w-0 flex-col items-center px-1 text-center">
-                <span className={`mb-1.5 flex h-9 w-9 items-center justify-center rounded-full ${item.iconClass}`}>
-                  <item.Icon className="h-[18px] w-[18px]" aria-hidden="true" />
-                </span>
-                <p className="text-[11px] font-semibold leading-tight text-charcoal-900 sm:text-sm">{item.title}</p>
-                {item.description ? (
-                  <p className="mt-0.5 line-clamp-2 text-[10px] leading-snug text-charcoal-500 sm:text-xs">{item.description}</p>
-                ) : null}
-              </li>
-            ))}
+            {rows.map((item, index) => {
+              const active = mode === 'off' || shown[index];
+              return (
+                <li key={item.title} data-benefit className="flex min-w-0 flex-col items-center px-1 text-center">
+                  <motion.span
+                    initial={false}
+                    animate={{ opacity: active ? 1 : 0, y: active ? 0 : 6 }}
+                    transition={revealTransition(active, mode, index, 'icon')}
+                    className={`mb-1.5 flex h-9 w-9 items-center justify-center rounded-full ${item.iconClass}`}
+                  >
+                    <item.Icon className="h-[18px] w-[18px]" aria-hidden="true" />
+                  </motion.span>
+                  <motion.p
+                    initial={false}
+                    animate={{ opacity: active ? 1 : 0, y: active ? 0 : 6 }}
+                    transition={revealTransition(active, mode, index, 'title')}
+                    className="text-[11px] font-semibold leading-tight text-charcoal-900 sm:text-sm"
+                  >
+                    {item.title}
+                  </motion.p>
+                  {item.description ? (
+                    <motion.p
+                      initial={false}
+                      animate={{ opacity: active ? 1 : 0, y: active ? 0 : 6 }}
+                      transition={revealTransition(active, mode, index, 'copy')}
+                      className="mt-0.5 line-clamp-2 text-[10px] leading-snug text-charcoal-500 sm:text-xs"
+                    >
+                      {item.description}
+                    </motion.p>
+                  ) : null}
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>
