@@ -56,7 +56,7 @@ export default function Layout({
         jsonLd={jsonLd}
       />
       <Head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
       </Head>
 
       <div className="flex min-h-screen flex-col bg-ice pb-[calc(4rem+1px+env(safe-area-inset-bottom))] lg:pb-0">

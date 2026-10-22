@@ -194,7 +194,7 @@ export default function Header() {
               alt=""
               width={56}
               height={36}
-              className="h-[2.8rem] w-auto shrink-0 overflow-hidden rounded-xl bg-ice lg:h-16"
+              className="h-[calc(2.8rem*0.7)] w-auto shrink-0 overflow-hidden rounded-xl bg-ice md:h-[2.8rem] lg:h-16"
               imgClassName="block h-[112%] w-auto max-w-none -translate-y-[6%]"
             />
           </Link>
@@ -226,68 +226,100 @@ export default function Header() {
             {desktopSearchLayout && (searchFocus === 'desktop' || searchQuery.trim().length >= 2) && <SearchSuggestions {...suggestionProps} />}
           </form>
 
-          <div className="flex shrink-0 items-center">
-            <div
-              className="relative"
-              onMouseEnter={() => setShowUserMenu(true)}
-              onMouseLeave={() => setShowUserMenu(false)}
-            >
-              <Link
-                href={isAuthenticated ? '/account' : '/login'}
-                aria-label="Account"
-                className={iconClass}
-              >
-                <User className="h-5 w-5" />
-                <span className="mt-0.5 hidden text-[11px] font-medium lg:block">Account</span>
-              </Link>
-              <AnimatePresence>
-                {showUserMenu && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 8 }}
-                    className="absolute right-0 top-full z-50 mt-2 w-52 overflow-hidden rounded-xl border border-cream-400 bg-white py-2 text-charcoal-700 shadow-elegant-lg"
-                  >
-                    {isAuthenticated ? (
-                      <>
-                        <div className="border-b border-cream-400 px-4 py-2">
-                          <p className="text-[11px] uppercase tracking-wider text-gold-600">Welcome</p>
-                          <p className="font-semibold text-charcoal-900">{user?.first_name || 'Account'}</p>
-                        </div>
-                        <Link href="/account" className="block px-4 py-2.5 hover:bg-cream-200">My Account</Link>
-                        <Link href="/orders" className="block px-4 py-2.5 hover:bg-cream-200">My Orders</Link>
-                        <button type="button" onClick={handleLogout} className="w-full px-4 py-2.5 text-left hover:bg-red-50 hover:text-red-600">
-                          Logout
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <Link href="/login" className="block px-4 py-2.5 hover:bg-cream-200">Login</Link>
-                        <Link href="/register" className="block px-4 py-2.5 hover:bg-cream-200">Register</Link>
-                        <Link href="/track-order" className="block px-4 py-2.5 hover:bg-cream-200">Track Order</Link>
-                      </>
-                    )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+          <form
+            ref={mobileSearchRef}
+            onSubmit={handleSearch}
+            role="search"
+            className="relative flex min-w-0 flex-1 items-center md:hidden"
+          >
+            <div className="relative min-w-0 flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-navy-700" aria-hidden="true" />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                onFocus={() => setSearchFocus('mobile')}
+                onBlur={() => setSearchFocus((current) => (current === 'mobile' ? null : current))}
+                placeholder="Search products, brands..."
+                aria-label="Search products"
+                enterKeyHint="search"
+                className="h-11 w-full rounded-l-lg border border-[#D3DDF6] bg-ice pl-10 pr-3 text-sm text-navy-900 outline-none placeholder:text-navy-800/50 focus-visible:ring-2 focus-visible:ring-gold-500"
+              />
             </div>
+            <button
+              type="submit"
+              aria-label="Search"
+              className="flex h-11 w-12 shrink-0 items-center justify-center rounded-r-lg bg-gold-500 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            >
+              <Search className="h-5 w-5" />
+            </button>
+            {!desktopSearchLayout && (searchFocus === 'mobile' || searchQuery.trim().length >= 2) && <SearchSuggestions {...suggestionProps} />}
+          </form>
 
-            <Link href="/wishlist" aria-label="Wishlist" className={iconClass}>
-              <Heart className="h-5 w-5" />
-              <span className="mt-0.5 hidden text-[11px] font-medium lg:block">Wishlist</span>
-            </Link>
+          <div className="flex shrink-0 items-center">
+            <div className="hidden items-center lg:flex">
+              <div
+                className="relative"
+                onMouseEnter={() => setShowUserMenu(true)}
+                onMouseLeave={() => setShowUserMenu(false)}
+              >
+                <Link
+                  href={isAuthenticated ? '/account' : '/login'}
+                  aria-label="Account"
+                  className={iconClass}
+                >
+                  <User className="h-5 w-5" />
+                  <span className="mt-0.5 hidden text-[11px] font-medium lg:block">Account</span>
+                </Link>
+                <AnimatePresence>
+                  {showUserMenu && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 8 }}
+                      className="absolute right-0 top-full z-50 mt-2 w-52 overflow-hidden rounded-xl border border-cream-400 bg-white py-2 text-charcoal-700 shadow-elegant-lg"
+                    >
+                      {isAuthenticated ? (
+                        <>
+                          <div className="border-b border-cream-400 px-4 py-2">
+                            <p className="text-[11px] uppercase tracking-wider text-gold-600">Welcome</p>
+                            <p className="font-semibold text-charcoal-900">{user?.first_name || 'Account'}</p>
+                          </div>
+                          <Link href="/account" className="block px-4 py-2.5 hover:bg-cream-200">My Account</Link>
+                          <Link href="/orders" className="block px-4 py-2.5 hover:bg-cream-200">My Orders</Link>
+                          <button type="button" onClick={handleLogout} className="w-full px-4 py-2.5 text-left hover:bg-red-50 hover:text-red-600">
+                            Logout
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <Link href="/login" className="block px-4 py-2.5 hover:bg-cream-200">Login</Link>
+                          <Link href="/register" className="block px-4 py-2.5 hover:bg-cream-200">Register</Link>
+                          <Link href="/track-order" className="block px-4 py-2.5 hover:bg-cream-200">Track Order</Link>
+                        </>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
 
-            <Link href="/cart" aria-label={`Cart${totalItems ? `, ${totalItems} items` : ''}`} className={iconClass}>
-              <span className="relative">
-                <ShoppingCart className="h-5 w-5" />
-                {totalItems > 0 && (
-                  <span className="absolute -right-2 -top-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-gold-500 px-1 text-[10px] font-bold text-white">
-                    {totalItems > 99 ? '99+' : totalItems}
-                  </span>
-                )}
-              </span>
-              <span className="mt-0.5 hidden text-[11px] font-medium lg:block">Cart</span>
-            </Link>
+              <Link href="/wishlist" aria-label="Wishlist" className={iconClass}>
+                <Heart className="h-5 w-5" />
+                <span className="mt-0.5 hidden text-[11px] font-medium lg:block">Wishlist</span>
+              </Link>
+
+              <Link href="/cart" aria-label={`Cart${totalItems ? `, ${totalItems} items` : ''}`} className={iconClass}>
+                <span className="relative">
+                  <ShoppingCart className="h-5 w-5" />
+                  {totalItems > 0 && (
+                    <span className="absolute -right-2 -top-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-gold-500 px-1 text-[10px] font-bold text-white">
+                      {totalItems > 99 ? '99+' : totalItems}
+                    </span>
+                  )}
+                </span>
+                <span className="mt-0.5 hidden text-[11px] font-medium lg:block">Cart</span>
+              </Link>
+            </div>
 
             <button
               type="button"
@@ -301,36 +333,6 @@ export default function Header() {
             </button>
           </div>
         </div>
-
-        <form
-          ref={mobileSearchRef}
-          onSubmit={handleSearch}
-          role="search"
-          className="relative flex pb-3 md:hidden"
-        >
-          <div className="relative min-w-0 flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-navy-700" aria-hidden="true" />
-            <input
-              type="search"
-              value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
-              onFocus={() => setSearchFocus('mobile')}
-              onBlur={() => setSearchFocus((current) => (current === 'mobile' ? null : current))}
-              placeholder="Search products, brands..."
-              aria-label="Search products"
-              enterKeyHint="search"
-              className="h-11 w-full rounded-l-lg border border-[#D3DDF6] bg-ice pl-10 pr-3 text-sm text-navy-900 outline-none placeholder:text-navy-800/50 focus-visible:ring-2 focus-visible:ring-gold-500"
-            />
-          </div>
-          <button
-            type="submit"
-            aria-label="Search"
-            className="flex h-11 w-12 shrink-0 items-center justify-center rounded-r-lg bg-gold-500 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-          >
-            <Search className="h-5 w-5" />
-          </button>
-          {!desktopSearchLayout && (searchFocus === 'mobile' || searchQuery.trim().length >= 2) && <SearchSuggestions {...suggestionProps} />}
-        </form>
       </div>
 
       <div className="hidden border-t border-white/10 lg:block">

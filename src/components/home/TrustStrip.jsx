@@ -3,8 +3,10 @@ import { motion } from 'framer-motion';
 import { CreditCard, RotateCcw, ShieldCheck, Truck } from 'lucide-react';
 
 const WIDE_QUERY = '(min-width: 420px)';
-const TRUCK_WIDTH = 114;
-const TRAVEL_SECONDS = 4.4;
+const TRUCK_WIDTH = 228;
+const TRUCK_HEIGHT = 104;
+const ROW_HEIGHT = 132;
+const TRAVEL_SECONDS = 11 / 1.5;
 
 const fallback = [
   {
@@ -38,6 +40,13 @@ const ICONS = {
 
 const hidden = [false, false, false, false];
 
+function wheelSpinSeconds(distance) {
+  const speed = (distance + TRUCK_WIDTH) / TRAVEL_SECONDS;
+  const circumference = 2 * Math.PI * 5.2 * (TRUCK_WIDTH / 88);
+  if (speed <= 0) return 0.85;
+  return Math.max(0.35, circumference / speed);
+}
+
 function revealTransition(active, mode, index, part) {
   if (!active || mode === 'off') return { duration: 0, delay: 0 };
   const partDelay = part === 'title' ? 0.06 : part === 'copy' ? 0.12 : 0;
@@ -45,9 +54,24 @@ function revealTransition(active, mode, index, part) {
   return { duration: 0.4, ease: [0.16, 1, 0.3, 1], delay: itemDelay + partDelay };
 }
 
-function DeliveryTruck() {
+function Wheel({ cx, cy }) {
   return (
-    <svg viewBox="0 0 88 40" className="trust-truck is-moving h-[52px] w-[114px]" aria-hidden="true">
+    <g className="trust-wheel">
+      <circle cx={cx} cy={cy} r="5.2" fill="#141824" />
+      <circle cx={cx} cy={cy} r="2" fill="#FF861F" />
+      <rect x={cx - 0.45} y={cy - 4.5} width="0.9" height="2.1" rx="0.4" fill="#FFF6ED" />
+    </g>
+  );
+}
+
+function DeliveryTruck({ spinSeconds }) {
+  return (
+    <svg
+      viewBox="0 0 88 40"
+      className="trust-truck is-moving h-[104px] w-[228px]"
+      style={{ '--wheel-spin': `${spinSeconds}s` }}
+      aria-hidden="true"
+    >
       <g className="trust-bob">
         <rect x="3" y="8" width="48" height="20" rx="2.5" fill="#202D70" />
         <rect x="3" y="8" width="48" height="5" rx="2" fill="#2864E8" />
@@ -56,14 +80,8 @@ function DeliveryTruck() {
         <path d="M51 13h14.5L75 21.2V28H51V13z" fill="#34338A" />
         <path d="M58 15.2h7.2l6.2 6H58v-6z" fill="#E8F0FF" />
         <rect x="73.5" y="23.2" width="5.2" height="2.4" rx="0.6" fill="#FF861F" />
-        <g className="trust-wheel">
-          <circle cx="20" cy="30.5" r="5.2" fill="#141824" />
-          <circle cx="20" cy="30.5" r="2" fill="#FF861F" />
-        </g>
-        <g className="trust-wheel">
-          <circle cx="64" cy="30.5" r="5.2" fill="#141824" />
-          <circle cx="64" cy="30.5" r="2" fill="#FF861F" />
-        </g>
+        <Wheel cx="20" cy="30.5" />
+        <Wheel cx="64" cy="30.5" />
       </g>
     </svg>
   );
@@ -199,7 +217,7 @@ export default function TrustStrip({ items }) {
         { transform: `translateX(-${TRUCK_WIDTH}px)` },
         { transform: `translateX(${travel}px)` },
       ],
-      { duration: TRAVEL_SECONDS * 1000, easing: 'cubic-bezier(0.42, 0, 0.2, 1)', fill: 'both' },
+      { duration: TRAVEL_SECONDS * 1000, easing: 'linear', fill: 'both' },
     );
     animation.onfinish = () => {
       if (!cancelled) finish();
@@ -217,13 +235,16 @@ export default function TrustStrip({ items }) {
       const track = trackRef.current;
       const truck = track?.querySelector('.trust-truck');
       if (track && truck && statusRef.current === 'playing') {
-        const nose = truck.getBoundingClientRect().left - track.getBoundingClientRect().left + TRUCK_WIDTH * 0.9;
+        const trackRect = track.getBoundingClientRect();
+        const rear = truck.getBoundingClientRect().left - trackRect.left;
         const nodes = track.querySelectorAll('[data-benefit]');
         const next = shownRef.current.slice();
         let changed = false;
         nodes.forEach((item, index) => {
           if (next[index]) return;
-          if (nose >= item.offsetLeft + item.offsetWidth * 0.22) {
+          const itemRect = item.getBoundingClientRect();
+          const trigger = itemRect.right - trackRect.left;
+          if (rear >= trigger) {
             next[index] = true;
             changed = true;
           }
@@ -239,23 +260,19 @@ export default function TrustStrip({ items }) {
     return () => cancelAnimationFrame(frame);
   }, [mode, status]);
 
+  const driving = mode === 'truck' && status === 'playing' && travel > 0;
+
   return (
     <section ref={sectionRef} className="bg-ice" aria-label="Service benefits">
       <div className="container-custom pb-2 pt-0 sm:py-3">
         <div
           ref={trackRef}
-          className="relative overflow-hidden rounded-xl border border-[#E4E9F2] bg-white px-2 py-3 shadow-[0_1px_2px_rgba(23,32,51,0.04)] sm:px-4"
+          className="relative overflow-hidden rounded-xl border border-[#E4E9F2] bg-white px-2 shadow-[0_1px_2px_rgba(23,32,51,0.04)] sm:px-4"
+          style={mode === 'truck' ? { height: ROW_HEIGHT } : undefined}
         >
-          {mode === 'truck' && status === 'playing' && travel > 0 && (
-            <div
-              key={run}
-              ref={driveRef}
-              className="pointer-events-none absolute left-0 top-1 z-10"
-            >
-              <DeliveryTruck />
-            </div>
-          )}
-          <ul className="grid grid-cols-2 gap-x-2 gap-y-3 min-[420px]:grid-cols-4">
+          <ul
+            className={`grid grid-cols-2 gap-x-2 gap-y-3 py-3 min-[420px]:grid-cols-4 ${mode === 'truck' ? 'h-full items-center' : ''}`}
+          >
             {rows.map((item, index) => {
               const active = mode === 'off' || shown[index];
               return (
@@ -290,6 +307,16 @@ export default function TrustStrip({ items }) {
               );
             })}
           </ul>
+          {driving && (
+            <div
+              key={run}
+              ref={driveRef}
+              className="pointer-events-none absolute left-0 top-1/2 z-10"
+              style={{ marginTop: -(TRUCK_HEIGHT / 2) }}
+            >
+              <DeliveryTruck spinSeconds={wheelSpinSeconds(travel)} />
+            </div>
+          )}
         </div>
       </div>
     </section>

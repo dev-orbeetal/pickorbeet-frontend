@@ -388,13 +388,13 @@
 }
 
 .trust-truck.is-moving .trust-bob {
-  animation: trust-truck-bob 0.56s ease-in-out infinite;
+  animation: trust-truck-bob 1.4s linear infinite;
 }
 
 .trust-truck.is-moving .trust-wheel {
   transform-box: fill-box;
   transform-origin: center;
-  animation: trust-wheel-spin 0.84s linear infinite;
+  animation: trust-wheel-spin var(--wheel-spin, 0.85s) linear infinite;
 }
 
 @keyframes logo-dot-travel {
