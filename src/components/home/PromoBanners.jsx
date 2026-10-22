@@ -13,7 +13,7 @@ export default function PromoBanners({ banners = [] }) {
   if (promos.length === 0) return null;
 
   return (
-    <section className="bg-cream-200" aria-label="Promotions">
+    <section className="bg-ice" aria-label="Promotions">
       <div className="container-custom pb-3 pt-2 sm:py-3">
         <div className={`grid gap-2 sm:gap-3 ${promos.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
           {promos.map((banner) => (

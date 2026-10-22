@@ -8,7 +8,7 @@ export default function HomeProductRow({ title, viewAllHref, viewAllLabel, produ
   if (list.length === 0) return null;
 
   return (
-      <section className="bg-cream-200" aria-labelledby={`home-${String(title).replace(/\s+/g, '-').toLowerCase()}`}>
+      <section className="bg-ice" aria-labelledby={`home-${String(title).replace(/\s+/g, '-').toLowerCase()}`}>
       <div className="container-custom pb-3 pt-1 sm:py-3">
         <div className="mb-2.5 flex items-center justify-between gap-3 sm:mb-3">
           <h2 id={`home-${String(title).replace(/\s+/g, '-').toLowerCase()}`} className="text-base font-bold text-charcoal-900 sm:text-lg">{title}</h2>

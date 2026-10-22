@@ -10,7 +10,7 @@ const items = [
 
 export default function ValueBand() {
   return (
-    <section className="bg-cream-200 pt-4 pb-8">
+    <section className="bg-ice pt-4 pb-8">
       <div className="container-custom">
         <motion.div
           className="bg-navy-900 rounded-2xl overflow-hidden flex flex-col lg:flex-row"

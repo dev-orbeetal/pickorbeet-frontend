@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { CreditCard, Truck, MapPin, User, Phone, Mail, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
+import { useBootGate } from '@/components/loading/LoadingProvider';
 import { fetchCart, clearCart } from '@/store/slices/cartSlice';
 import { ordersAPI, paymentsAPI } from '@/lib/api';
 import { getMediaUrl } from '@/lib/siteConfig';
@@ -12,11 +13,12 @@ import { getMediaUrl } from '@/lib/siteConfig';
 export default function CheckoutPage() {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { items, subtotal, loading: cartLoading } = useSelector((state) => state.cart);
+  const { items, subtotal } = useSelector((state) => state.cart);
   const { isAuthenticated, user } = useSelector((state) => state.auth);
 
   const [loading, setLoading] = useState(false);
   const [cartLoaded, setCartLoaded] = useState(false);
+  useBootGate(!cartLoaded);
   const [step, setStep] = useState(1);
   const [deliveryOptions, setDeliveryOptions] = useState([]);
   const [selectedDeliveryOption, setSelectedDeliveryOption] = useState(null);
@@ -138,14 +140,14 @@ export default function CheckoutPage() {
   };
 
   // Show loading while cart is being fetched
-  if (!cartLoaded || cartLoading) {
+  if (!cartLoaded) {
     return (
       <Layout title="Checkout - Pickorbeet">
-        <div className="container-custom py-16">
-          <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-gray-200 rounded w-48" />
-            <div className="h-4 bg-gray-200 rounded w-full" />
-            <div className="h-64 bg-gray-200 rounded-xl" />
+        <div className="container-custom py-16" aria-busy="true" aria-label="Loading checkout">
+          <div className="space-y-6">
+            <div className="skeleton h-8 w-48 rounded" />
+            <div className="skeleton h-4 w-full rounded" />
+            <div className="skeleton h-64 rounded-xl" />
           </div>
         </div>
       </Layout>

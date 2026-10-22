@@ -240,7 +240,7 @@ export default function TrustStrip({ items }) {
   }, [mode, status]);
 
   return (
-    <section ref={sectionRef} className="bg-cream-200" aria-label="Service benefits">
+    <section ref={sectionRef} className="bg-ice" aria-label="Service benefits">
       <div className="container-custom pb-2 pt-0 sm:py-3">
         <div
           ref={trackRef}

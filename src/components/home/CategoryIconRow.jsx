@@ -36,7 +36,7 @@ export default function CategoryIconRow({ categories = [] }) {
   if (list.length === 0) return null;
 
   return (
-    <section className="bg-cream-200" aria-label="Shop by category">
+    <section className="bg-ice" aria-label="Shop by category">
       <div className="container-custom grid grid-cols-1 items-start gap-3 pb-3 pt-0 sm:grid-cols-2 sm:gap-4 sm:py-3">
         {list.map((category) => {
           const subcategories = ordered(

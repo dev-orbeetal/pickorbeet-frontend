@@ -5,6 +5,8 @@ import { Filter, X, ChevronDown } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
 import ProductGrid from '@/components/products/ProductGrid';
+import ProductGridSkeleton from '@/components/loading/ProductGridSkeleton';
+import { useBootGate } from '@/components/loading/LoadingProvider';
 import { fetchProducts } from '@/store/slices/productsSlice';
 
 // Build query params object from filters, skipping empty values
@@ -44,22 +46,27 @@ export default function ProductsPage() {
 
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState(defaultFilters);
-  const [initialized, setInitialized] = useState(false);
+  const [listState, setListState] = useState('loading');
   const priceTimerRef = useRef(null);
+  useBootGate(listState === 'loading' && products.length === 0);
 
   // Categories are fetched globally in _app.jsx
 
   // Sync filters from URL on first load and on browser back/forward
   useEffect(() => {
-    if (!router.isReady) return;
+    if (!router.isReady) return undefined;
+    let active = true;
     const parsed = parseQuery(router.query);
     setFilters(parsed);
-    // Dispatch fetch with the URL params directly
     const query = {};
     Object.entries(router.query).forEach(([k, v]) => { if (v) query[k] = v; });
     if (!query.ordering) query.ordering = '-created_at';
-    dispatch(fetchProducts(query));
-    setInitialized(true);
+    setListState('loading');
+    dispatch(fetchProducts(query))
+      .unwrap()
+      .then(() => { if (active) setListState('ready'); })
+      .catch(() => { if (active) setListState('error'); });
+    return () => { active = false; };
   }, [router.isReady, router.asPath, dispatch]);
 
   // Core: apply filters by dispatching fetch AND updating URL
@@ -290,16 +297,27 @@ export default function ProductsPage() {
 
           {/* Products Grid */}
           <div className="flex-1">
-            {loading && products.length === 0 ? (
-              <ProductGrid sidebar>
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="animate-pulse">
-                    <div className="aspect-square bg-cream-300" />
-                    <div className="mt-2 h-4 bg-cream-300" />
-                    <div className="mt-2 h-4 w-2/3 bg-cream-300" />
-                  </div>
-                ))}
-              </ProductGrid>
+            {listState === 'loading' && products.length === 0 ? (
+              <ProductGridSkeleton sidebar count={6} />
+            ) : listState === 'error' && products.length === 0 ? (
+              <div className="py-16 text-center">
+                <p className="text-lg text-secondary-600">Couldn&apos;t load products. Please try again.</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const query = buildQuery(filters);
+                    if (!query.ordering) query.ordering = '-created_at';
+                    setListState('loading');
+                    dispatch(fetchProducts(query))
+                      .unwrap()
+                      .then(() => setListState('ready'))
+                      .catch(() => setListState('error'));
+                  }}
+                  className="btn btn-primary mt-4"
+                >
+                  Try again
+                </button>
+              </div>
             ) : products.length > 0 ? (
               <ProductGrid sidebar className={`transition-opacity duration-200 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 {products.map((product) => (

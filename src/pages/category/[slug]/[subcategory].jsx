@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
@@ -7,6 +7,8 @@ import { Grid, ChevronRight } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
 import ProductGrid from '@/components/products/ProductGrid';
+import ProductGridSkeleton from '@/components/loading/ProductGridSkeleton';
+import { useBootGate } from '@/components/loading/LoadingProvider';
 import { fetchProducts, fetchCategories } from '@/store/slices/productsSlice';
 import { getMediaUrl } from '@/lib/siteConfig';
 
@@ -18,17 +20,24 @@ export default function SubcategoryPage() {
   const dispatch = useDispatch();
 
   const { products, categories, loading } = useSelector((state) => state.products);
+  const [listState, setListState] = useState('loading');
   const category = categories.find(c => c.slug === slug);
   const subcategoryData = category?.subcategories?.find(s => s.slug === subcategory);
+  useBootGate(listState === 'loading' && products.length === 0);
 
   useEffect(() => {
     dispatch(fetchCategories());
   }, [dispatch]);
 
   useEffect(() => {
-    if (subcategory) {
-      dispatch(fetchProducts({ subcategory_slug: subcategory }));
-    }
+    if (!subcategory) return undefined;
+    let active = true;
+    setListState('loading');
+    dispatch(fetchProducts({ subcategory_slug: subcategory }))
+      .unwrap()
+      .then(() => { if (active) setListState('ready'); })
+      .catch(() => { if (active) setListState('error'); });
+    return () => { active = false; };
   }, [dispatch, subcategory]);
 
   return (
@@ -104,16 +113,26 @@ export default function SubcategoryPage() {
       {/* Products Grid */}
       <section className="py-4 md:py-12">
         <div className="container-custom">
-          {loading ? (
-            <ProductGrid>
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="aspect-square bg-cream-300" />
-                  <div className="mt-2 h-4 bg-cream-300" />
-                  <div className="mt-2 h-4 w-2/3 bg-cream-300" />
-                </div>
-              ))}
-            </ProductGrid>
+          {(listState === 'loading' || loading) && products.length === 0 ? (
+            <ProductGridSkeleton count={8} />
+          ) : listState === 'error' && products.length === 0 ? (
+            <div className="py-16 text-center">
+              <h3 className="mb-2 text-xl font-semibold text-charcoal-800">Couldn&apos;t load products</h3>
+              <p className="mb-6 text-charcoal-600">Please try again in a moment.</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setListState('loading');
+                  dispatch(fetchProducts({ subcategory_slug: subcategory }))
+                    .unwrap()
+                    .then(() => setListState('ready'))
+                    .catch(() => setListState('error'));
+                }}
+                className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3 font-medium text-white transition-colors hover:bg-primary-700"
+              >
+                Try again
+              </button>
+            </div>
           ) : products.length > 0 ? (
             <>
               <div className="mb-3 flex items-center justify-between md:mb-6">

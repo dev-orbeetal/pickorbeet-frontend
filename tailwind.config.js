@@ -9,6 +9,7 @@ module.exports = {
     extend: {
       colors: {
         powder: '#F7F8FC',
+        ice: '#E4ECFD',
         navy: {
           50: '#EEEDF8',
           100: '#D5D3EC',

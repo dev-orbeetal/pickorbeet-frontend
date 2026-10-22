@@ -13,15 +13,7 @@ import { getMediaUrl } from '@/lib/siteConfig';
 import { useSearch } from '@/hooks';
 import { DesktopCategoryNav, MobileCategoryNav } from '@/components/layout/CategoryNav';
 import LogoMark from '@/components/brand/LogoMark';
-
-function Wordmark() {
-  return (
-    <span className="truncate text-[15px] font-extrabold leading-none tracking-tight min-[380px]:text-[18px] lg:text-[22px]">
-      <span className="text-white">Pick</span>
-      <span className="text-gold-500">Orbeet</span>
-    </span>
-  );
-}
+import InlineDots from '@/components/loading/InlineDots';
 
 function SearchSuggestions({ query, results, loading, recentSearches, onPick, onRecent }) {
   const showRecent = query.trim().length < 2 && recentSearches.length > 0;
@@ -47,7 +39,10 @@ function SearchSuggestions({ query, results, loading, recentSearches, onPick, on
         </div>
       )}
       {showResults && loading && (
-        <p className="px-3 py-3 text-sm text-charcoal-500">Searching...</p>
+        <p className="flex items-center gap-2 px-3 py-3 text-sm text-gold-600">
+          <InlineDots />
+          Searching...
+        </p>
       )}
       {showResults && !loading && results.length === 0 && (
         <p className="px-3 py-3 text-sm text-charcoal-500">No matching products</p>
@@ -190,19 +185,18 @@ export default function Header() {
   const iconClass = 'relative flex h-11 w-10 shrink-0 items-center justify-center rounded-lg text-white/95 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white min-[380px]:w-11 lg:h-auto lg:w-auto lg:flex-col lg:px-2 lg:py-1';
 
   return (
-    <header className="sticky top-0 z-50 bg-navy-900 text-white">
+    <header className="sticky top-0 z-50 bg-navy-800 text-white">
       <div className="container-custom">
-        <div className="flex h-14 items-center justify-between gap-2 lg:h-[72px] lg:gap-6">
-          <Link href="/" className="flex min-w-0 items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:gap-2">
+        <div className="flex h-16 items-center justify-between gap-2 lg:h-[5.5rem] lg:gap-6">
+          <Link href="/" aria-label="PickOrbeet" className="flex shrink-0 items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
             <LogoMark
               src={logo || '/images/logo.png'}
               alt=""
-              width={36}
+              width={56}
               height={36}
-              className="h-8 w-8 shrink-0 -translate-y-[15%] lg:h-11 lg:w-11"
-              imgClassName="block h-full w-full object-contain"
+              className="h-[2.8rem] w-auto shrink-0 overflow-hidden rounded-xl bg-ice lg:h-16"
+              imgClassName="block h-[112%] w-auto max-w-none -translate-y-[6%]"
             />
-            <Wordmark />
           </Link>
 
           <form
@@ -211,7 +205,7 @@ export default function Header() {
             role="search"
             className="relative hidden min-w-0 flex-1 items-center md:flex"
           >
-            <Search className="pointer-events-none absolute left-3 h-4 w-4 text-charcoal-500" aria-hidden="true" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-navy-700" aria-hidden="true" />
             <input
               type="search"
               value={searchQuery}
@@ -220,7 +214,7 @@ export default function Header() {
               onBlur={() => setSearchFocus((current) => (current === 'desktop' ? null : current))}
               placeholder="Search for products, brands and more..."
               aria-label="Search products"
-              className="h-11 w-full rounded-l-lg bg-white pl-10 pr-3 text-sm text-charcoal-900 outline-none placeholder:text-charcoal-400 focus-visible:ring-2 focus-visible:ring-gold-500"
+              className="h-11 w-full rounded-l-lg border border-[#D3DDF6] bg-ice pl-10 pr-3 text-sm text-navy-900 outline-none placeholder:text-navy-800/50 focus-visible:ring-2 focus-visible:ring-gold-500"
             />
             <button
               type="submit"
@@ -315,7 +309,7 @@ export default function Header() {
           className="relative flex pb-3 md:hidden"
         >
           <div className="relative min-w-0 flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-charcoal-500" aria-hidden="true" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-navy-700" aria-hidden="true" />
             <input
               type="search"
               value={searchQuery}
@@ -325,7 +319,7 @@ export default function Header() {
               placeholder="Search products, brands..."
               aria-label="Search products"
               enterKeyHint="search"
-              className="h-11 w-full rounded-l-lg bg-white pl-10 pr-3 text-sm text-charcoal-900 outline-none placeholder:text-charcoal-400 focus-visible:ring-2 focus-visible:ring-gold-500"
+              className="h-11 w-full rounded-l-lg border border-[#D3DDF6] bg-ice pl-10 pr-3 text-sm text-navy-900 outline-none placeholder:text-navy-800/50 focus-visible:ring-2 focus-visible:ring-gold-500"
             />
           </div>
           <button

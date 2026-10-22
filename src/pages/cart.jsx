@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Trash2, Minus, Plus, ShoppingBag, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
+import { useBootGate } from '@/components/loading/LoadingProvider';
 import { fetchCart, updateCartItem, removeFromCart } from '@/store/slices/cartSlice';
 import { getMediaUrl } from '@/lib/siteConfig';
 
@@ -13,9 +14,11 @@ export default function CartPage() {
   const router = useRouter();
   const dispatch = useDispatch();
   const { items, totalItems, subtotal, loading } = useSelector((state) => state.cart);
+  const [pendingBoot, setPendingBoot] = useState(true);
+  useBootGate(pendingBoot && (!items || items.length === 0));
 
   useEffect(() => {
-    dispatch(fetchCart());
+    dispatch(fetchCart()).finally(() => setPendingBoot(false));
   }, [dispatch]);
 
   const handleUpdateQuantity = (itemId, newQuantity) => {
@@ -31,13 +34,13 @@ export default function CartPage() {
       });
   };
 
-  if (loading) {
+  if ((loading || pendingBoot) && (!items || items.length === 0)) {
     return (
       <Layout title="Cart - Pickorbeet">
-        <div className="container-custom py-16">
-          <div className="animate-pulse space-y-4">
+        <div className="container-custom py-16" aria-busy="true" aria-label="Loading cart">
+          <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-32 bg-gray-200 rounded-xl" />
+              <div key={i} className="skeleton h-32 rounded-xl" />
             ))}
           </div>
         </div>

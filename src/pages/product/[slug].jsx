@@ -4,9 +4,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import { ShoppingBag, Heart, Minus, Plus, Check, Truck, RotateCcw, Shield } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Link from 'next/link';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
 import ProductGrid from '@/components/products/ProductGrid';
+import ProductDetailSkeleton from '@/components/loading/ProductDetailSkeleton';
+import { useBootGate } from '@/components/loading/LoadingProvider';
 import { fetchProduct, fetchProducts, clearProduct } from '@/store/slices/productsSlice';
 import { addToCart } from '@/store/slices/cartSlice';
 import siteConfig, { getAbsoluteImageUrl, getMediaUrl } from '@/lib/siteConfig';
@@ -16,8 +19,11 @@ export default function ProductDetailPage({ initialProduct }) {
   const { slug } = router.query;
   const dispatch = useDispatch();
 
-  const { product: storeProduct, products, loading } = useSelector((state) => state.products);
+  const { product: storeProduct, products } = useSelector((state) => state.products);
   const product = storeProduct || initialProduct;
+
+  const [phase, setPhase] = useState(initialProduct ? 'ready' : 'loading');
+  useBootGate(phase === 'loading' && !product);
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState('');
@@ -25,13 +31,19 @@ export default function ProductDetailPage({ initialProduct }) {
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
-    if (slug) {
-      dispatch(fetchProduct(slug));
-    }
+    if (!slug) return undefined;
+    let active = true;
+    const hasInitial = initialProduct && initialProduct.slug === slug;
+    if (!hasInitial) setPhase('loading');
+    dispatch(fetchProduct(slug))
+      .unwrap()
+      .then(() => { if (active) setPhase('ready'); })
+      .catch(() => { if (active) setPhase(hasInitial ? 'ready' : 'error'); });
     return () => {
+      active = false;
       dispatch(clearProduct());
     };
-  }, [dispatch, slug]);
+  }, [dispatch, slug, initialProduct]);
 
   useEffect(() => {
     if (product?.category?.id) {
@@ -90,19 +102,24 @@ export default function ProductDetailPage({ initialProduct }) {
     }
     : null;
 
-  if ((loading && !product) || !product) {
+  if (!product && phase === 'error') {
     return (
-      <Layout>
-        <div className="container-custom py-16">
-          <div className="animate-pulse grid lg:grid-cols-2 gap-12">
-            <div className="aspect-square bg-gray-200 rounded-2xl" />
-            <div className="space-y-4">
-              <div className="h-8 bg-gray-200 rounded w-3/4" />
-              <div className="h-6 bg-gray-200 rounded w-1/4" />
-              <div className="h-24 bg-gray-200 rounded" />
-            </div>
-          </div>
+      <Layout title="Product - Pickorbeet">
+        <div className="container-custom py-16 text-center">
+          <h1 className="text-xl font-bold text-charcoal-900">Product not found</h1>
+          <p className="mt-2 text-charcoal-600">This product is unavailable or the link is incorrect.</p>
+          <Link href="/products" className="mt-4 inline-flex h-10 items-center rounded-lg bg-action px-4 text-sm font-semibold text-white">
+            Browse products
+          </Link>
         </div>
+      </Layout>
+    );
+  }
+
+  if (!product) {
+    return (
+      <Layout title="Product - Pickorbeet">
+        <ProductDetailSkeleton />
       </Layout>
     );
   }

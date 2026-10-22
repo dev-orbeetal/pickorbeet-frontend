@@ -56,7 +56,7 @@ export default function HeroSlider({ banners = [], cards = [] }) {
   if (slides.length === 0 && sideCards.length === 0) return null;
 
   return (
-    <section className="bg-cream-200" aria-label="Promotions">
+    <section className="bg-ice" aria-label="Promotions">
       <div className="container-custom pt-2 pb-3 sm:py-4">
         <div className={`grid items-start gap-2 sm:gap-3 ${split ? 'min-[960px]:[grid-template-columns:minmax(0,calc((200%+0.75rem)/3))_minmax(0,calc((100%-3rem)/3))]' : ''}`}>
           {slides.length > 0 && (

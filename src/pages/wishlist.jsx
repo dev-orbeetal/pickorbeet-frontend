@@ -3,6 +3,8 @@ import Link from 'next/link';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
 import ProductGrid from '@/components/products/ProductGrid';
+import ProductGridSkeleton from '@/components/loading/ProductGridSkeleton';
+import { useBootGate } from '@/components/loading/LoadingProvider';
 import { productsAPI } from '@/lib/api';
 import { WISHLIST_KEY, readList, subscribeLists } from '@/lib/productLists';
 
@@ -13,6 +15,7 @@ export default function WishlistPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
+  useBootGate(loading);
 
   useEffect(() => {
     const sync = () => setIds(readList(WISHLIST_KEY));
@@ -63,15 +66,7 @@ export default function WishlistPage() {
         </p>
 
         {loading && (
-          <ProductGrid className="mt-4">
-            {ids.slice(0, 4).map((id) => (
-              <div key={id} className="animate-pulse rounded-xl border border-[#E4E9F2] bg-white p-2">
-                <div className="aspect-square rounded-lg bg-cream-300" />
-                <div className="mt-2 h-4 rounded bg-cream-300" />
-                <div className="mt-2 h-4 w-2/3 rounded bg-cream-300" />
-              </div>
-            ))}
-          </ProductGrid>
+          <ProductGridSkeleton className="mt-4" count={Math.max(ids.length, 4)} />
         )}
 
         {!loading && error && (

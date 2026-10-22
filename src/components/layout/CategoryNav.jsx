@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { productsAPI } from '@/lib/api';
+import InlineDots from '@/components/loading/InlineDots';
 import { getMediaUrl } from '@/lib/siteConfig';
 
 function ordered(items) {
@@ -43,7 +44,12 @@ function ProductFlyout({ flyout, onNavigate, align }) {
     : 'left-full -ml-px rounded-r-lg';
   return (
     <div className={`absolute top-0 z-50 w-64 border border-white/10 bg-navy-950 py-2 shadow-elegant-lg ${side}`}>
-      {flyout.loading && <p className="px-3 py-2 text-sm text-white/60">Loading products...</p>}
+      {flyout.loading && (
+        <p className="flex items-center gap-2 px-3 py-2 text-sm text-white/60">
+          <InlineDots />
+          Loading products...
+        </p>
+      )}
       {!flyout.loading && flyout.products.length === 0 && (
         <p className="px-3 py-2 text-sm text-white/60">No products in this subcategory</p>
       )}
@@ -249,7 +255,12 @@ export function MobileCategoryNav({ categories, onNavigate }) {
                       </div>
                       {subOpen && flyout.slug === sub.slug && (
                         <div className="mb-2 rounded-md bg-navy-950 p-1">
-                          {flyout.loading && <p className="px-2 py-1.5 text-xs text-white/60">Loading products...</p>}
+                          {flyout.loading && (
+                            <p className="flex items-center gap-2 px-2 py-1.5 text-xs text-white/60">
+                              <InlineDots />
+                              Loading products...
+                            </p>
+                          )}
                           {!flyout.loading && flyout.products.length === 0 && (
                             <p className="px-2 py-1.5 text-xs text-white/60">No products in this subcategory</p>
                           )}

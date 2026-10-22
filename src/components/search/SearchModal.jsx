@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, Clock, TrendingUp, ArrowRight, Loader2 } from 'lucide-react';
+import { Search, X, Clock, TrendingUp, ArrowRight } from 'lucide-react';
+import InlineDots from '@/components/loading/InlineDots';
 import Link from 'next/link';
 import { useSearch, useEscapeKey, useClickOutside } from '@/hooks';
 import { storeSettingsAPI } from '@/lib/api';
@@ -141,7 +142,7 @@ export default function SearchModal({ isOpen, onClose }) {
                 <div className="flex items-center border-b border-charcoal-200">
                   <div className="pl-5">
                     {isLoading ? (
-                      <Loader2 className="w-5 h-5 text-gold-500 animate-spin" />
+                      <InlineDots className="text-gold-500" />
                     ) : (
                       <Search className="w-5 h-5 text-charcoal-400" />
                     )}
@@ -181,7 +182,7 @@ export default function SearchModal({ isOpen, onClose }) {
                 {/* Loading State */}
                 {isLoading && query.length >= 2 && (
                   <div className="p-8 text-center">
-                    <Loader2 className="w-8 h-8 text-gold-500 animate-spin mx-auto mb-3" />
+                    <InlineDots className="mb-3 justify-center text-gold-500" />
                     <p className="text-charcoal-500">Searching...</p>
                   </div>
                 )}

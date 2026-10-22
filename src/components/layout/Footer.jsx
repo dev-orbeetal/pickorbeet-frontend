@@ -81,19 +81,15 @@ export default function Footer() {
         >
           {/* Brand */}
           <motion.div variants={itemVariants}>
-            <Link href="/" className="inline-flex items-center gap-2 group">
+            <Link href="/" aria-label="PickOrbeet" className="inline-flex items-center group">
               <LogoMark
                 src={settings?.logo || '/images/logo.png'}
                 alt=""
                 width={settings?.logo ? undefined : 688}
                 height={settings?.logo ? undefined : 809}
-                className="-translate-y-[15%]"
-                imgClassName="block h-10 w-auto"
+                className="h-16 w-auto overflow-hidden rounded-xl bg-ice sm:h-20"
+                imgClassName="block h-[112%] w-auto max-w-none -translate-y-[6%]"
               />
-              <span className="text-xl font-extrabold tracking-tight">
-                <span className="text-white">Pick</span>
-                <span className="text-gold-500">Orbeet</span>
-              </span>
             </Link>
             <p className="mt-5 text-cream-400 leading-relaxed">
               Shop electronics, fashion, home, and everyday essentials. Original products,

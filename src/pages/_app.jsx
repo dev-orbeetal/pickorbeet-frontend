@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import store from '@/store/store';
 import { getProfile, checkAuth } from '@/store/slices/authSlice';
 import { fetchCategories } from '@/store/slices/productsSlice';
+import LoadingProvider from '@/components/loading/LoadingProvider';
 import '@/styles/globals.css';
 
 const pageVariants = {
@@ -55,7 +56,8 @@ export default function App({ Component, pageProps }) {
 
   return (
     <Provider store={store}>
-      <AppHydrator>
+      <LoadingProvider>
+        <AppHydrator>
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={router.pathname}
@@ -98,7 +100,8 @@ export default function App({ Component, pageProps }) {
             },
           }}
         />
-      </AppHydrator>
+        </AppHydrator>
+      </LoadingProvider>
     </Provider>
   );
 }

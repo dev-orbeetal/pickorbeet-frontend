@@ -7,6 +7,8 @@ import { ChevronRight, Grid } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
 import ProductGrid from '@/components/products/ProductGrid';
+import ProductGridSkeleton from '@/components/loading/ProductGridSkeleton';
+import { useBootGate } from '@/components/loading/LoadingProvider';
 import { fetchProducts } from '@/store/slices/productsSlice';
 import siteConfig, { getAbsoluteImageUrl, getMediaUrl } from '@/lib/siteConfig';
 
@@ -24,30 +26,54 @@ export default function CategoryPage({ initialCategory }) {
   const dispatch = useDispatch();
   const [activeSubcategory, setActiveSubcategory] = useState(null);
 
-  const { products, categories, loading } = useSelector((state) => state.products);
+  const { products, categories, loading, categoriesLoading } = useSelector((state) => state.products);
+  const [listState, setListState] = useState('loading');
   const storedCategory = categories.find((item) => item.slug === slug);
   const category = storedCategory || (initialCategory?.slug === slug ? initialCategory : null);
   const subcategories = orderedSubcategories(category);
   const hasSubcategories = subcategories.length > 0;
+  useBootGate(listState === 'loading' && !hasSubcategories && products.length === 0);
 
   useEffect(() => {
     setActiveSubcategory(null);
   }, [slug]);
 
   useEffect(() => {
-    if (slug && category && !hasSubcategories) {
-      dispatch(fetchProducts({ category_slug: slug }));
+    if (!slug || !category) return undefined;
+    if (hasSubcategories) {
+      setListState('ready');
+      return undefined;
     }
+    let active = true;
+    setListState('loading');
+    dispatch(fetchProducts({ category_slug: slug }))
+      .unwrap()
+      .then(() => { if (active) setListState('ready'); })
+      .catch(() => { if (active) setListState('error'); });
+    return () => { active = false; };
   }, [dispatch, slug, category, hasSubcategories]);
+
+  useEffect(() => {
+    if (!slug || category || categoriesLoading) return;
+    setListState('missing');
+  }, [slug, category, categoriesLoading]);
 
   const handleSubcategoryFilter = (subSlug) => {
     setActiveSubcategory(subSlug);
-    dispatch(fetchProducts({ subcategory_slug: subSlug }));
+    setListState('loading');
+    dispatch(fetchProducts({ subcategory_slug: subSlug }))
+      .unwrap()
+      .then(() => setListState('ready'))
+      .catch(() => setListState('error'));
   };
 
   const handleShowAll = () => {
     setActiveSubcategory(null);
-    dispatch(fetchProducts({ category_slug: slug }));
+    setListState('loading');
+    dispatch(fetchProducts({ category_slug: slug }))
+      .unwrap()
+      .then(() => setListState('ready'))
+      .catch(() => setListState('error'));
   };
 
   return (
@@ -189,16 +215,20 @@ export default function CategoryPage({ initialCategory }) {
       {(!hasSubcategories || activeSubcategory) && (
         <section className="py-4 md:py-12">
           <div className="container-custom">
-            {loading ? (
-              <ProductGrid>
-                {[...Array(8)].map((_, i) => (
-                  <div key={i} className="animate-pulse">
-                    <div className="aspect-square bg-cream-300" />
-                    <div className="mt-2 h-4 bg-cream-300" />
-                    <div className="mt-2 h-4 w-2/3 bg-cream-300" />
-                  </div>
-                ))}
-              </ProductGrid>
+            {(listState === 'loading' || loading) && products.length === 0 ? (
+              <ProductGridSkeleton count={8} />
+            ) : listState === 'error' && products.length === 0 ? (
+              <div className="py-16 text-center">
+                <h3 className="mb-2 text-xl font-semibold text-charcoal-800">Couldn&apos;t load products</h3>
+                <p className="mb-6 text-charcoal-600">Please try again in a moment.</p>
+                <button
+                  type="button"
+                  onClick={handleShowAll}
+                  className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3 font-medium text-white transition-colors hover:bg-primary-700"
+                >
+                  Try again
+                </button>
+              </div>
             ) : products.length > 0 ? (
               <>
                 <div className="mb-3 flex items-center justify-between md:mb-6">
