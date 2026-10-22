@@ -57,11 +57,11 @@ export default function HeroSlider({ banners = [], cards = [] }) {
 
   return (
     <section className="bg-cream-200" aria-label="Promotions">
-      <div className="container-custom py-3 sm:py-4">
-        <div className={`grid items-start gap-2.5 sm:gap-3 ${split ? 'min-[960px]:[grid-template-columns:minmax(0,calc((200%+0.75rem)/3))_minmax(0,calc((100%-3rem)/3))]' : ''}`}>
+      <div className="container-custom pt-2 pb-3 sm:py-4">
+        <div className={`grid items-start gap-2 sm:gap-3 ${split ? 'min-[960px]:[grid-template-columns:minmax(0,calc((200%+0.75rem)/3))_minmax(0,calc((100%-3rem)/3))]' : ''}`}>
           {slides.length > 0 && (
             <div>
-              <div className="relative aspect-[16/9] overflow-hidden rounded-md bg-navy-900 sm:aspect-[2.2/1] min-[960px]:aspect-[3/1] min-[960px]:rounded-2xl">
+              <div className="relative aspect-[3/1] overflow-hidden rounded-md bg-navy-900 min-[960px]:rounded-2xl">
                 <AnimatePresence initial={false} custom={direction}>
                   {slide && (
                     <motion.div
@@ -86,7 +86,7 @@ export default function HeroSlider({ banners = [], cards = [] }) {
                           loading={index === 0 ? 'eager' : 'lazy'}
                           fetchPriority={index === 0 ? 'high' : 'low'}
                           decoding="async"
-                          className="h-full w-full object-contain object-center min-[960px]:object-cover"
+                          className="h-full w-full object-cover object-center"
                         />
                       </BannerLink>
                     </motion.div>
@@ -120,7 +120,7 @@ export default function HeroSlider({ banners = [], cards = [] }) {
               </div>
 
               {slides.length > 1 && (
-                <div className="mt-2 flex items-center justify-center" role="tablist" aria-label="Promotion slides">
+                <div className="mt-1.5 flex items-center justify-center gap-1.5 sm:mt-2 sm:gap-0" role="tablist" aria-label="Promotion slides">
                   {slides.map((item, itemIndex) => {
                     const active = itemIndex === index;
                     return (
@@ -131,9 +131,10 @@ export default function HeroSlider({ banners = [], cards = [] }) {
                         aria-selected={active}
                         aria-label={`Show slide ${itemIndex + 1}`}
                         onClick={() => setSlide([itemIndex, itemIndex > index ? 1 : -1])}
-                        className="flex h-8 w-6 items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action"
+                        className="relative h-1.5 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action sm:flex sm:h-8 sm:w-6 sm:items-center sm:justify-center"
                       >
                         <span className={`block h-1.5 rounded-full ${active ? 'w-4 bg-gold-500' : 'w-1.5 bg-navy-900/25'}`} />
+                        <span className="absolute -inset-x-1.5 -inset-y-2 sm:hidden" aria-hidden="true" />
                       </button>
                     );
                   })}
@@ -143,7 +144,7 @@ export default function HeroSlider({ banners = [], cards = [] }) {
           )}
 
           {split && (
-            <div className={`grid gap-2.5 ${sideCards.length > 1 ? 'grid-cols-2 min-[960px]:grid-cols-1 min-[960px]:gap-3' : 'grid-cols-1'}`}>
+            <div className={`grid gap-2 ${sideCards.length > 1 ? 'grid-cols-2 min-[960px]:grid-cols-1 min-[960px]:gap-3' : 'grid-cols-1'}`}>
               {sideCards.map((card) => (
                 <BannerLink
                   key={card.id}

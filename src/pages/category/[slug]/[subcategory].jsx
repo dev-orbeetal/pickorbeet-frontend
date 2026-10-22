@@ -102,7 +102,7 @@ export default function SubcategoryPage() {
       )}
 
       {/* Products Grid */}
-      <section className="py-12">
+      <section className="py-4 md:py-12">
         <div className="container-custom">
           {loading ? (
             <ProductGrid>
@@ -116,7 +116,7 @@ export default function SubcategoryPage() {
             </ProductGrid>
           ) : products.length > 0 ? (
             <>
-              <div className="flex items-center justify-between mb-6">
+              <div className="mb-3 flex items-center justify-between md:mb-6">
                 <p className="text-charcoal-600">
                   Showing <span className="font-semibold text-charcoal-800">{products.length}</span> products
                 </p>

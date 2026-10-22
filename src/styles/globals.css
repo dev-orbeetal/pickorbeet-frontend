@@ -142,8 +142,8 @@
   .product-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: 10px;
-    row-gap: 14px;
+    column-gap: 8px;
+    row-gap: 12px;
   }
 
   .product-grid > * {
@@ -388,11 +388,11 @@
 }
 
 .trust-truck.is-moving .trust-bob {
-  animation: trust-truck-bob 0.28s ease-in-out infinite;
+  animation: trust-truck-bob 0.56s ease-in-out infinite;
 }
 
 .trust-truck.is-moving .trust-wheel {
   transform-box: fill-box;
   transform-origin: center;
-  animation: trust-wheel-spin 0.42s linear infinite;
+  animation: trust-wheel-spin 0.84s linear infinite;
 }

@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowRight, Grid, List } from 'lucide-react';
+import { ChevronRight, Grid } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
 import ProductGrid from '@/components/products/ProductGrid';
@@ -12,6 +12,12 @@ import siteConfig, { getAbsoluteImageUrl, getMediaUrl } from '@/lib/siteConfig';
 
 const getImageUrl = (url) => getMediaUrl(url, '/images/placeholder-category.png');
 
+function orderedSubcategories(category) {
+  return [...(category?.subcategories || [])]
+    .filter((sub) => sub && sub.is_active !== false)
+    .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
+}
+
 export default function CategoryPage({ initialCategory }) {
   const router = useRouter();
   const { slug } = router.query;
@@ -19,18 +25,18 @@ export default function CategoryPage({ initialCategory }) {
   const [activeSubcategory, setActiveSubcategory] = useState(null);
 
   const { products, categories, loading } = useSelector((state) => state.products);
-  const category = categories.find(c => c.slug === slug);
-  const hasSubcategories = category?.subcategories?.length > 0;
-
-  // Categories are fetched globally in _app.jsx
+  const storedCategory = categories.find((item) => item.slug === slug);
+  const category = storedCategory || (initialCategory?.slug === slug ? initialCategory : null);
+  const subcategories = orderedSubcategories(category);
+  const hasSubcategories = subcategories.length > 0;
 
   useEffect(() => {
-    if (slug) {
-      setActiveSubcategory(null);
-      // Only fetch products if category has no subcategories
-      if (category && !hasSubcategories) {
-        dispatch(fetchProducts({ category_slug: slug }));
-      }
+    setActiveSubcategory(null);
+  }, [slug]);
+
+  useEffect(() => {
+    if (slug && category && !hasSubcategories) {
+      dispatch(fetchProducts({ category_slug: slug }));
     }
   }, [dispatch, slug, category, hasSubcategories]);
 
@@ -50,102 +56,90 @@ export default function CategoryPage({ initialCategory }) {
       description={category?.tagline || `Shop ${category?.name || 'products'} at Pickorbeet. Premium quality clothing and accessories.`}
       image={category?.banner_image ? getAbsoluteImageUrl(category.banner_image) : undefined}
     >
-      {/* Hero Banner */}
-      <section className="relative h-56 md:h-72 bg-gradient-to-br from-primary-700 via-primary-600 to-primary-800 overflow-hidden">
-        {category?.banner_image && (
-          <div className="absolute inset-0">
-            <img
-              src={getImageUrl(category.banner_image)}
-              alt={category.name}
-              className="w-full h-full object-cover opacity-20"
-            />
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-primary-900/50 to-transparent" />
-        <div className="container-custom h-full flex items-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-white"
-          >
-            <nav className="flex items-center gap-2 text-sm text-cream-200 mb-4">
-              <Link href="/" className="hover:text-white transition-colors">Home</Link>
-              <span>/</span>
-              <span className="text-cream-100">{category?.name || 'Category'}</span>
-            </nav>
-            <h1 className="text-3xl md:text-5xl font-display font-bold mb-3">
-              {category?.name || 'Category'}
-            </h1>
-            {category?.tagline && (
-              <p className="text-lg md:text-xl text-cream-200 max-w-2xl">
-                {category.tagline}
-              </p>
-            )}
-          </motion.div>
+      <section className="border-b border-[#E4E9F2] bg-white">
+        <div className="container-custom py-4 md:py-6">
+          <nav className="mb-2 flex items-center gap-1 text-sm text-charcoal-500" aria-label="Breadcrumb">
+            <Link href="/" className="hover:text-navy-900">Home</Link>
+            <ChevronRight className="h-4 w-4" aria-hidden="true" />
+            <span className="font-medium text-charcoal-900">{category?.name || 'Category'}</span>
+          </nav>
+          <h1 className="text-2xl font-bold text-charcoal-900 md:text-3xl">
+            {category?.name || 'Category'}
+          </h1>
+          {category?.tagline && (
+            <p className="mt-1 max-w-2xl text-sm text-charcoal-600 md:text-base">
+              {category.tagline}
+            </p>
+          )}
         </div>
       </section>
 
-      {/* Subcategories as Cards (when category has subcategories) */}
+      {category?.banner_image && (
+        <div className="container-custom pt-4">
+          <img
+            src={getImageUrl(category.banner_image)}
+            alt=""
+            className="aspect-[3/1] w-full rounded-xl object-cover"
+          />
+        </div>
+      )}
+
       {hasSubcategories && !activeSubcategory && (
-        <section className="py-12">
+        <section className="py-4 md:py-8" aria-labelledby="browse-category">
           <div className="container-custom">
-            <div className="text-center mb-10">
-              <h2 className="text-2xl md:text-3xl font-display font-bold text-charcoal-800 mb-3">
-                Browse {category.name}
-              </h2>
-              <p className="text-charcoal-600">
-                Select a subcategory to explore our collection
-              </p>
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <h2 id="browse-category" className="text-lg font-bold text-charcoal-900 md:text-xl">
+                  Browse {category.name}
+                </h2>
+                <p className="mt-1 text-sm text-charcoal-500">
+                  Select a subcategory to explore our collection
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveSubcategory('all');
+                  dispatch(fetchProducts({ category_slug: slug }));
+                }}
+                className="inline-flex h-10 shrink-0 items-center gap-2 self-start rounded-lg bg-action px-4 text-sm font-semibold text-white transition-colors hover:bg-[#1d54cc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2"
+              >
+                <Grid className="h-4 w-4" aria-hidden="true" />
+                View all products
+              </button>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-              {category.subcategories.map((sub, index) => (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4">
+              {subcategories.map((sub, index) => (
                 <motion.div
                   key={sub.id}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
+                  transition={{ delay: index * 0.04 }}
                 >
                   <Link
                     href={`/category/${slug}/${sub.slug}`}
-                    className="group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-elegant border border-cream-200 hover:border-gold-300 transition-all duration-300"
+                    className="group flex h-full flex-col overflow-hidden rounded-xl border border-[#E4E9F2] bg-white shadow-[0_1px_2px_rgba(23,32,51,0.04)] transition-shadow hover:shadow-[0_10px_24px_-16px_rgba(20,27,77,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action"
                   >
-                    <div className="aspect-[4/3] relative overflow-hidden bg-cream-100">
+                    <span className="block aspect-[4/3] overflow-hidden bg-[#F5F7FC]">
                       <img
                         src={getImageUrl(sub.image)}
-                        alt={sub.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        alt=""
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                         onError={(e) => {
                           e.target.src = '/images/placeholder-category.png';
                         }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-charcoal-900/60 via-transparent to-transparent" />
-                      <div className="absolute bottom-0 left-0 right-0 p-4">
-                        <h3 className="text-white font-semibold text-lg group-hover:text-gold-300 transition-colors">
-                          {sub.name}
-                        </h3>
-                      </div>
-                    </div>
-                    <div className="p-4 flex items-center justify-between">
-                      <span className="text-sm text-charcoal-600">
-                        View Collection
+                    </span>
+                    <span className="flex flex-1 items-center justify-between gap-2 p-3">
+                      <span className="text-sm font-semibold leading-snug text-charcoal-900 md:text-[15px]">
+                        {sub.name}
                       </span>
-                      <ArrowRight className="w-4 h-4 text-gold-600 group-hover:translate-x-1 transition-transform" />
-                    </div>
+                      <ChevronRight className="h-4 w-4 shrink-0 text-action transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                    </span>
                   </Link>
                 </motion.div>
               ))}
-            </div>
-
-            {/* View All Products Button */}
-            <div className="text-center mt-10">
-              <button
-                onClick={handleShowAll}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-colors"
-              >
-                <Grid className="w-4 h-4" />
-                View All Products in {category.name}
-              </button>
             </div>
           </div>
         </section>
@@ -174,7 +168,7 @@ export default function CategoryPage({ initialCategory }) {
               >
                 All
               </button>
-              {category.subcategories.map((sub) => (
+              {subcategories.map((sub) => (
                 <button
                   key={sub.id}
                   onClick={() => handleSubcategoryFilter(sub.slug)}
@@ -193,7 +187,7 @@ export default function CategoryPage({ initialCategory }) {
 
       {/* Products Grid (when no subcategories OR when filtering) */}
       {(!hasSubcategories || activeSubcategory) && (
-        <section className="py-12">
+        <section className="py-4 md:py-12">
           <div className="container-custom">
             {loading ? (
               <ProductGrid>
@@ -207,7 +201,7 @@ export default function CategoryPage({ initialCategory }) {
               </ProductGrid>
             ) : products.length > 0 ? (
               <>
-                <div className="flex items-center justify-between mb-6">
+                <div className="mb-3 flex items-center justify-between md:mb-6">
                   <p className="text-charcoal-600">
                     Showing <span className="font-semibold text-charcoal-800">{products.length}</span> products
                   </p>

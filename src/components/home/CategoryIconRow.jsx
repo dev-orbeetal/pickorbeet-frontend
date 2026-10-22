@@ -37,7 +37,7 @@ export default function CategoryIconRow({ categories = [] }) {
 
   return (
     <section className="bg-cream-200" aria-label="Shop by category">
-      <div className="container-custom grid grid-cols-1 items-start gap-3 py-2 sm:grid-cols-2 sm:gap-4 sm:py-3">
+      <div className="container-custom grid grid-cols-1 items-start gap-3 pb-3 pt-0 sm:grid-cols-2 sm:gap-4 sm:py-3">
         {list.map((category) => {
           const subcategories = ordered(
             (category.subcategories || []).filter((sub) => sub && sub.is_active !== false)
@@ -48,7 +48,7 @@ export default function CategoryIconRow({ categories = [] }) {
               key={category.id}
               className="flex w-full min-w-0 flex-col rounded-xl border border-[#E4E9F2] bg-white p-3 shadow-[0_1px_2px_rgba(23,32,51,0.04)] sm:p-4"
             >
-              <div className={`flex items-center justify-between gap-2 ${subcategories.length > 0 ? 'mb-3' : ''}`}>
+              <div className={`flex items-center justify-between gap-2 ${subcategories.length > 0 ? 'mb-2.5 sm:mb-3' : ''}`}>
                 <h2 className="min-w-0 text-[15px] font-bold leading-snug text-charcoal-900">
                   {category.name}
                 </h2>

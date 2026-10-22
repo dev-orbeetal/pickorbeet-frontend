@@ -14,11 +14,11 @@ export default function PromoBanners({ banners = [] }) {
 
   return (
     <section className="bg-cream-200" aria-label="Promotions">
-      <div className="container-custom py-2 sm:py-3">
-        <div className={`grid gap-2.5 sm:gap-3 ${promos.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+      <div className="container-custom pb-3 pt-2 sm:py-3">
+        <div className={`grid gap-2 sm:gap-3 ${promos.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
           {promos.map((banner) => (
             <PromoLink key={banner.id} href={banner.link || '/products'} label={banner.title || 'Promotion'}>
-              <div className="aspect-[2/1] sm:aspect-[3/1]">
+              <div className="aspect-[3/1]">
                 <img
                   src={getMediaUrl(banner.image)}
                   alt={banner.title || 'Promotion'}
@@ -26,7 +26,7 @@ export default function PromoBanners({ banners = [] }) {
                   height={214}
                   loading="lazy"
                   decoding="async"
-                  className="h-full w-full object-cover object-left sm:object-contain"
+                  className="h-full w-full object-cover object-center"
                 />
               </div>
             </PromoLink>

@@ -125,7 +125,7 @@ export default function ProductCard({ product }) {
         </button>
       </div>
 
-      <div className="flex flex-1 flex-col pt-2">
+      <div className="flex flex-1 flex-col pt-1.5">
         <Link href={`/product/${product.slug}`} className="rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action">
           <h3 className="line-clamp-2 min-h-[2.5rem] text-[13px] font-medium leading-5 text-charcoal-900">
             {product.name}

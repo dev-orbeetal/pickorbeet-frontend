@@ -4,7 +4,7 @@ import { CreditCard, RotateCcw, ShieldCheck, Truck } from 'lucide-react';
 
 const WIDE_QUERY = '(min-width: 420px)';
 const TRUCK_WIDTH = 76;
-const TRAVEL_SECONDS = 2.2;
+const TRAVEL_SECONDS = 4.4;
 
 const fallback = [
   {
@@ -203,7 +203,7 @@ export default function TrustStrip({ items }) {
 
   return (
     <section ref={sectionRef} className="bg-cream-200" aria-label="Service benefits">
-      <div className="container-custom py-2 sm:py-3">
+      <div className="container-custom pb-2 pt-0 sm:py-3">
         <div
           ref={trackRef}
           className="relative overflow-hidden rounded-xl border border-[#E4E9F2] bg-white px-2 py-3 shadow-[0_1px_2px_rgba(23,32,51,0.04)] sm:px-4"

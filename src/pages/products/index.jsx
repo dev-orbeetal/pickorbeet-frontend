@@ -141,9 +141,9 @@ export default function ProductsPage() {
       title="Shop All Products - Pickorbeet"
       description="Browse our complete collection of premium Borkha, Hijab, Abaya, Niqab and modest fashion. Filter by category, size, and price."
     >
-      <div className="container-custom py-8">
+      <div className="container-custom py-4 md:py-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+        <div className="mb-3 flex flex-col md:mb-8 md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-3xl font-display font-bold text-secondary-900 mb-2">
               All Products
@@ -178,7 +178,7 @@ export default function ProductsPage() {
 
         {/* Active Filter Tags */}
         {hasActiveFilters && (
-          <div className="flex flex-wrap items-center gap-2 mb-6 p-4 bg-cream-50 rounded-xl border border-cream-200">
+          <div className="mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-cream-200 bg-cream-50 p-3 md:mb-6 md:p-4">
             <span className="text-sm text-secondary-600 font-medium">Active Filters:</span>
             {filters.category.map((catId) => (
               <span key={catId} className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm">
@@ -213,7 +213,7 @@ export default function ProductsPage() {
           </div>
         )}
 
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col gap-3 lg:flex-row lg:gap-8">
           {/* Sidebar Filters */}
           <aside className={`lg:w-64 flex-shrink-0 ${showFilters ? 'block' : 'hidden lg:block'}`}>
             <div className="bg-white rounded-xl p-6 shadow-sm border sticky top-24">
