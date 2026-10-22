@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import { getMediaUrl } from '@/lib/siteConfig';
+import ProductCard from '@/components/products/ProductCard';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -79,69 +79,10 @@ export default function CategoryShowcase({ categoryProducts }) {
               </motion.div>
 
               {/* Products Grid - Illiyeen Style */}
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                {products.slice(0, 4).map((product, productIndex) => (
-                  <motion.div
-                    key={product.id}
-                    variants={itemVariants}
-                    className="group"
-                  >
-                    <Link href={`/product/${product.slug}`}>
-                      <div className="relative bg-gradient-to-b from-cream-200 to-cream-300 rounded-2xl overflow-hidden aspect-[3/4] shadow-lg hover:shadow-xl transition-shadow duration-500">
-                        {/* Product Image */}
-                        {product.primary_image ? (
-                          <img
-                            src={getMediaUrl(product.primary_image)}
-                            alt={product.name}
-                            className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <div className="w-32 h-40 bg-charcoal-300/30 rounded-lg" />
-                          </div>
-                        )}
-
-                        {/* Subtle overlay on hover */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-charcoal-950/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                        {/* Discount Badge */}
-                        {product.discount_percentage > 0 && (
-                          <div className="absolute top-4 left-4 px-3 py-1 bg-red-500 text-white text-sm font-bold rounded-lg">
-                            -{product.discount_percentage}%
-                          </div>
-                        )}
-
-                        {/* Product Info - Appears on hover */}
-                        <div className="absolute bottom-0 left-0 right-0 p-5 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-                          <h3 className="text-cream-100 font-semibold text-lg mb-1 line-clamp-1">
-                            {product.name}
-                          </h3>
-                          <div className="flex items-center gap-2">
-                            <span className="text-gold-400 font-bold">৳{product.price}</span>
-                            {product.compare_price && (
-                              <span className="text-cream-400/60 line-through text-sm">
-                                ৳{product.compare_price}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Product Name Below Image */}
-                      <div className="mt-4 text-center">
-                        <h3 className="text-charcoal-900 font-medium mb-1 group-hover:text-gold-600 transition-colors line-clamp-1">
-                          {product.name}
-                        </h3>
-                        <div className="flex items-center justify-center gap-2">
-                          <span className="text-charcoal-900 font-semibold">৳{product.price}</span>
-                          {product.compare_price && (
-                            <span className="text-charcoal-400 line-through text-sm">
-                              ৳{product.compare_price}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </Link>
+              <div className="product-grid">
+                {products.map((product) => (
+                  <motion.div key={product.id} variants={itemVariants}>
+                    <ProductCard product={product} />
                   </motion.div>
                 ))}
               </div>

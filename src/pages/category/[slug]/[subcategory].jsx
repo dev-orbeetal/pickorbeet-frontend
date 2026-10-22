@@ -104,12 +104,12 @@ export default function SubcategoryPage() {
       <section className="py-12">
         <div className="container-custom">
           {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            <div className="product-grid">
               {[...Array(8)].map((_, i) => (
                 <div key={i} className="animate-pulse">
-                  <div className="aspect-[4/5] bg-cream-200 rounded-xl mb-3" />
-                  <div className="h-4 bg-cream-200 rounded mb-2" />
-                  <div className="h-4 bg-cream-200 rounded w-2/3" />
+                  <div className="aspect-square bg-cream-300" />
+                  <div className="mt-2 h-4 bg-cream-300" />
+                  <div className="mt-2 h-4 w-2/3 bg-cream-300" />
                 </div>
               ))}
             </div>
@@ -120,7 +120,7 @@ export default function SubcategoryPage() {
                   Showing <span className="font-semibold text-charcoal-800">{products.length}</span> products
                 </p>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+              <div className="product-grid">
                 {products.map((product, index) => (
                   <motion.div
                     key={product.id}

@@ -32,10 +32,16 @@ export default function Home() {
       description="Shop electronics, fashion, home, beauty, and everyday essentials at PickOrbeet. Original products, fast delivery, and secure payment across Bangladesh."
     >
       {sections.map((section) => {
-        if (section.type === 'hero') return <HeroSlider key={section.key} banners={section.banners} />;
+        if (section.type === 'hero') {
+          const sideCards = sections.find((item) => item.type === 'promos')?.banners || [];
+          return <HeroSlider key={section.key} banners={section.banners} cards={sideCards} />;
+        }
         if (section.type === 'categories') return <CategoryIconRow key={section.key} categories={categories} />;
         if (section.type === 'benefits') return <TrustStrip key={section.key} items={section.items} />;
-        if (section.type === 'promos') return <PromoBanners key={section.key} banners={section.banners} />;
+        if (section.type === 'promos') {
+          if (sections.some((item) => item.type === 'hero')) return null;
+          return <PromoBanners key={section.key} banners={section.banners} />;
+        }
         if (section.type === 'products') {
           return (
             <HomeProductRow

@@ -290,17 +290,17 @@ export default function ProductsPage() {
           {/* Products Grid */}
           <div className="flex-1">
             {loading && products.length === 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+              <div className="product-grid">
                 {[...Array(6)].map((_, i) => (
                   <div key={i} className="animate-pulse">
-                    <div className="aspect-[3/4] bg-gray-200 rounded-xl mb-4" />
-                    <div className="h-4 bg-gray-200 rounded mb-2" />
-                    <div className="h-4 bg-gray-200 rounded w-2/3" />
+                    <div className="aspect-square bg-cream-300" />
+                    <div className="mt-2 h-4 bg-cream-300" />
+                    <div className="mt-2 h-4 w-2/3 bg-cream-300" />
                   </div>
                 ))}
               </div>
             ) : products.length > 0 ? (
-              <div className={`grid grid-cols-2 md:grid-cols-3 gap-6 transition-opacity duration-200 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+              <div className={`product-grid transition-opacity duration-200 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 {products.map((product) => (
                   <div key={product.id}>
                     <ProductCard product={product} />

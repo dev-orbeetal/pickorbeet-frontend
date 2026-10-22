@@ -89,7 +89,7 @@ export default function FeaturedProducts({ products }) {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"
+          className="product-grid"
         >
           {productsArray.slice(0, 8).map((product) => (
             <motion.div key={product.id} variants={itemVariants}>

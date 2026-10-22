@@ -1,122 +1,167 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { useDispatch } from 'react-redux';
-import { motion } from 'framer-motion';
-import { Heart, ShoppingCart, Check } from 'lucide-react';
+import { ArrowLeftRight, Eye, Heart, ShoppingCart } from 'lucide-react';
 import { addToCart } from '@/store/slices/cartSlice';
 import toast from 'react-hot-toast';
 import { getMediaUrl } from '@/lib/siteConfig';
+import { COMPARE_KEY, WISHLIST_KEY, readList, subscribeLists, toggleList } from '@/lib/productLists';
+import QuickViewModal from '@/components/products/QuickViewModal';
+
+const actionClass = 'flex h-9 w-9 items-center justify-center rounded-full bg-white text-charcoal-600 shadow-md ring-1 ring-black/5 transition-colors hover:text-navy-800';
 
 export default function ProductCard({ product }) {
-  const [isWishlisted, setIsWishlisted] = useState(false);
-  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [wishlisted, setWishlisted] = useState(false);
+  const [compared, setCompared] = useState(false);
+  const [adding, setAdding] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
+  const [quickOpen, setQuickOpen] = useState(false);
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    const sync = () => {
+      setWishlisted(readList(WISHLIST_KEY).includes(product.id));
+      setCompared(readList(COMPARE_KEY).includes(product.id));
+    };
+    sync();
+    return subscribeLists(sync);
+  }, [product.id]);
+
   const handleAddToCart = async (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    if (isAddingToCart || product.is_out_of_stock) return;
-
+    event?.preventDefault();
+    event?.stopPropagation();
+    if (adding || product.is_out_of_stock) return;
     if (product.variants?.length > 0) {
       window.location.href = `/product/${product.slug}`;
       return;
     }
-
-    setIsAddingToCart(true);
+    setAdding(true);
     try {
       await dispatch(addToCart({ product_id: product.id, quantity: 1 })).unwrap();
       setJustAdded(true);
-      toast.success('Added to cart!');
-      setTimeout(() => setJustAdded(false), 2000);
+      toast.success('Added to cart');
+      setTimeout(() => setJustAdded(false), 1600);
     } catch (error) {
       toast.error(error?.error || 'Failed to add to cart');
     } finally {
-      setIsAddingToCart(false);
+      setAdding(false);
     }
   };
 
   const handleWishlist = (event) => {
     event.preventDefault();
     event.stopPropagation();
-    setIsWishlisted((current) => !current);
-    toast.success(isWishlisted ? 'Removed from wishlist' : 'Added to wishlist');
+    const result = toggleList(WISHLIST_KEY, product.id);
+    setWishlisted(result.added);
+    toast.success(result.added ? 'Added to wishlist' : 'Removed from wishlist');
   };
 
-  const imageUrl = getMediaUrl(product.primary_image, '/images/placeholder.svg');
+  const handleCompare = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const result = toggleList(COMPARE_KEY, product.id, 4);
+    if (!result.ok) {
+      toast.error('You can compare up to 4 products');
+      return;
+    }
+    setCompared(result.added);
+    toast.success(result.added ? 'Added to compare' : 'Removed from compare');
+  };
+
+  const openQuickView = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setQuickOpen(true);
+  };
+
   const price = parseFloat(product.price);
   const comparePrice = product.compare_price ? parseFloat(product.compare_price) : null;
   const hasDiscount = comparePrice && comparePrice > price;
+  const saved = hasDiscount ? Math.round(comparePrice - price) : 0;
+  const subtitle = product.short_description || product.sku || '';
+  const imageUrl = getMediaUrl(product.primary_image, '/images/placeholder.svg');
 
   return (
-    <article className="product-card group h-full bg-white rounded-xl border border-cream-400 shadow-sm flex flex-col">
+    <article className="product-card group flex h-full flex-col">
       <div className="relative">
         <Link href={`/product/${product.slug}`} className="block">
-          <div className="aspect-square bg-white rounded-t-xl overflow-hidden">
-            <img
-              src={imageUrl}
-              alt={product.name}
-              className="product-card-image h-full w-full object-contain p-3"
-            />
+          <div className="aspect-square">
+            <img src={imageUrl} alt={product.name} className="h-full w-full object-contain" />
           </div>
         </Link>
 
-        {hasDiscount && product.discount_percentage > 0 && (
-          <span className="absolute top-3 left-3 px-2 py-1 rounded-md bg-gold-500 text-white text-xs font-bold">
-            -{product.discount_percentage}%
-          </span>
-        )}
-
-        <motion.button
-          type="button"
-          onClick={handleWishlist}
-          aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-          whileTap={{ scale: 0.88 }}
-          animate={{ scale: isWishlisted ? 1.08 : 1 }}
-          className={`absolute top-3 right-3 w-8 h-8 rounded-full border flex items-center justify-center bg-white ${
-            isWishlisted ? 'text-gold-500 border-gold-500' : 'text-charcoal-400 border-cream-400 hover:text-gold-500'
-          }`}
-        >
-          <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} />
-        </motion.button>
-
-        {product.is_out_of_stock && (
-          <div className="absolute inset-0 bg-white/70 flex items-center justify-center rounded-t-xl">
-            <span className="px-3 py-1.5 bg-charcoal-900 text-white text-xs font-semibold rounded-md">Out of Stock</span>
-          </div>
-        )}
+        <div className="pointer-events-none absolute right-2 top-1/2 z-10 flex -translate-y-1/2 translate-x-2 flex-col gap-2 opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:translate-x-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-x-0 group-focus-within:opacity-100 max-md:pointer-events-auto max-md:translate-x-0 max-md:opacity-100 [@media(hover:none)]:pointer-events-auto [@media(hover:none)]:translate-x-0 [@media(hover:none)]:opacity-100 [@media(pointer:coarse)]:pointer-events-auto [@media(pointer:coarse)]:translate-x-0 [@media(pointer:coarse)]:opacity-100">
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            disabled={adding || product.is_out_of_stock}
+            aria-label="Add to cart"
+            className={`${actionClass} disabled:opacity-40 ${justAdded ? 'text-emerald-600' : ''}`}
+          >
+            <ShoppingCart className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={handleCompare}
+            aria-pressed={compared}
+            aria-label={compared ? 'Remove from compare' : 'Compare'}
+            className={`${actionClass} ${compared ? 'text-navy-800' : ''}`}
+          >
+            <ArrowLeftRight className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={handleWishlist}
+            aria-pressed={wishlisted}
+            aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+            className={`${actionClass} ${wishlisted ? 'text-gold-600' : ''}`}
+          >
+            <Heart className={`h-4 w-4 ${wishlisted ? 'fill-current' : ''}`} />
+          </button>
+          <button type="button" onClick={openQuickView} aria-label="Quick view" className={actionClass}>
+            <Eye className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
-      <div className="p-3 flex flex-col flex-1">
+      <div className="flex flex-1 flex-col pt-2">
         <Link href={`/product/${product.slug}`}>
-          <h3 className="text-sm font-medium text-charcoal-800 line-clamp-2 min-h-[40px] hover:text-navy-800">
+          <h3 className="line-clamp-2 min-h-[2.5rem] text-[13px] font-medium leading-5 text-blue-600 hover:underline">
             {product.name}
           </h3>
         </Link>
-
-        <div className="mt-2 flex items-baseline gap-2">
-          <span className="text-lg font-bold text-gold-500">৳{price.toLocaleString()}</span>
+        <p className="mt-0.5 h-4 truncate text-xs text-charcoal-500">{subtitle || '\u00A0'}</p>
+        <p className="mt-1 flex h-5 items-baseline gap-1.5 overflow-hidden">
+          <span className="shrink-0 text-sm font-bold text-blue-600">৳{price.toLocaleString()}</span>
           {hasDiscount && (
-            <span className="text-xs text-charcoal-400 line-through">৳{comparePrice.toLocaleString()}</span>
+            <span className="truncate text-xs text-charcoal-400 line-through">৳{comparePrice.toLocaleString()}</span>
           )}
-        </div>
-
-        <motion.button
+        </p>
+        <p className={`h-4 truncate text-xs ${product.is_out_of_stock ? 'text-red-600' : 'text-emerald-600'}`}>
+          {product.is_out_of_stock ? 'Out of stock' : hasDiscount ? `Save Tk ${saved.toLocaleString()}` : '\u00A0'}
+        </p>
+        <button
           type="button"
           onClick={handleAddToCart}
-          disabled={isAddingToCart || product.is_out_of_stock}
-          whileTap={{ scale: 0.98 }}
-          className={`mt-3 w-full h-9 rounded-lg border text-sm font-semibold flex items-center justify-center gap-1.5 transition-colors ${
-            justAdded
-              ? 'border-emerald-500 text-emerald-600 bg-emerald-50'
-              : 'border-gold-500 text-gold-600 hover:bg-gold-500 hover:text-white disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-gold-600'
-          }`}
+          disabled={adding || product.is_out_of_stock}
+          className="mt-auto flex h-9 w-full items-center justify-center gap-1.5 rounded-md bg-blue-600 text-xs font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-charcoal-300"
         >
-          {justAdded ? <Check className="w-4 h-4" /> : <ShoppingCart className="w-4 h-4" />}
-          {justAdded ? 'Added' : 'Add to Cart'}
-        </motion.button>
+          <ShoppingCart className="h-3.5 w-3.5" />
+          {product.is_out_of_stock ? 'Out of stock' : justAdded ? 'Added' : 'Add to Cart'}
+        </button>
       </div>
+
+      {quickOpen && typeof document !== 'undefined' && createPortal(
+        <QuickViewModal
+          product={product}
+          onClose={() => setQuickOpen(false)}
+          onAddToCart={handleAddToCart}
+          adding={adding}
+          justAdded={justAdded}
+        />,
+        document.body,
+      )}
     </article>
   );
 }

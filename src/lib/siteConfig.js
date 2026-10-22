@@ -3,7 +3,7 @@ const siteConfig = {
   title: 'PickOrbeet - Shop Smarter, Live Better',
   description: 'Shop electronics, fashion, home, beauty, and everyday essentials at PickOrbeet. Original products, fast delivery, and secure payment across Bangladesh.',
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://pickorbeet.com',
-  apiUrl: process.env.NEXT_PUBLIC_API_URL || 'https://server.pickorbeet.com/api/v1',
+  apiUrl: process.env.NEXT_PUBLIC_API_URL || 'https://pickorbeet.com/api/v1',
   logo: '/images/logo.png',
   ogImage: '/images/og-default.jpg',
   locale: 'en_US',

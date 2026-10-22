@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useSelector, useDispatch } from 'react-redux';
@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { logout } from '@/store/slices/authSlice';
+import { storeSettingsAPI } from '@/lib/api';
+import { DesktopCategoryNav, MobileCategoryNav } from '@/components/layout/CategoryNav';
 
 function Wordmark() {
   return (
@@ -23,6 +25,13 @@ export default function Header() {
   const [showCategories, setShowCategories] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [logo, setLogo] = useState('');
+
+  useEffect(() => {
+    storeSettingsAPI.getPublicSettings()
+      .then((res) => setLogo(res.data?.logo || ''))
+      .catch(() => {});
+  }, []);
 
   const dispatch = useDispatch();
   const router = useRouter();
@@ -55,7 +64,7 @@ export default function Header() {
       <div className="container-custom">
         <div className="flex items-center gap-3 lg:gap-6 h-[72px]">
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
-            <img src="/images/logo.png" alt="" className="h-11 w-auto" />
+            <img src={logo || '/images/logo.png'} alt="" className="h-11 w-auto" />
             <Wordmark />
           </Link>
 
@@ -213,17 +222,7 @@ export default function Header() {
             </AnimatePresence>
           </div>
 
-          <nav className="flex-1 flex items-center gap-1 overflow-x-auto scrollbar-hide">
-            {categoryList.map((category) => (
-              <Link
-                key={category.id}
-                href={`/category/${category.slug}`}
-                className="shrink-0 px-3 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap"
-              >
-                {category.name}
-              </Link>
-            ))}
-          </nav>
+          <DesktopCategoryNav categories={categoryList} />
 
           <Link
             href="/products?on_sale=1"
@@ -246,16 +245,7 @@ export default function Header() {
               <Link href="/products?on_sale=1" onClick={() => setIsMenuOpen(false)} className="py-2.5 text-gold-400 font-semibold">
                 Deals
               </Link>
-              {categoryList.map((category) => (
-                <Link
-                  key={category.id}
-                  href={`/category/${category.slug}`}
-                  onClick={() => setIsMenuOpen(false)}
-                  className="py-2.5 text-sm text-white/90"
-                >
-                  {category.name}
-                </Link>
-              ))}
+              <MobileCategoryNav categories={categoryList} onNavigate={() => setIsMenuOpen(false)} />
               <Link href="/products" onClick={() => setIsMenuOpen(false)} className="py-2.5 text-sm text-white/90">
                 All products
               </Link>

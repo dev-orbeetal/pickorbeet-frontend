@@ -81,7 +81,7 @@ export default function Footer() {
           {/* Brand */}
           <motion.div variants={itemVariants}>
             <Link href="/" className="inline-flex items-center gap-2 group">
-              <img src="/images/logo.png" alt="" className="h-10 w-auto" />
+              <img src={settings?.logo || '/images/logo.png'} alt="" className="h-10 w-auto" />
               <span className="text-xl font-extrabold tracking-tight">
                 <span className="text-white">Pick</span>
                 <span className="text-gold-500">Orbeet</span>
