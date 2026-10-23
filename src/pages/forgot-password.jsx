@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { Mail, Loader2, ArrowLeft, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
+import AuthShell, { authButtonClass, authInputClass } from '@/components/auth/AuthShell';
 import { authAPI } from '@/lib/api';
 
 export default function ForgotPasswordPage() {
@@ -11,20 +11,17 @@ export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     if (!email) {
-      toast.error('Please enter your email address');
+      toast.error('Enter your email address');
       return;
     }
-
     setLoading(true);
     try {
       await authAPI.forgotPassword({ email });
       setSent(true);
-      toast.success('Check your email for reset instructions');
-    } catch (error) {
+    } catch {
       toast.error('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
@@ -32,94 +29,40 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <Layout title="Forgot Password - Pickorbeet">
-      <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md"
-        >
-          <div className="text-center mb-8">
-            <Link href="/">
-              <img src="/images/logo.png" alt="Pickorbeet" className="h-16 mx-auto" />
-            </Link>
-            <h1 className="mt-6 text-2xl font-display font-bold text-charcoal-800">
-              {sent ? 'Check Your Email' : 'Forgot Password'}
-            </h1>
-            <p className="mt-2 text-charcoal-600">
-              {sent
-                ? 'We sent you a password reset link'
-                : 'Enter your email and we\'ll send you a reset link'}
-            </p>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-elegant border border-cream-200 p-8">
-            {sent ? (
-              <div className="text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle className="w-8 h-8 text-green-600" />
-                </div>
-                <p className="text-charcoal-600 mb-6">
-                  If an account exists for <strong>{email}</strong>, you will receive a password reset link shortly.
-                </p>
-                <p className="text-sm text-charcoal-500 mb-6">
-                  Don't see the email? Check your spam folder.
-                </p>
-                <button
-                  onClick={() => setSent(false)}
-                  className="text-primary-600 font-semibold hover:text-primary-700 transition-colors"
-                >
-                  Try a different email
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div>
-                  <label className="block text-sm font-medium text-charcoal-700 mb-1.5">
-                    Email Address
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-charcoal-400" />
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full pl-11 pr-4 py-3 bg-cream-50 border border-cream-200 rounded-xl text-charcoal-800 placeholder-charcoal-400 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all"
-                      placeholder="you@example.com"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-3 px-4 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold rounded-xl shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                      Sending...
-                    </>
-                  ) : (
-                    'Send Reset Link'
-                  )}
-                </button>
-              </form>
-            )}
-
-            <div className="mt-6 text-center">
-              <Link
-                href="/login"
-                className="inline-flex items-center text-primary-600 font-semibold hover:text-primary-700 transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Login
-              </Link>
+    <Layout title="Reset password - PickOrbeet">
+      <AuthShell
+        title={sent ? 'Check your email' : 'Reset your password'}
+        subtitle={sent
+          ? `If an account exists for ${email}, a reset link is on its way.`
+          : 'We’ll email you a link to choose a new password.'}
+        footer={<Link href="/login" className="inline-flex items-center font-semibold text-[#0040EE]"><ArrowLeft className="mr-1 h-4 w-4" /> Back to sign in</Link>}
+      >
+        {sent ? (
+          <div className="text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#E6F6EC]">
+              <CheckCircle className="h-7 w-7 text-[#06892E]" />
             </div>
+            <p className="text-sm text-[#5C6984]">Check the inbox and spam folder. The link expires after a while.</p>
+            <button type="button" onClick={() => setSent(false)} className="mt-5 text-sm font-semibold text-[#0040EE]">
+              Use a different email
+            </button>
           </div>
-        </motion.div>
-      </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-medium text-[#051340]">Email</span>
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-[#8B95B2]" />
+                <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} className={authInputClass} placeholder="you@example.com" required />
+              </div>
+            </label>
+            <button type="submit" disabled={loading} className={authButtonClass}>
+              {loading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
+              {loading ? 'Sending' : 'Send reset link'}
+            </button>
+          </form>
+        )}
+      </AuthShell>
     </Layout>
   );
 }

@@ -2,11 +2,11 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
-import { motion } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff, User, Phone, Loader2, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Script from 'next/script';
 import Layout from '@/components/layout/Layout';
+import AuthShell, { authButtonClass, authInputClass } from '@/components/auth/AuthShell';
 import { register, googleAuth, clearError } from '@/store/slices/authSlice';
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
@@ -16,7 +16,6 @@ export default function RegisterPage() {
   const dispatch = useDispatch();
   const { isAuthenticated, loading, error, pendingVerification } = useSelector((state) => state.auth);
   const hasRedirected = useRef(false);
-
   const [showPassword, setShowPassword] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
@@ -30,344 +29,204 @@ export default function RegisterPage() {
   });
 
   useEffect(() => {
-    if (isAuthenticated) {
-      router.push('/');
-    }
-  }, [isAuthenticated]);
+    if (isAuthenticated) router.push('/');
+  }, [isAuthenticated, router]);
 
   useEffect(() => {
-    // Redirect to verify email page after registration
     if (pendingVerification?.requires_verification && !hasRedirected.current) {
       hasRedirected.current = true;
       router.push(`/verify-email?email=${encodeURIComponent(pendingVerification.email)}`);
-      toast.success('Please check your email for verification code!');
+      toast.success('Check your email for the 6-digit code');
     }
-  }, [pendingVerification]);
+  }, [pendingVerification, router]);
 
   useEffect(() => {
-    if (error) {
-      let errorMsg = 'Registration failed';
-      if (typeof error === 'object') {
-        errorMsg = Object.entries(error)
-          .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
-          .join('; ');
-      } else if (typeof error === 'string') {
-        errorMsg = error;
-      }
-      toast.error(errorMsg);
-      dispatch(clearError());
-    }
+    if (!error) return;
+    const errorMsg = typeof error === 'object'
+      ? Object.entries(error).map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`).join('; ')
+      : error;
+    toast.error(errorMsg || 'Registration failed');
+    dispatch(clearError());
   }, [error, dispatch]);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!agreeTerms) {
-      toast.error('Please agree to the Terms of Service and Privacy Policy');
-      return;
-    }
-
-    if (formData.password !== formData.password_confirm) {
-      toast.error('Passwords do not match');
-      return;
-    }
-
-    if (formData.password.length < 8) {
-      toast.error('Password must be at least 8 characters');
-      return;
-    }
-
-    dispatch(register(formData));
-  };
+  const strength = (() => {
+    const password = formData.password;
+    if (!password) return 0;
+    let score = 0;
+    if (password.length >= 8) score += 1;
+    if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score += 1;
+    if (/\d/.test(password)) score += 1;
+    if (/[^a-zA-Z0-9]/.test(password)) score += 1;
+    return score;
+  })();
 
   const handleGoogleCallback = useCallback(async (response) => {
-    if (response.credential) {
-      setGoogleLoading(true);
-      try {
-        await dispatch(googleAuth(response.credential)).unwrap();
-        // Redirect handled by isAuthenticated effect
-      } catch (err) {
-        toast.error('Google sign-up failed');
-      } finally {
-        setGoogleLoading(false);
-      }
+    if (!response.credential) return;
+    setGoogleLoading(true);
+    try {
+      await dispatch(googleAuth(response.credential)).unwrap();
+    } catch {
+      toast.error('Google sign-up failed');
+    } finally {
+      setGoogleLoading(false);
     }
   }, [dispatch]);
 
   const initializeGoogle = useCallback(() => {
-    if (window.google && GOOGLE_CLIENT_ID) {
-      window.google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: handleGoogleCallback,
-        auto_select: false,
-      });
-      window.google.accounts.id.renderButton(
-        document.getElementById('google-signup-button'),
-        {
-          theme: 'outline',
-          size: 'large',
-          width: '100%',
-          text: 'signup_with',
-          shape: 'rectangular',
-        }
-      );
-    }
+    if (!window.google || !GOOGLE_CLIENT_ID) return;
+    window.google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleGoogleCallback,
+      auto_select: false,
+    });
+    const slot = document.getElementById('google-signup-button');
+    if (!slot) return;
+    slot.innerHTML = '';
+    window.google.accounts.id.renderButton(slot, {
+      theme: 'outline',
+      size: 'large',
+      width: slot.offsetWidth || 360,
+      text: 'signup_with',
+      shape: 'pill',
+    });
   }, [handleGoogleCallback]);
 
-  const passwordStrength = () => {
-    const { password } = formData;
-    if (!password) return { strength: 0, label: '', color: '' };
-
-    let strength = 0;
-    if (password.length >= 8) strength++;
-    if (password.match(/[a-z]/)) strength++;
-    if (password.match(/[A-Z]/)) strength++;
-    if (password.match(/[0-9]/)) strength++;
-    if (password.match(/[^a-zA-Z0-9]/)) strength++;
-
-    if (strength <= 2) return { strength: 1, label: 'Weak', color: 'bg-red-500' };
-    if (strength <= 3) return { strength: 2, label: 'Medium', color: 'bg-yellow-500' };
-    if (strength <= 4) return { strength: 3, label: 'Strong', color: 'bg-green-500' };
-    return { strength: 4, label: 'Very Strong', color: 'bg-emerald-500' };
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (!agreeTerms) {
+      toast.error('Please agree to the Terms and Privacy Policy');
+      return;
+    }
+    if (formData.password !== formData.password_confirm) {
+      toast.error('Passwords do not match');
+      return;
+    }
+    if (formData.password.length < 8) {
+      toast.error('Use at least 8 characters');
+      return;
+    }
+    dispatch(register(formData));
   };
 
-  const { strength, label, color } = passwordStrength();
+  const setField = (event) => setFormData({ ...formData, [event.target.name]: event.target.value });
 
   return (
-    <Layout title="Register - Pickorbeet">
-      <Script
-        src="https://accounts.google.com/gsi/client"
-        onLoad={initializeGoogle}
-        strategy="lazyOnload"
-      />
-
-      <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md"
-        >
-          <div className="text-center mb-8">
-            <Link href="/">
-              <img src="/images/logo.png" alt="Pickorbeet" className="h-16 mx-auto" />
-            </Link>
-            <h1 className="mt-6 text-2xl font-display font-bold text-charcoal-800">
-              Create Account
-            </h1>
-            <p className="mt-2 text-charcoal-600">
-              Join us for exclusive offers and faster checkout
-            </p>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-elegant border border-cream-200 p-8">
-            {/* Google Sign-Up Button */}
-            {GOOGLE_CLIENT_ID && (
-              <>
-                <div className="mb-6">
-                  {googleLoading ? (
-                    <div className="w-full h-11 flex items-center justify-center bg-cream-50 rounded-lg border border-cream-200">
-                      <Loader2 className="w-5 h-5 animate-spin text-charcoal-500" />
-                    </div>
-                  ) : (
-                    <div id="google-signup-button" className="w-full flex justify-center" />
-                  )}
+    <Layout title="Create account - PickOrbeet">
+      <Script src="https://accounts.google.com/gsi/client" onLoad={initializeGoogle} strategy="lazyOnload" />
+      <AuthShell
+        title="Create your account"
+        subtitle="It takes a minute. We’ll email you a 6-digit code to confirm it’s you."
+        footer={(
+          <>
+            Already have an account?{' '}
+            <Link href="/login" className="font-semibold text-[#0040EE]">Sign in</Link>
+          </>
+        )}
+      >
+        {GOOGLE_CLIENT_ID && (
+          <>
+            <div className="mb-5 min-h-[44px]">
+              {googleLoading ? (
+                <div className="flex h-11 items-center justify-center rounded-full border border-[#E3E8F4]">
+                  <Loader2 className="h-5 w-5 animate-spin text-[#5C6984]" />
                 </div>
-
-                <div className="relative mb-6">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-cream-300" />
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-4 bg-white text-charcoal-500">or register with email</span>
-                  </div>
-                </div>
-              </>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-charcoal-700 mb-1.5">
-                    First Name
-                  </label>
-                  <div className="relative">
-                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-charcoal-400" />
-                    <input
-                      type="text"
-                      name="first_name"
-                      value={formData.first_name}
-                      onChange={handleChange}
-                      className="w-full pl-11 pr-4 py-3 bg-cream-50 border border-cream-200 rounded-xl text-charcoal-800 placeholder-charcoal-400 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all"
-                      placeholder="First name"
-                      required
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-charcoal-700 mb-1.5">
-                    Last Name
-                  </label>
-                  <input
-                    type="text"
-                    name="last_name"
-                    value={formData.last_name}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 bg-cream-50 border border-cream-200 rounded-xl text-charcoal-800 placeholder-charcoal-400 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all"
-                    placeholder="Last name"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-charcoal-700 mb-1.5">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-charcoal-400" />
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="w-full pl-11 pr-4 py-3 bg-cream-50 border border-cream-200 rounded-xl text-charcoal-800 placeholder-charcoal-400 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all"
-                    placeholder="you@example.com"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-charcoal-700 mb-1.5">
-                  Phone Number <span className="text-charcoal-400 font-normal">(Optional)</span>
-                </label>
-                <div className="relative">
-                  <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-charcoal-400" />
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="w-full pl-11 pr-4 py-3 bg-cream-50 border border-cream-200 rounded-xl text-charcoal-800 placeholder-charcoal-400 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all"
-                    placeholder="01XXXXXXXXX"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-charcoal-700 mb-1.5">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-charcoal-400" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="w-full pl-11 pr-12 py-3 bg-cream-50 border border-cream-200 rounded-xl text-charcoal-800 placeholder-charcoal-400 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all"
-                    placeholder="Min. 8 characters"
-                    required
-                    minLength={8}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-charcoal-400 hover:text-charcoal-600 transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
-                {formData.password && (
-                  <div className="mt-2">
-                    <div className="flex gap-1 mb-1">
-                      {[1, 2, 3, 4].map((level) => (
-                        <div
-                          key={level}
-                          className={`h-1 flex-1 rounded-full ${level <= strength ? color : 'bg-cream-200'
-                            }`}
-                        />
-                      ))}
-                    </div>
-                    <p className="text-xs text-charcoal-500">{label}</p>
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-charcoal-700 mb-1.5">
-                  Confirm Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-charcoal-400" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    name="password_confirm"
-                    value={formData.password_confirm}
-                    onChange={handleChange}
-                    className="w-full pl-11 pr-12 py-3 bg-cream-50 border border-cream-200 rounded-xl text-charcoal-800 placeholder-charcoal-400 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all"
-                    placeholder="Confirm your password"
-                    required
-                  />
-                  {formData.password_confirm && formData.password === formData.password_confirm && (
-                    <CheckCircle className="absolute right-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" />
-                  )}
-                </div>
-              </div>
-
-              <div className="flex items-start pt-2">
-                <input
-                  type="checkbox"
-                  checked={agreeTerms}
-                  onChange={(e) => setAgreeTerms(e.target.checked)}
-                  className="mt-0.5 w-4 h-4 text-primary-600 bg-cream-50 border-cream-300 rounded focus:ring-gold-500"
-                />
-                <span className="ml-2.5 text-sm text-charcoal-600">
-                  I agree to the{' '}
-                  <Link href="/terms" className="text-primary-600 hover:underline font-medium">
-                    Terms of Service
-                  </Link>{' '}
-                  and{' '}
-                  <Link href="/privacy" className="text-primary-600 hover:underline font-medium">
-                    Privacy Policy
-                  </Link>
-                </span>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading || !agreeTerms}
-                className="w-full py-3 px-4 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold rounded-xl shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center mt-6"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                    Creating account...
-                  </>
-                ) : (
-                  'Create Account'
-                )}
-              </button>
-            </form>
-
-            <div className="mt-6 text-center">
-              <p className="text-charcoal-600">
-                Already have an account?{' '}
-                <Link
-                  href="/login"
-                  className="text-primary-600 font-semibold hover:text-primary-700 transition-colors"
-                >
-                  Sign in
-                </Link>
-              </p>
+              ) : (
+                <div id="google-signup-button" className="flex w-full justify-center" />
+              )}
             </div>
+            <div className="mb-5 flex items-center gap-3 text-xs uppercase tracking-wide text-[#98A2BE]">
+              <span className="h-px flex-1 bg-[#E6ECF8]" />
+              or email
+              <span className="h-px flex-1 bg-[#E6ECF8]" />
+            </div>
+          </>
+        )}
+        <form onSubmit={handleSubmit} className="space-y-3.5">
+          <div className="grid grid-cols-2 gap-3">
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-medium text-[#051340]">First name</span>
+              <div className="relative">
+                <User className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-[#8B95B2]" />
+                <input name="first_name" value={formData.first_name} onChange={setField} className={authInputClass} placeholder="Rakibul" required />
+              </div>
+            </label>
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-medium text-[#051340]">Last name</span>
+              <input name="last_name" value={formData.last_name} onChange={setField} className={`${authInputClass} pl-4`} placeholder="Hasan" required />
+            </label>
           </div>
-        </motion.div>
-      </div>
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-medium text-[#051340]">Email</span>
+            <div className="relative">
+              <Mail className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-[#8B95B2]" />
+              <input type="email" name="email" autoComplete="email" value={formData.email} onChange={setField} className={authInputClass} placeholder="you@example.com" required />
+            </div>
+          </label>
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-medium text-[#051340]">Phone <span className="font-normal text-[#98A2BE]">optional</span></span>
+            <div className="relative">
+              <Phone className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-[#8B95B2]" />
+              <input type="tel" name="phone" value={formData.phone} onChange={setField} className={authInputClass} placeholder="01XXXXXXXXX" />
+            </div>
+          </label>
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-medium text-[#051340]">Password</span>
+            <div className="relative">
+              <Lock className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-[#8B95B2]" />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                autoComplete="new-password"
+                value={formData.password}
+                onChange={setField}
+                className={`${authInputClass} pr-12`}
+                placeholder="At least 8 characters"
+                minLength={8}
+                required
+              />
+              <button type="button" onClick={() => setShowPassword((value) => !value)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8B95B2]" aria-label="Toggle password">
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+            </div>
+            {formData.password && (
+              <div className="mt-2 flex gap-1">
+                {[1, 2, 3, 4].map((level) => (
+                  <span key={level} className={`h-1 flex-1 rounded-full ${level <= strength ? 'bg-[#06892E]' : 'bg-[#E6ECF8]'}`} />
+                ))}
+              </div>
+            )}
+          </label>
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-medium text-[#051340]">Confirm password</span>
+            <div className="relative">
+              <Lock className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-[#8B95B2]" />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password_confirm"
+                value={formData.password_confirm}
+                onChange={setField}
+                className={authInputClass}
+                placeholder="Repeat password"
+                required
+              />
+              {formData.password_confirm && formData.password === formData.password_confirm && (
+                <CheckCircle className="absolute right-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-[#06892E]" />
+              )}
+            </div>
+          </label>
+          <label className="flex items-start gap-2.5 pt-1 text-sm text-[#5C6984]">
+            <input type="checkbox" checked={agreeTerms} onChange={(event) => setAgreeTerms(event.target.checked)} className="mt-1" />
+            <span>
+              I agree to the <Link href="/terms" className="font-semibold text-[#0040EE]">Terms</Link> and{' '}
+              <Link href="/privacy" className="font-semibold text-[#0040EE]">Privacy Policy</Link>
+            </span>
+          </label>
+          <button type="submit" disabled={loading || !agreeTerms} className={authButtonClass}>
+            {loading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
+            {loading ? 'Creating account' : 'Create account'}
+          </button>
+        </form>
+      </AuthShell>
     </Layout>
   );
 }
