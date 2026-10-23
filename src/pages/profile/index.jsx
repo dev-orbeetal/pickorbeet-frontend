@@ -303,8 +303,20 @@ export default function ProfilePage() {
                               {order.order_status.replace('_', ' ')}
                             </span>
                           </div>
+                          {order.tracking_code && (
+                            <p className="text-sm text-charcoal-500 mb-3">
+                              {order.shipment_status_label || 'With Steadfast'} · {order.tracking_code}
+                            </p>
+                          )}
                           <div className="flex flex-wrap items-center justify-between gap-4">
                             <span className="text-charcoal-600">{order.item_count} item(s)</span>
+                            <button
+                              type="button"
+                              onClick={() => router.push(order.tracking_code ? `/track-order?order=${order.order_number}` : `/orders?order=${order.id}`)}
+                              className="text-sm font-medium text-primary-600 hover:text-primary-700"
+                            >
+                              {order.tracking_code ? 'Track parcel' : 'View order'}
+                            </button>
                             <span className="font-semibold text-primary-600">৳{parseFloat(order.total).toLocaleString()}</span>
                           </div>
                         </div>

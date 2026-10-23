@@ -501,6 +501,34 @@
   40% { opacity: 1; transform: scale(1); }
 }
 
+.voucher-filters {
+  scrollbar-width: none;
+}
+
+.voucher-filters::-webkit-scrollbar {
+  display: none;
+}
+
+.voucher-ticket {
+  position: relative;
+}
+
+.voucher-ticket::before,
+.voucher-ticket::after {
+  content: "";
+  position: absolute;
+  left: 94px;
+  z-index: 2;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #F4F7FE;
+  pointer-events: none;
+}
+
+.voucher-ticket::before { top: -10px; }
+.voucher-ticket::after { bottom: -10px; }
+
 @media (prefers-reduced-motion: reduce) {
   .logo-silhouette-dot {
     animation: none;

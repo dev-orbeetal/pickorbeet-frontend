@@ -14,6 +14,7 @@ import { useSearch } from '@/hooks';
 import { DesktopCategoryNav, MobileCategoryNav } from '@/components/layout/CategoryNav';
 import LogoMark from '@/components/brand/LogoMark';
 import InlineDots from '@/components/loading/InlineDots';
+import NotificationBell from '@/components/notifications/NotificationBell';
 
 function SearchSuggestions({ query, results, loading, recentSearches, onPick, onRecent }) {
   const showRecent = query.trim().length < 2 && recentSearches.length > 0;
@@ -257,6 +258,7 @@ export default function Header() {
           </form>
 
           <div className="flex shrink-0 items-center">
+            {isAuthenticated && <NotificationBell className={`${iconClass} lg:hidden`} />}
             <div className="hidden items-center lg:flex">
               <div
                 className="relative"
@@ -286,7 +288,10 @@ export default function Header() {
                             <p className="font-semibold text-charcoal-900">{user?.first_name || 'Account'}</p>
                           </div>
                           <Link href="/account" className="block px-4 py-2.5 hover:bg-cream-200">My Account</Link>
+                          <Link href="/settings" className="block px-4 py-2.5 hover:bg-cream-200">Settings</Link>
                           <Link href="/orders" className="block px-4 py-2.5 hover:bg-cream-200">My Orders</Link>
+                          <Link href="/notifications" className="block px-4 py-2.5 hover:bg-cream-200">Notifications</Link>
+                          <Link href="/vouchers" className="block px-4 py-2.5 hover:bg-cream-200">My Vouchers</Link>
                           <button type="button" onClick={handleLogout} className="w-full px-4 py-2.5 text-left hover:bg-red-50 hover:text-red-600">
                             Logout
                           </button>
@@ -307,6 +312,8 @@ export default function Header() {
                 <Heart className="h-5 w-5 shrink-0" />
                 <span className="hidden text-[11px] font-medium leading-none lg:block">Wishlist</span>
               </Link>
+
+              {isAuthenticated && <NotificationBell className={iconClass} />}
 
               <Link href="/cart" aria-label={`Cart${totalItems ? `, ${totalItems} items` : ''}`} className={iconClass}>
                 <span className="relative">
@@ -398,6 +405,9 @@ export default function Header() {
             <nav className="container-custom flex max-h-[min(70vh,28rem)] flex-col overflow-y-auto py-3">
               <Link href="/products?on_sale=1" onClick={() => setIsMenuOpen(false)} className="py-2.5 font-semibold text-gold-400">
                 Deals
+              </Link>
+              <Link href="/notifications" onClick={() => setIsMenuOpen(false)} className="py-2.5 text-sm text-white/90">
+                Notifications
               </Link>
               <MobileCategoryNav categories={categoryList} onNavigate={() => setIsMenuOpen(false)} />
               <Link href="/products" onClick={() => setIsMenuOpen(false)} className="py-2.5 text-sm text-white/90">

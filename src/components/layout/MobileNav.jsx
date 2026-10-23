@@ -22,7 +22,7 @@ export default function MobileNav() {
   const homeActive = path === '/' && !menuOpen;
   const categoriesActive = menuOpen || path.startsWith('/category');
   const wishlistActive = path === '/wishlist';
-  const accountActive = path === '/account' || path.startsWith('/profile');
+  const accountActive = path === '/account' || path.startsWith('/profile') || path === '/vouchers' || path === '/settings';
   const cartActive = path === '/cart';
 
   const tone = (active) => (active ? 'text-action' : 'text-charcoal-500');

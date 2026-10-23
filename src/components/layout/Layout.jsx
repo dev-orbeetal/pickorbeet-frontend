@@ -30,6 +30,8 @@ export default function Layout({
   noindex,
   product,
   jsonLd,
+  appChrome = false,
+  frame,
 }) {
   const dispatch = useDispatch();
 
@@ -42,6 +44,29 @@ export default function Layout({
       dispatch(getProfile());
     }
   }, [dispatch]);
+
+  if (appChrome) {
+    return (
+      <>
+        <SEO
+          title={title}
+          description={description}
+          image={image}
+          type={type}
+          url={url}
+          noindex={noindex}
+          product={product}
+          jsonLd={jsonLd}
+        />
+        <Head>
+          <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        </Head>
+        <div className="min-h-screen bg-[#D5E2F6]">{children}</div>
+      </>
+    );
+  }
+
+  const vouchers = frame === 'vouchers';
 
   return (
     <>
@@ -59,8 +84,10 @@ export default function Layout({
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
       </Head>
 
-      <div className="flex min-h-screen flex-col bg-ice pb-[calc(4rem+1px+env(safe-area-inset-bottom))] lg:pb-0">
-        <Header />
+      <div className={`flex min-h-screen flex-col pb-[calc(4rem+1px+env(safe-area-inset-bottom))] lg:pb-0 ${vouchers ? 'bg-[#F4F7FE]' : 'bg-ice'}`}>
+        <div className={vouchers ? 'hidden lg:block' : undefined}>
+          <Header />
+        </div>
         <motion.main
           variants={mainVariants}
           initial="initial"
@@ -69,7 +96,9 @@ export default function Layout({
         >
           {children}
         </motion.main>
-        <Footer />
+        <div className={vouchers ? 'hidden lg:block' : undefined}>
+          <Footer />
+        </div>
         <MobileNav />
       </div>
     </>

@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
-import { User, Mail, Phone, MapPin, Edit2, Save, X, ShieldCheck, Calendar, Copy } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Edit2, Save, X, ShieldCheck, Calendar, Copy, Ticket, Bell, Settings } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
 import { logout, getProfile } from '@/store/slices/authSlice';
@@ -68,7 +69,25 @@ export default function AccountPage() {
   return (
     <Layout title="My Account - Pickorbeet" noindex>
       <div className="container-custom py-8 max-w-4xl">
-        <h1 className="text-3xl font-display font-bold text-charcoal-900 mb-8">My Account</h1>
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
+          <h1 className="text-3xl font-display font-bold text-charcoal-900">My Account</h1>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/addresses"
+              className="inline-flex items-center gap-2 rounded-full bg-[#EEF3FF] px-4 py-2 text-sm font-semibold text-[#0040EE]"
+            >
+              <MapPin className="h-4 w-4" />
+              Delivery addresses
+            </Link>
+            <Link
+              href="/settings"
+              className="inline-flex items-center gap-2 rounded-full bg-[#FFF1E6] px-4 py-2 text-sm font-semibold text-[#E86E00]"
+            >
+              <Settings className="h-4 w-4" />
+              Settings
+            </Link>
+          </div>
+        </div>
 
         {/* Profile Card */}
         <motion.div
@@ -234,7 +253,7 @@ export default function AccountPage() {
         </motion.div>
 
         {/* Quick Links */}
-        <div className="grid sm:grid-cols-3 gap-4 mt-6">
+        <div className="grid gap-4 mt-6 sm:grid-cols-2 xl:grid-cols-4">
           <motion.button
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -247,6 +266,34 @@ export default function AccountPage() {
             </div>
             <h3 className="font-medium text-charcoal-800">My Orders</h3>
             <p className="text-sm text-charcoal-500 mt-1">View your order history</p>
+          </motion.button>
+
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.12 }}
+            onClick={() => router.push('/vouchers')}
+            className="bg-white rounded-xl shadow-sm border p-5 hover:border-primary-300 transition-colors text-left group"
+          >
+            <div className="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center mb-3 group-hover:bg-primary-100 transition-colors">
+              <Ticket className="w-5 h-5 text-primary-600" />
+            </div>
+            <h3 className="font-medium text-charcoal-800">My Vouchers</h3>
+            <p className="text-sm text-charcoal-500 mt-1">View available offers</p>
+          </motion.button>
+
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.12 }}
+            onClick={() => router.push('/notifications')}
+            className="bg-white rounded-xl shadow-sm border p-5 hover:border-primary-300 transition-colors text-left group"
+          >
+            <div className="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center mb-3 group-hover:bg-primary-100 transition-colors">
+              <Bell className="w-5 h-5 text-primary-600" />
+            </div>
+            <h3 className="font-medium text-charcoal-800">Notifications</h3>
+            <p className="text-sm text-charcoal-500 mt-1">Orders, offers and account updates</p>
           </motion.button>
 
           <motion.button

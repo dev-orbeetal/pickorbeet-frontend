@@ -90,6 +90,13 @@ export const authAPI = {
   googleAuth: (data) => api.post('/auth/google/', data),
 };
 
+export const addressAPI = {
+  list: () => api.get('/auth/addresses/'),
+  create: (data) => api.post('/auth/addresses/', data),
+  update: (id, data) => api.patch(`/auth/addresses/${id}/`, data),
+  remove: (id) => api.delete(`/auth/addresses/${id}/`),
+};
+
 // Products API
 export const productsAPI = {
   getCategories: () => api.get('/products/categories/'),
@@ -116,6 +123,7 @@ export const ordersAPI = {
   checkout: (data) => api.post('/orders/checkout/', data),
   getMyOrders: () => api.get('/orders/my-orders/'),
   getOrder: (id) => api.get(`/orders/my-orders/${id}/`),
+  refreshShipment: (id) => api.post(`/orders/my-orders/${id}/shipment/refresh/`),
   trackOrder: (data) => api.post('/orders/track/', data),
   getDeliveryOptions: () => api.get('/orders/delivery-options/'),
 };
@@ -133,6 +141,13 @@ export const storeSettingsAPI = {
 // Contact API (public)
 export const contactAPI = {
   submitMessage: (data) => api.post('/products/contact/', data),
+};
+
+export const notificationsAPI = {
+  list: (page = 1) => api.get('/notifications/', { params: { page } }),
+  unreadCount: () => api.get('/notifications/unread-count/'),
+  markRead: (id) => api.post(`/notifications/${id}/read/`),
+  markAllRead: () => api.post('/notifications/read-all/'),
 };
 
 export default api;

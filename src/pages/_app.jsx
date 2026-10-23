@@ -1,13 +1,15 @@
 import { useEffect } from 'react';
-import { Provider, useDispatch } from 'react-redux';
+import { Provider, useDispatch, useSelector } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter } from 'next/router';
 import store from '@/store/store';
 import { getProfile, checkAuth } from '@/store/slices/authSlice';
 import { fetchCategories } from '@/store/slices/productsSlice';
+import { startNotificationSocket, stopNotificationSocket } from '@/lib/notifications';
 import LoadingProvider from '@/components/loading/LoadingProvider';
 import '@/styles/globals.css';
+import '@/styles/notifications.css';
 
 const pageVariants = {
   initial: {
@@ -51,6 +53,21 @@ function AppHydrator({ children }) {
   return children;
 }
 
+function NotificationLive() {
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      stopNotificationSocket();
+      return undefined;
+    }
+    startNotificationSocket();
+    return () => stopNotificationSocket();
+  }, [isAuthenticated]);
+
+  return null;
+}
+
 export default function App({ Component, pageProps }) {
   const router = useRouter();
 
@@ -58,6 +75,7 @@ export default function App({ Component, pageProps }) {
     <Provider store={store}>
       <LoadingProvider>
         <AppHydrator>
+        <NotificationLive />
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={router.pathname}

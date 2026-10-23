@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Package, ChevronRight, Search, Filter, ShoppingBag, Truck, CheckCircle, XCircle, Clock, ArrowLeft, Copy } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
+import ShipmentPanel from '@/components/orders/ShipmentPanel';
 import { ordersAPI } from '@/lib/api';
 
 const statusConfig = {
@@ -12,6 +13,7 @@ const statusConfig = {
   confirmed: { color: 'bg-blue-100 text-blue-800 border-blue-200', icon: CheckCircle, label: 'Confirmed' },
   processing: { color: 'bg-indigo-100 text-indigo-800 border-indigo-200', icon: Package, label: 'Processing' },
   shipped: { color: 'bg-purple-100 text-purple-800 border-purple-200', icon: Truck, label: 'Shipped' },
+  out_for_delivery: { color: 'bg-cyan-100 text-cyan-800 border-cyan-200', icon: Truck, label: 'Out for delivery' },
   delivered: { color: 'bg-green-100 text-green-800 border-green-200', icon: CheckCircle, label: 'Delivered' },
   cancelled: { color: 'bg-red-100 text-red-800 border-red-200', icon: XCircle, label: 'Cancelled' },
 };
@@ -26,6 +28,7 @@ export default function OrdersPage() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [refreshingShipment, setRefreshingShipment] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -38,6 +41,12 @@ export default function OrdersPage() {
       fetchOrders();
     }
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    const orderId = router.query.order;
+    if (!isAuthenticated || !router.isReady || typeof orderId !== 'string' || !orderId) return;
+    fetchOrderDetail(orderId);
+  }, [isAuthenticated, router.isReady, router.query.order]);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -63,10 +72,39 @@ export default function OrdersPage() {
     }
   };
 
+  const refreshShipment = async () => {
+    if (!selectedOrder?.id) return;
+    setRefreshingShipment(true);
+    try {
+      const response = await ordersAPI.refreshShipment(selectedOrder.id);
+      setSelectedOrder(response.data);
+      setOrders((current) => current.map((order) => (
+        order.id === response.data.id
+          ? {
+            ...order,
+            order_status: response.data.order_status,
+            tracking_code: response.data.shipment?.tracking_code || order.tracking_code,
+            tracking_url: response.data.shipment?.tracking_url || order.tracking_url,
+            shipment_status: response.data.shipment?.status || order.shipment_status,
+            shipment_status_group: response.data.shipment?.status_group || order.shipment_status_group,
+            shipment_status_label: response.data.shipment?.status_label || order.shipment_status_label,
+          }
+          : order
+      )));
+      toast.success('Courier status updated');
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Could not refresh the courier status');
+    } finally {
+      setRefreshingShipment(false);
+    }
+  };
+
   const filteredOrders = orders.filter((order) => {
+    const query = searchQuery.toLowerCase();
     const matchesStatus = filterStatus === 'all' || order.order_status === filterStatus;
-    const matchesSearch = !searchQuery ||
-      order.order_number?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = !query ||
+      order.order_number?.toLowerCase().includes(query) ||
+      order.tracking_code?.toLowerCase().includes(query);
     return matchesStatus && matchesSearch;
   });
 
@@ -142,6 +180,18 @@ export default function OrdersPage() {
                       ))}
                     </div>
                   </div>
+
+                  {selectedOrder.shipment ? (
+                    <ShipmentPanel
+                      shipment={selectedOrder.shipment}
+                      onRefresh={refreshShipment}
+                      refreshing={refreshingShipment}
+                    />
+                  ) : (
+                    <div className="rounded-xl border bg-cream-50 p-4 text-sm text-charcoal-600">
+                      This order has not been handed to Steadfast yet.
+                    </div>
+                  )}
 
                   {/* Shipping Info */}
                   <div className="grid md:grid-cols-2 gap-6">
@@ -248,7 +298,7 @@ export default function OrdersPage() {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search by order number..."
+                    placeholder="Search by order number or tracking code..."
                     className="input pl-10 text-sm"
                   />
                 </div>
@@ -337,6 +387,11 @@ export default function OrdersPage() {
                                   day: 'numeric', month: 'short', year: 'numeric'
                                 })}
                               </p>
+                              {order.tracking_code && (
+                                <p className="text-xs text-charcoal-500 mt-0.5">
+                                  {order.shipment_status_label || 'With Steadfast'} · {order.tracking_code}
+                                </p>
+                              )}
                             </div>
                           </div>
 
