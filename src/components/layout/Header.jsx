@@ -182,20 +182,22 @@ export default function Header() {
     },
   };
 
-  const iconClass = 'relative flex h-11 w-10 shrink-0 items-center justify-center rounded-lg text-white/95 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white min-[380px]:w-11 lg:h-auto lg:w-auto lg:flex-col lg:px-2 lg:py-1';
+  const iconClass = 'relative flex h-[var(--topbar-control)] min-h-0 w-10 shrink-0 items-center justify-center rounded-lg text-white/95 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white min-[380px]:w-11 lg:w-auto lg:flex-col lg:gap-0.5 lg:px-2';
+  const searchInputClass = 'min-w-0 flex-1 rounded-l-lg border border-[#D3DDF6] bg-ice pl-9 pr-3 text-sm text-navy-900 outline-none placeholder:text-navy-800/50 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-gold-500';
+  const searchButtonClass = 'flex w-[var(--topbar-control)] shrink-0 items-center justify-center rounded-r-lg bg-gold-500 text-white transition-colors hover:bg-gold-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white';
 
   return (
-    <header className="sticky top-0 z-50 bg-navy-800 text-white">
+    <header className="site-header sticky top-0 z-50 bg-navy-800 text-white">
       <div className="container-custom">
-        <div className="flex h-16 items-center justify-between gap-2 lg:h-[5.5rem] lg:gap-6">
-          <Link href="/" aria-label="PickOrbeet" className="flex shrink-0 items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
+        <div className="flex items-center gap-2 py-1.5 md:gap-3 md:py-2">
+          <Link href="/" aria-label="PickOrbeet" className="flex shrink-0 items-center leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
             <LogoMark
               src={logo || '/images/logo.png'}
               alt=""
-              width={56}
-              height={36}
-              className="h-[calc(2.8rem*0.7)] w-auto shrink-0 overflow-hidden rounded-xl bg-ice md:h-[2.8rem] lg:h-16"
-              imgClassName="block h-[112%] w-auto max-w-none -translate-y-[6%]"
+              width={688}
+              height={809}
+              className="topbar-logo shrink-0 overflow-hidden rounded-xl bg-ice"
+              imgClassName="object-contain"
             />
           </Link>
 
@@ -203,7 +205,7 @@ export default function Header() {
             ref={desktopSearchRef}
             onSubmit={handleSearch}
             role="search"
-            className="relative hidden min-w-0 flex-1 items-center md:flex"
+            className="topbar-search relative hidden min-w-0 flex-1 items-stretch md:flex"
           >
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-navy-700" aria-hidden="true" />
             <input
@@ -214,12 +216,12 @@ export default function Header() {
               onBlur={() => setSearchFocus((current) => (current === 'desktop' ? null : current))}
               placeholder="Search for products, brands and more..."
               aria-label="Search products"
-              className="h-11 w-full rounded-l-lg border border-[#D3DDF6] bg-ice pl-10 pr-3 text-sm text-navy-900 outline-none placeholder:text-navy-800/50 focus-visible:ring-2 focus-visible:ring-gold-500"
+              className={searchInputClass}
             />
             <button
               type="submit"
               aria-label="Search"
-              className="flex h-11 w-12 shrink-0 items-center justify-center rounded-r-lg bg-gold-500 text-white transition-colors hover:bg-gold-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              className={searchButtonClass}
             >
               <Search className="h-5 w-5" />
             </button>
@@ -230,26 +232,24 @@ export default function Header() {
             ref={mobileSearchRef}
             onSubmit={handleSearch}
             role="search"
-            className="relative flex min-w-0 flex-1 items-center md:hidden"
+            className="topbar-search relative flex min-w-0 flex-1 items-stretch md:hidden"
           >
-            <div className="relative min-w-0 flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-navy-700" aria-hidden="true" />
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                onFocus={() => setSearchFocus('mobile')}
-                onBlur={() => setSearchFocus((current) => (current === 'mobile' ? null : current))}
-                placeholder="Search products, brands..."
-                aria-label="Search products"
-                enterKeyHint="search"
-                className="h-11 w-full rounded-l-lg border border-[#D3DDF6] bg-ice pl-10 pr-3 text-sm text-navy-900 outline-none placeholder:text-navy-800/50 focus-visible:ring-2 focus-visible:ring-gold-500"
-              />
-            </div>
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-navy-700" aria-hidden="true" />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              onFocus={() => setSearchFocus('mobile')}
+              onBlur={() => setSearchFocus((current) => (current === 'mobile' ? null : current))}
+              placeholder="Search products, brands..."
+              aria-label="Search products"
+              enterKeyHint="search"
+              className={searchInputClass}
+            />
             <button
               type="submit"
               aria-label="Search"
-              className="flex h-11 w-12 shrink-0 items-center justify-center rounded-r-lg bg-gold-500 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              className={searchButtonClass}
             >
               <Search className="h-5 w-5" />
             </button>
@@ -268,8 +268,8 @@ export default function Header() {
                   aria-label="Account"
                   className={iconClass}
                 >
-                  <User className="h-5 w-5" />
-                  <span className="mt-0.5 hidden text-[11px] font-medium lg:block">Account</span>
+                  <User className="h-5 w-5 shrink-0" />
+                  <span className="hidden text-[11px] font-medium leading-none lg:block">Account</span>
                 </Link>
                 <AnimatePresence>
                   {showUserMenu && (
@@ -304,20 +304,20 @@ export default function Header() {
               </div>
 
               <Link href="/wishlist" aria-label="Wishlist" className={iconClass}>
-                <Heart className="h-5 w-5" />
-                <span className="mt-0.5 hidden text-[11px] font-medium lg:block">Wishlist</span>
+                <Heart className="h-5 w-5 shrink-0" />
+                <span className="hidden text-[11px] font-medium leading-none lg:block">Wishlist</span>
               </Link>
 
               <Link href="/cart" aria-label={`Cart${totalItems ? `, ${totalItems} items` : ''}`} className={iconClass}>
                 <span className="relative">
                   <ShoppingCart className="h-5 w-5" />
                   {totalItems > 0 && (
-                    <span className="absolute -right-2 -top-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-gold-500 px-1 text-[10px] font-bold text-white">
+                    <span className="absolute -right-2 -top-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-gold-500 px-1 text-[10px] font-bold leading-none text-white">
                       {totalItems > 99 ? '99+' : totalItems}
                     </span>
                   )}
                 </span>
-                <span className="mt-0.5 hidden text-[11px] font-medium lg:block">Cart</span>
+                <span className="hidden text-[11px] font-medium leading-none lg:block">Cart</span>
               </Link>
             </div>
 

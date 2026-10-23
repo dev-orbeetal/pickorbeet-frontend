@@ -130,6 +130,66 @@
     @apply max-w-[min(100%,calc(50vw+720px))] mx-auto px-4;
   }
 
+  /* One height for the header logo tile and the search bar. */
+  .site-header {
+    --topbar-control: 44px;
+  }
+
+  @media (min-width: 768px) {
+    .site-header {
+      --topbar-control: 46px;
+    }
+  }
+
+  .topbar-logo,
+  .topbar-search {
+    height: var(--topbar-control);
+    max-height: var(--topbar-control);
+    box-sizing: border-box;
+  }
+
+  .topbar-logo {
+    display: inline-flex;
+    align-items: center;
+    width: auto;
+    line-height: 0;
+  }
+
+  .topbar-logo img {
+    display: block;
+    height: 100%;
+    width: auto;
+    max-width: none;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  .topbar-search input,
+  .topbar-search button {
+    box-sizing: border-box;
+    height: 100%;
+    max-height: 100%;
+    margin: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .topbar-search input[type='search'] {
+    min-width: 0;
+    line-height: calc(var(--topbar-control) - 2px);
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .topbar-search input[type='search']::-webkit-search-decoration,
+  .topbar-search input[type='search']::-webkit-search-cancel-button,
+  .topbar-search input[type='search']::-webkit-search-results-button,
+  .topbar-search input[type='search']::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+    display: none;
+  }
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
