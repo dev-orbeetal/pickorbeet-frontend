@@ -206,7 +206,7 @@ export default function PrivacyPage() {
                   <ul>
                     <li>Request access to your personal data</li>
                     <li>Request correction of inaccurate data</li>
-                    <li>Request deletion of personal data when applicable</li>
+                    <li>Request deletion of personal data when applicable. The steps are on the <Link href="/delete-account" className="text-primary-600 hover:underline">delete account</Link> page.</li>
                   </ul>
                   <p>To make such requests, please contact us.</p>
                 </PolicySection>

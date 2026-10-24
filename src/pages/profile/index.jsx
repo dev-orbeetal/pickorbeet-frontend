@@ -5,8 +5,10 @@ import { motion } from 'framer-motion';
 import { User, Mail, Phone, MapPin, Package, Heart, Settings, LogOut, Edit2, Save, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
+import ProfilePhoto from '@/components/account/ProfilePhoto';
 import { logout, getProfile } from '@/store/slices/authSlice';
-import { authAPI, ordersAPI } from '@/lib/api';
+import { ordersAPI } from '@/lib/api';
+import { useProfileForm } from '@/lib/profileForm';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -14,37 +16,16 @@ export default function ProfilePage() {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
 
   const [activeTab, setActiveTab] = useState('profile');
-  const [editing, setEditing] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
-    phone: '',
-    address: '',
-    city: '',
-    postal_code: '',
-  });
+  const form = useProfileForm(user, () => dispatch(getProfile()));
+  const { editing, loading, formData, setFormData, photoFile, photoRemoved } = form;
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.push('/login?redirect=/profile');
     }
   }, [isAuthenticated, router]);
-
-  useEffect(() => {
-    if (user) {
-      setFormData({
-        first_name: user.first_name || '',
-        last_name: user.last_name || '',
-        phone: user.phone || '',
-        address: user.address || '',
-        city: user.city || '',
-        postal_code: user.postal_code || '',
-      });
-    }
-  }, [user]);
 
   useEffect(() => {
     if (activeTab === 'orders' && isAuthenticated) {
@@ -61,20 +42,6 @@ export default function ProfilePage() {
       toast.error('Failed to load orders');
     } finally {
       setOrdersLoading(false);
-    }
-  };
-
-  const handleUpdate = async () => {
-    setLoading(true);
-    try {
-      await authAPI.updateProfile(formData);
-      dispatch(getProfile());
-      setEditing(false);
-      toast.success('Profile updated successfully');
-    } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to update profile');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -113,11 +80,15 @@ export default function ProfilePage() {
             <div className="bg-white rounded-2xl shadow-sm border p-6">
               {/* User Info */}
               <div className="text-center mb-6">
-                <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl font-bold text-white">
-                    {user?.first_name?.[0]}{user?.last_name?.[0]}
-                  </span>
-                </div>
+                <ProfilePhoto
+                  name={user?.full_name}
+                  imageUrl={user?.avatar}
+                  editing={editing && activeTab === 'profile'}
+                  pendingFile={photoFile}
+                  removed={photoRemoved}
+                  onSelect={form.onSelectPhoto}
+                  onRemove={form.onRemovePhoto}
+                />
                 <h2 className="font-semibold text-charcoal-800">{user?.full_name}</h2>
                 <p className="text-sm text-charcoal-500">{user?.email}</p>
               </div>
@@ -163,7 +134,7 @@ export default function ProfilePage() {
                     <h2 className="text-xl font-semibold text-charcoal-800">Profile Information</h2>
                     {!editing ? (
                       <button
-                        onClick={() => setEditing(true)}
+                        onClick={form.beginEdit}
                         className="flex items-center gap-2 text-primary-600 hover:text-primary-700"
                       >
                         <Edit2 className="w-4 h-4" />
@@ -172,13 +143,13 @@ export default function ProfilePage() {
                     ) : (
                       <div className="flex gap-2">
                         <button
-                          onClick={() => setEditing(false)}
+                          onClick={form.cancelEdit}
                           className="p-2 text-charcoal-500 hover:bg-cream-50 rounded-lg"
                         >
                           <X className="w-5 h-5" />
                         </button>
                         <button
-                          onClick={handleUpdate}
+                          onClick={form.save}
                           disabled={loading}
                           className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50"
                         >

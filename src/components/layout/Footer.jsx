@@ -15,6 +15,7 @@ const footerLinks = {
   customerService: [
     { href: '/returns', label: 'Return & Refund Policy' },
     { href: '/privacy', label: 'Privacy Policy' },
+    { href: '/delete-account', label: 'Delete account' },
     { href: '/terms', label: 'Terms & Conditions' },
     { href: '/contact', label: 'Contact Us' },
   ],

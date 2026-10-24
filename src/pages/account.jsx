@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -6,57 +6,23 @@ import { motion } from 'framer-motion';
 import { User, Mail, Phone, MapPin, Edit2, Save, X, ShieldCheck, Calendar, Copy, Ticket, Bell, Settings } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
+import ProfilePhoto from '@/components/account/ProfilePhoto';
 import { logout, getProfile } from '@/store/slices/authSlice';
-import { authAPI } from '@/lib/api';
+import { useProfileForm } from '@/lib/profileForm';
 
 export default function AccountPage() {
   const router = useRouter();
   const dispatch = useDispatch();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
 
-  const [editing, setEditing] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
-    phone: '',
-    address: '',
-    city: '',
-    postal_code: '',
-  });
+  const form = useProfileForm(user, () => dispatch(getProfile()));
+  const { editing, loading, formData, setFormData, photoFile, photoRemoved } = form;
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.push('/login?redirect=/account');
     }
   }, [isAuthenticated, router]);
-
-  useEffect(() => {
-    if (user) {
-      setFormData({
-        first_name: user.first_name || '',
-        last_name: user.last_name || '',
-        phone: user.phone || '',
-        address: user.address || '',
-        city: user.city || '',
-        postal_code: user.postal_code || '',
-      });
-    }
-  }, [user]);
-
-  const handleUpdate = async () => {
-    setLoading(true);
-    try {
-      await authAPI.updateProfile(formData);
-      dispatch(getProfile());
-      setEditing(false);
-      toast.success('Profile updated successfully');
-    } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to update profile');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleLogout = () => {
     dispatch(logout());
@@ -98,11 +64,16 @@ export default function AccountPage() {
           {/* Header Banner */}
           <div className="bg-gradient-to-r from-primary-600 to-primary-800 px-6 py-8">
             <div className="flex items-center gap-5">
-              <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/30">
-                <span className="text-2xl font-bold text-white">
-                  {user?.first_name?.[0]?.toUpperCase()}{user?.last_name?.[0]?.toUpperCase()}
-                </span>
-              </div>
+              <ProfilePhoto
+                name={user?.full_name}
+                imageUrl={user?.avatar}
+                editing={editing}
+                pendingFile={photoFile}
+                removed={photoRemoved}
+                onSelect={form.onSelectPhoto}
+                onRemove={form.onRemovePhoto}
+                variant="light"
+              />
               <div>
                 <h2 className="text-xl font-semibold text-white">{user?.full_name || 'User'}</h2>
                 <p className="text-primary-200 text-sm flex items-center gap-2 mt-1">
@@ -128,7 +99,7 @@ export default function AccountPage() {
               </h3>
               {!editing ? (
                 <button
-                  onClick={() => setEditing(true)}
+                  onClick={form.beginEdit}
                   className="flex items-center gap-2 px-4 py-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors text-sm font-medium"
                 >
                   <Edit2 className="w-4 h-4" />
@@ -137,14 +108,14 @@ export default function AccountPage() {
               ) : (
                 <div className="flex gap-2">
                   <button
-                    onClick={() => { setEditing(false); if (user) setFormData({ first_name: user.first_name || '', last_name: user.last_name || '', phone: user.phone || '', address: user.address || '', city: user.city || '', postal_code: user.postal_code || '' }); }}
+                    onClick={form.cancelEdit}
                     className="flex items-center gap-1 px-3 py-2 text-charcoal-600 hover:bg-cream-100 rounded-lg transition-colors text-sm"
                   >
                     <X className="w-4 h-4" />
                     Cancel
                   </button>
                   <button
-                    onClick={handleUpdate}
+                    onClick={form.save}
                     disabled={loading}
                     className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 transition-colors text-sm font-medium"
                   >

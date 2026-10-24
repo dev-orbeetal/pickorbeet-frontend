@@ -31,6 +31,13 @@ api.interceptors.response.use(null, async (error) => {
 // Request interceptor for adding auth token
 api.interceptors.request.use(
   (config) => {
+    if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+      if (typeof config.headers.delete === 'function') {
+        config.headers.delete('Content-Type');
+      } else {
+        delete config.headers['Content-Type'];
+      }
+    }
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('access_token');
       if (token) {
@@ -81,7 +88,7 @@ export const authAPI = {
   register: (data) => api.post('/auth/register/', data),
   logout: (data) => api.post('/auth/logout/', data),
   getProfile: () => api.get('/auth/profile/'),
-  updateProfile: (data) => api.patch('/auth/profile/', data),
+  updateProfile: (data) => api.patch('/auth/profile/', data, { timeout: 45000 }),
   changePassword: (data) => api.post('/auth/change-password/', data),
   forgotPassword: (data) => api.post('/auth/forgot-password/', data),
   resetPassword: (data) => api.post('/auth/reset-password/', data),
