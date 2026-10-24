@@ -1,6 +1,8 @@
 # Robots.txt for Pickorbeet
 User-agent: *
 Allow: /
+Allow: /api/og
+Allow: /og.jpg
 Disallow: /account
 Disallow: /orders
 Disallow: /profile
@@ -8,4 +10,4 @@ Disallow: /verify-email
 Disallow: /reset-password
 Disallow: /api/
 
-Sitemap: https://pickorbeet.com/sitemap.xml
+Sitemap: https://www.pickorbeet.com/sitemap.xml

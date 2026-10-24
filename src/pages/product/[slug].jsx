@@ -12,7 +12,7 @@ import ProductDetailSkeleton from '@/components/loading/ProductDetailSkeleton';
 import { useBootGate } from '@/components/loading/LoadingProvider';
 import { fetchProduct, fetchProducts, clearProduct } from '@/store/slices/productsSlice';
 import { addToCart } from '@/store/slices/cartSlice';
-import siteConfig, { getAbsoluteImageUrl, getMediaUrl } from '@/lib/siteConfig';
+import siteConfig, { buildOgImageUrl, getAbsoluteImageUrl, getMediaUrl } from '@/lib/siteConfig';
 
 export default function ProductDetailPage({ initialProduct }) {
   const router = useRouter();
@@ -85,12 +85,20 @@ export default function ProductDetailPage({ initialProduct }) {
   };
 
   // SEO data derived from server-side fetched product
-  const seoTitle = product ? `${product.name} - Pickorbeet` : 'Product - Pickorbeet';
+  const seoTitle = product ? `${product.name} - PickOrbeet` : 'Product - PickOrbeet';
   const seoDescription = product
-    ? (product.short_description || product.description?.replace(/<[^>]*>/g, '')?.slice(0, 160) || `Buy ${product.name} at Pickorbeet. Premium quality clothing at ৳${product.price}.`)
+    ? (product.short_description || product.description?.replace(/<[^>]*>/g, '')?.slice(0, 160) || `Buy ${product.name} at PickOrbeet.`)
     : siteConfig.description;
   const productImage = product?.primary_image || product?.images?.[0]?.image || null;
-  const seoImage = product ? getAbsoluteImageUrl(productImage) : undefined;
+  const absoluteProductImage = productImage ? getAbsoluteImageUrl(productImage) : '';
+  const seoImage = product
+    ? buildOgImageUrl({
+      title: product.name,
+      eyebrow: product.category?.name,
+      price: product.price,
+      image: absoluteProductImage,
+    })
+    : undefined;
   const seoProduct = product
     ? {
       name: product.name,

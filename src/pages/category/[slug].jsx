@@ -10,7 +10,7 @@ import ProductGrid from '@/components/products/ProductGrid';
 import ProductGridSkeleton from '@/components/loading/ProductGridSkeleton';
 import { useBootGate } from '@/components/loading/LoadingProvider';
 import { fetchProducts } from '@/store/slices/productsSlice';
-import siteConfig, { getAbsoluteImageUrl, getMediaUrl } from '@/lib/siteConfig';
+import { buildOgImageUrl, getAbsoluteImageUrl, getMediaUrl } from '@/lib/siteConfig';
 
 const getImageUrl = (url) => getMediaUrl(url, '/images/placeholder-category.png');
 
@@ -78,9 +78,15 @@ export default function CategoryPage({ initialCategory }) {
 
   return (
     <Layout
-      title={`${category?.name || 'Category'} - Pickorbeet`}
-      description={category?.tagline || `Shop ${category?.name || 'products'} at Pickorbeet. Premium quality clothing and accessories.`}
-      image={category?.banner_image ? getAbsoluteImageUrl(category.banner_image) : undefined}
+      title={`${category?.name || 'Category'} - PickOrbeet`}
+      description={category?.tagline || `Shop ${category?.name || 'products'} at PickOrbeet. Original products with fast delivery across Bangladesh.`}
+      image={category?.name ? buildOgImageUrl({
+        title: category.name,
+        eyebrow: 'Shop',
+        image: (category.image || category.banner_image)
+          ? getAbsoluteImageUrl(category.image || category.banner_image)
+          : undefined,
+      }) : undefined}
     >
       <section className="border-b border-[#E4E9F2] bg-white">
         <div className="container-custom py-4 md:py-6">

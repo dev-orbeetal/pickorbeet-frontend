@@ -3,6 +3,15 @@ const backendOrigin = (process.env.BACKEND_ORIGIN || '').replace(/\/$/, '');
 
 const nextConfig = {
   reactStrictMode: true,
+  experimental: {
+    outputFileTracingIncludes: {
+      '/api/og': [
+        './public/fonts/**',
+        './public/images/logo.png',
+        './public/og.jpg',
+      ],
+    },
+  },
   // Avoid redirect loops with Django APPEND_SLASH when proxying /api and /admin.
   skipTrailingSlashRedirect: true,
   env: {
