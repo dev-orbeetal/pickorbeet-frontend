@@ -6,7 +6,8 @@ const nextConfig = {
   experimental: {
     outputFileTracingIncludes: {
       '/api/og': [
-        './public/fonts/**',
+        './public/fonts/Inter-Regular.ttf',
+        './public/fonts/Inter-Bold.ttf',
         './public/images/logo.png',
         './public/og.jpg',
       ],
@@ -15,7 +16,7 @@ const nextConfig = {
   // Avoid redirect loops with Django APPEND_SLASH when proxying /api and /admin.
   skipTrailingSlashRedirect: true,
   env: {
-    PORT: process.env.PORT,
+    PORT: process.env.PORT || '',
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_ADMIN_URL: process.env.NEXT_PUBLIC_ADMIN_URL,
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
