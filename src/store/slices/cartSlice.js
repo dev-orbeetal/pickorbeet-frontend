@@ -5,9 +5,23 @@ const initialState = {
   items: [],
   totalItems: 0,
   subtotal: 0,
+  deliveryInside: 0,
+  deliveryOutside: 0,
   loading: false,
   error: null,
 };
+
+function applyCart(state, payload) {
+  state.items = payload?.items || [];
+  state.totalItems = payload?.total_items || 0;
+  state.subtotal = payload?.subtotal || 0;
+  if (payload?.delivery_charge_inside_dhaka != null) {
+    state.deliveryInside = payload.delivery_charge_inside_dhaka;
+  }
+  if (payload?.delivery_charge_outside_dhaka != null) {
+    state.deliveryOutside = payload.delivery_charge_outside_dhaka;
+  }
+}
 
 export const fetchCart = createAsyncThunk(
   'cart/fetchCart',
@@ -85,9 +99,7 @@ const cartSlice = createSlice({
       })
       .addCase(fetchCart.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload.items || [];
-        state.totalItems = action.payload.total_items || 0;
-        state.subtotal = action.payload.subtotal || 0;
+        applyCart(state, action.payload);
       })
       .addCase(fetchCart.rejected, (state, action) => {
         state.loading = false;
@@ -99,9 +111,7 @@ const cartSlice = createSlice({
       })
       .addCase(addToCart.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload.items || [];
-        state.totalItems = action.payload.total_items || 0;
-        state.subtotal = action.payload.subtotal || 0;
+        applyCart(state, action.payload);
       })
       .addCase(addToCart.rejected, (state, action) => {
         state.loading = false;
@@ -109,15 +119,11 @@ const cartSlice = createSlice({
       })
       // Update Cart Item
       .addCase(updateCartItem.fulfilled, (state, action) => {
-        state.items = action.payload.items || [];
-        state.totalItems = action.payload.total_items || 0;
-        state.subtotal = action.payload.subtotal || 0;
+        applyCart(state, action.payload);
       })
       // Remove from Cart
       .addCase(removeFromCart.fulfilled, (state, action) => {
-        state.items = action.payload.items || [];
-        state.totalItems = action.payload.total_items || 0;
-        state.subtotal = action.payload.subtotal || 0;
+        applyCart(state, action.payload);
       })
       // Clear Cart
       .addCase(clearCart.fulfilled, (state) => {

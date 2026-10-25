@@ -129,10 +129,19 @@ export const cartAPI = {
 export const ordersAPI = {
   checkout: (data) => api.post('/orders/checkout/', data),
   getMyOrders: () => api.get('/orders/my-orders/'),
+  getOrderSummary: () => api.get('/orders/my-orders/summary/'),
   getOrder: (id) => api.get(`/orders/my-orders/${id}/`),
+  cancelOrder: (id) => api.post(`/orders/my-orders/${id}/cancel/`),
+  updateDelivery: (id, data) => api.patch(`/orders/my-orders/${id}/delivery/`, data),
   refreshShipment: (id) => api.post(`/orders/my-orders/${id}/shipment/refresh/`),
   trackOrder: (data) => api.post('/orders/track/', data),
-  getDeliveryOptions: () => api.get('/orders/delivery-options/'),
+  validateCoupon: (data) => api.post('/orders/coupons/validate/', data),
+};
+
+export const supportAPI = {
+  conversation: () => api.get('/support/conversation/'),
+  sendMessage: (data) => api.post('/support/messages/', data),
+  markRead: () => api.post('/support/read/'),
 };
 
 // Payments API

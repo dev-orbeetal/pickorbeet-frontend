@@ -12,6 +12,8 @@ import { fetchProducts } from '@/store/slices/productsSlice';
 // Build query params object from filters, skipping empty values
 function buildQuery(filters) {
   const query = {};
+  if (filters.search) query.search = filters.search;
+  if (filters.on_sale) query.on_sale = filters.on_sale;
   if (filters.category.length > 0) query.category = filters.category.join(',');
   if (filters.size.length > 0) query.size = filters.size.join(',');
   if (filters.min_price) query.min_price = filters.min_price;
@@ -22,9 +24,13 @@ function buildQuery(filters) {
 
 // Parse URL query params into filters state
 function parseQuery(query) {
+  const search = Array.isArray(query.search) ? query.search[0] : query.search;
+  const onSale = Array.isArray(query.on_sale) ? query.on_sale[0] : query.on_sale;
   return {
-    category: query.category ? query.category.split(',').filter(Boolean) : [],
-    size: query.size ? query.size.split(',').filter(Boolean) : [],
+    search: search || '',
+    on_sale: onSale || '',
+    category: query.category ? String(query.category).split(',').filter(Boolean) : [],
+    size: query.size ? String(query.size).split(',').filter(Boolean) : [],
     min_price: query.min_price || '',
     max_price: query.max_price || '',
     ordering: query.ordering || '-created_at',
@@ -32,6 +38,8 @@ function parseQuery(query) {
 }
 
 const defaultFilters = {
+  search: '',
+  on_sale: '',
   category: [],
   size: [],
   min_price: '',
@@ -140,7 +148,7 @@ export default function ProductsPage() {
     applyFilters({ ...filters, min_price: '', max_price: '' });
   }, [filters, applyFilters]);
 
-  const hasActiveFilters = filters.category.length > 0 || filters.size.length > 0 || filters.min_price || filters.max_price;
+  const hasActiveFilters = Boolean(filters.search || filters.on_sale) || filters.category.length > 0 || filters.size.length > 0 || filters.min_price || filters.max_price;
   const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'FREE'];
 
   return (
@@ -156,7 +164,7 @@ export default function ProductsPage() {
               All Products
             </h1>
             <p className="text-secondary-600">
-              {pagination.count} products found
+              {filters.search ? `Results for “${filters.search}” · ` : ''}{pagination.count} products found
             </p>
           </div>
 
@@ -187,6 +195,22 @@ export default function ProductsPage() {
         {hasActiveFilters && (
           <div className="mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-cream-200 bg-cream-50 p-3 md:mb-6 md:p-4">
             <span className="text-sm text-secondary-600 font-medium">Active Filters:</span>
+            {filters.search && (
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm">
+                Search: {filters.search}
+                <button type="button" onClick={() => applyFilters({ ...filters, search: '' })} className="hover:text-primary-900">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+            {filters.on_sale && (
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm">
+                On sale
+                <button type="button" onClick={() => applyFilters({ ...filters, on_sale: '' })} className="hover:text-primary-900">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
             {filters.category.map((catId) => (
               <span key={catId} className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm">
                 {categories.find(c => c.id === catId)?.name || 'Category'}

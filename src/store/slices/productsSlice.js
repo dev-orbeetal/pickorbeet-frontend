@@ -31,12 +31,34 @@ export const fetchCategories = createAsyncThunk(
   }
 );
 
+async function fetchProductPage(params) {
+  const response = await productsAPI.getProducts(params);
+  const data = response.data;
+  // An exact category name comes back as one complete list. Other searches
+  // are paged, so follow them until every match is loaded.
+  if (!params?.search || Array.isArray(data) || !data?.results || !data.next) {
+    return data;
+  }
+  const results = [...data.results];
+  let next = data.next;
+  let page = 2;
+  while (next && page <= 50) {
+    const more = await productsAPI.getProducts({ ...params, page });
+    const body = more.data;
+    const rows = Array.isArray(body) ? body : (body?.results || []);
+    results.push(...rows);
+    next = Array.isArray(body) ? null : body?.next;
+    if (!rows.length) break;
+    page += 1;
+  }
+  return { ...data, results, next: null, count: data.count || results.length };
+}
+
 export const fetchProducts = createAsyncThunk(
   'products/fetchProducts',
   async (params, { rejectWithValue }) => {
     try {
-      const response = await productsAPI.getProducts(params);
-      return response.data;
+      return await fetchProductPage(params);
     } catch (error) {
       return rejectWithValue(error.response?.data || 'Failed to fetch products');
     }
@@ -113,11 +135,13 @@ const productsSlice = createSlice({
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.loading = false;
-        state.products = action.payload.results || action.payload;
+        const payload = action.payload;
+        const rows = Array.isArray(payload) ? payload : (payload?.results || []);
+        state.products = Array.isArray(rows) ? rows : [];
         state.pagination = {
-          count: action.payload.count || 0,
-          next: action.payload.next,
-          previous: action.payload.previous,
+          count: Array.isArray(payload) ? rows.length : (payload?.count || rows.length),
+          next: Array.isArray(payload) ? null : payload?.next,
+          previous: Array.isArray(payload) ? null : payload?.previous,
         };
       })
       .addCase(fetchProducts.rejected, (state, action) => {

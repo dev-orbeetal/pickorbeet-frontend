@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
 import ProfilePhoto from '@/components/account/ProfilePhoto';
 import { logout, getProfile } from '@/store/slices/authSlice';
+import { authAPI, ordersAPI } from '@/lib/api';
 import { useProfileForm } from '@/lib/profileForm';
 
 export default function AccountPage() {
@@ -17,12 +18,45 @@ export default function AccountPage() {
 
   const form = useProfileForm(user, () => dispatch(getProfile()));
   const { editing, loading, formData, setFormData, photoFile, photoRemoved } = form;
+  const [summary, setSummary] = useState(null);
+  const [password, setPassword] = useState({ old_password: '', new_password: '', new_password_confirm: '' });
+  const [passwordBusy, setPasswordBusy] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.push('/login?redirect=/account');
     }
   }, [isAuthenticated, router]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return undefined;
+    let active = true;
+    ordersAPI.getOrderSummary()
+      .then((response) => { if (active) setSummary(response.data); })
+      .catch(() => {});
+    return () => { active = false; };
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (!router.asPath.includes('#password')) return;
+    document.getElementById('password')?.scrollIntoView({ behavior: 'smooth' });
+  }, [router.asPath]);
+
+  const changePassword = async (event) => {
+    event.preventDefault();
+    setPasswordBusy(true);
+    try {
+      await authAPI.changePassword(password);
+      setPassword({ old_password: '', new_password: '', new_password_confirm: '' });
+      toast.success('Password updated');
+    } catch (error) {
+      const data = error.response?.data || {};
+      const message = data.old_password || data.new_password || data.new_password_confirm || data.detail || 'Could not change your password';
+      toast.error(Array.isArray(message) ? message[0] : message);
+    } finally {
+      setPasswordBusy(false);
+    }
+  };
 
   const handleLogout = () => {
     dispatch(logout());
@@ -223,6 +257,48 @@ export default function AccountPage() {
           </div>
         </motion.div>
 
+        <form id="password" onSubmit={changePassword} className="mt-6 rounded-2xl border bg-white p-6 shadow-sm">
+          <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-charcoal-800">
+            <ShieldCheck className="h-5 w-5 text-primary-600" />
+            Change password
+          </h3>
+          <div className="grid gap-4 md:grid-cols-3">
+            <input
+              type="password"
+              required
+              autoComplete="current-password"
+              value={password.old_password}
+              onChange={(event) => setPassword((current) => ({ ...current, old_password: event.target.value }))}
+              className="input"
+              placeholder="Current password"
+              aria-label="Current password"
+            />
+            <input
+              type="password"
+              required
+              autoComplete="new-password"
+              value={password.new_password}
+              onChange={(event) => setPassword((current) => ({ ...current, new_password: event.target.value }))}
+              className="input"
+              placeholder="New password"
+              aria-label="New password"
+            />
+            <input
+              type="password"
+              required
+              autoComplete="new-password"
+              value={password.new_password_confirm}
+              onChange={(event) => setPassword((current) => ({ ...current, new_password_confirm: event.target.value }))}
+              className="input"
+              placeholder="Confirm new password"
+              aria-label="Confirm new password"
+            />
+          </div>
+          <button type="submit" disabled={passwordBusy} className="btn btn-primary mt-4">
+            {passwordBusy ? 'Saving' : 'Update password'}
+          </button>
+        </form>
+
         {/* Quick Links */}
         <div className="grid gap-4 mt-6 sm:grid-cols-2 xl:grid-cols-4">
           <motion.button
@@ -236,7 +312,11 @@ export default function AccountPage() {
               <MapPin className="w-5 h-5 text-primary-600" />
             </div>
             <h3 className="font-medium text-charcoal-800">My Orders</h3>
-            <p className="text-sm text-charcoal-500 mt-1">View your order history</p>
+            <p className="text-sm text-charcoal-500 mt-1">
+              {summary
+                ? `${summary.open || 0} open · ${summary.delivered || 0} delivered · ${summary.cancelled || 0} cancelled`
+                : 'View your order history'}
+            </p>
           </motion.button>
 
           <motion.button
@@ -257,6 +337,20 @@ export default function AccountPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.12 }}
+            onClick={() => router.push('/help')}
+            className="bg-white rounded-xl shadow-sm border p-5 hover:border-primary-300 transition-colors text-left group"
+          >
+            <div className="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center mb-3 group-hover:bg-primary-100 transition-colors">
+              <Bell className="w-5 h-5 text-primary-600" />
+            </div>
+            <h3 className="font-medium text-charcoal-800">Help</h3>
+            <p className="text-sm text-charcoal-500 mt-1">Chat with the store</p>
+          </motion.button>
+
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.14 }}
             onClick={() => router.push('/notifications')}
             className="bg-white rounded-xl shadow-sm border p-5 hover:border-primary-300 transition-colors text-left group"
           >
@@ -271,7 +365,7 @@ export default function AccountPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            onClick={() => router.push('/forgot-password')}
+            onClick={() => document.getElementById('password')?.scrollIntoView({ behavior: 'smooth' })}
             className="bg-white rounded-xl shadow-sm border p-5 hover:border-primary-300 transition-colors text-left group"
           >
             <div className="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center mb-3 group-hover:bg-primary-100 transition-colors">

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, ArrowRight, Heart, Crown } from 'lucide-react';
 import { storeSettingsAPI } from '@/lib/api';
+import { storeEmail, storePhone } from '@/lib/storeContact';
 import LogoMark from '@/components/brand/LogoMark';
 
 const footerLinks = {
@@ -17,6 +18,7 @@ const footerLinks = {
     { href: '/privacy', label: 'Privacy Policy' },
     { href: '/delete-account', label: 'Delete account' },
     { href: '/terms', label: 'Terms & Conditions' },
+    { href: '/help', label: 'Help' },
     { href: '/contact', label: 'Contact Us' },
   ],
 };
@@ -60,8 +62,8 @@ export default function Footer() {
   }, []);
 
   const address = settings?.contact_address || '123 Fashion Street, Gulshan, Dhaka 1212, Bangladesh';
-  const phone = settings?.contact_phone_1 || '+880 1234-567890';
-  const email = settings?.contact_email_1 || 'contact@pickorbeet.com';
+  const phone = storePhone(settings?.contact_phone_1);
+  const email = storeEmail(settings?.contact_email_1);
 
   return (
     <footer className="bg-navy-900 text-cream-100 relative overflow-hidden">

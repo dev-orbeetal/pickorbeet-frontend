@@ -290,6 +290,7 @@ export default function Header() {
                           <Link href="/account" className="block px-4 py-2.5 hover:bg-cream-200">My Account</Link>
                           <Link href="/settings" className="block px-4 py-2.5 hover:bg-cream-200">Settings</Link>
                           <Link href="/orders" className="block px-4 py-2.5 hover:bg-cream-200">My Orders</Link>
+                          <Link href="/help" className="block px-4 py-2.5 hover:bg-cream-200">Help</Link>
                           <Link href="/notifications" className="block px-4 py-2.5 hover:bg-cream-200">Notifications</Link>
                           <Link href="/vouchers" className="block px-4 py-2.5 hover:bg-cream-200">My Vouchers</Link>
                           <button type="button" onClick={handleLogout} className="w-full px-4 py-2.5 text-left hover:bg-red-50 hover:text-red-600">
@@ -408,6 +409,9 @@ export default function Header() {
               </Link>
               <Link href="/notifications" onClick={() => setIsMenuOpen(false)} className="py-2.5 text-sm text-white/90">
                 Notifications
+              </Link>
+              <Link href="/help" onClick={() => setIsMenuOpen(false)} className="py-2.5 text-sm text-white/90">
+                Help
               </Link>
               <MobileCategoryNav categories={categoryList} onNavigate={() => setIsMenuOpen(false)} />
               <Link href="/products" onClick={() => setIsMenuOpen(false)} className="py-2.5 text-sm text-white/90">

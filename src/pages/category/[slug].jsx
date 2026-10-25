@@ -9,6 +9,7 @@ import ProductCard from '@/components/products/ProductCard';
 import ProductGrid from '@/components/products/ProductGrid';
 import ProductGridSkeleton from '@/components/loading/ProductGridSkeleton';
 import { useBootGate } from '@/components/loading/LoadingProvider';
+import CatalogControls, { catalogQuery } from '@/components/catalog/CatalogControls';
 import { fetchProducts } from '@/store/slices/productsSlice';
 import { buildOgImageUrl, getAbsoluteImageUrl, getMediaUrl } from '@/lib/siteConfig';
 
@@ -25,33 +26,50 @@ export default function CategoryPage({ initialCategory }) {
   const { slug } = router.query;
   const dispatch = useDispatch();
   const [activeSubcategory, setActiveSubcategory] = useState(null);
+  const [ordering, setOrdering] = useState('-created_at');
+  const [onSale, setOnSale] = useState(false);
 
-  const { products, categories, loading, categoriesLoading } = useSelector((state) => state.products);
+  const { categories, categoriesLoading } = useSelector((state) => state.products);
+  const [listed, setListed] = useState([]);
   const [listState, setListState] = useState('loading');
   const storedCategory = categories.find((item) => item.slug === slug);
   const category = storedCategory || (initialCategory?.slug === slug ? initialCategory : null);
   const subcategories = orderedSubcategories(category);
   const hasSubcategories = subcategories.length > 0;
-  useBootGate(listState === 'loading' && !hasSubcategories && products.length === 0);
+  useBootGate(listState === 'loading' && !hasSubcategories && listed.length === 0);
 
   useEffect(() => {
     setActiveSubcategory(null);
+    setOrdering('-created_at');
+    setOnSale(false);
   }, [slug]);
 
   useEffect(() => {
     if (!slug || !category) return undefined;
-    if (hasSubcategories) {
+    if (hasSubcategories && !activeSubcategory) {
       setListState('ready');
       return undefined;
     }
     let active = true;
+    setListed([]);
     setListState('loading');
-    dispatch(fetchProducts({ category_slug: slug }))
+    const viewingSubcategory = activeSubcategory && activeSubcategory !== 'all';
+    dispatch(fetchProducts(catalogQuery({
+      categorySlug: viewingSubcategory ? undefined : slug,
+      subcategorySlug: viewingSubcategory ? activeSubcategory : undefined,
+      ordering,
+      onSale,
+    })))
       .unwrap()
-      .then(() => { if (active) setListState('ready'); })
+      .then((data) => {
+        if (!active) return;
+        const rows = data?.results || data || [];
+        setListed(Array.isArray(rows) ? rows : []);
+        setListState('ready');
+      })
       .catch(() => { if (active) setListState('error'); });
     return () => { active = false; };
-  }, [dispatch, slug, category, hasSubcategories]);
+  }, [dispatch, slug, category, hasSubcategories, activeSubcategory, ordering, onSale]);
 
   useEffect(() => {
     if (!slug || category || categoriesLoading) return;
@@ -60,20 +78,10 @@ export default function CategoryPage({ initialCategory }) {
 
   const handleSubcategoryFilter = (subSlug) => {
     setActiveSubcategory(subSlug);
-    setListState('loading');
-    dispatch(fetchProducts({ subcategory_slug: subSlug }))
-      .unwrap()
-      .then(() => setListState('ready'))
-      .catch(() => setListState('error'));
   };
 
   const handleShowAll = () => {
     setActiveSubcategory(null);
-    setListState('loading');
-    dispatch(fetchProducts({ category_slug: slug }))
-      .unwrap()
-      .then(() => setListState('ready'))
-      .catch(() => setListState('error'));
   };
 
   return (
@@ -130,10 +138,7 @@ export default function CategoryPage({ initialCategory }) {
               </div>
               <button
                 type="button"
-                onClick={() => {
-                  setActiveSubcategory('all');
-                  dispatch(fetchProducts({ category_slug: slug }));
-                }}
+                onClick={() => setActiveSubcategory('all')}
                 className="inline-flex h-10 shrink-0 items-center gap-2 self-start rounded-lg bg-action px-4 text-sm font-semibold text-white transition-colors hover:bg-[#1d54cc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2"
               >
                 <Grid className="h-4 w-4" aria-hidden="true" />
@@ -189,10 +194,7 @@ export default function CategoryPage({ initialCategory }) {
                 ← Back to Subcategories
               </button>
               <button
-                onClick={() => {
-                  setActiveSubcategory('all');
-                  dispatch(fetchProducts({ category_slug: slug }));
-                }}
+                onClick={() => setActiveSubcategory('all')}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeSubcategory === 'all'
                   ? 'bg-primary-600 text-white'
                   : 'bg-white border border-charcoal-200 text-charcoal-700 hover:border-gold-500'
@@ -221,9 +223,15 @@ export default function CategoryPage({ initialCategory }) {
       {(!hasSubcategories || activeSubcategory) && (
         <section className="py-4 md:py-12">
           <div className="container-custom">
-            {(listState === 'loading' || loading) && products.length === 0 ? (
+            <CatalogControls
+              ordering={ordering}
+              onSale={onSale}
+              onOrdering={setOrdering}
+              onSaleChange={setOnSale}
+            />
+            {listState === 'loading' && listed.length === 0 ? (
               <ProductGridSkeleton count={8} />
-            ) : listState === 'error' && products.length === 0 ? (
+            ) : listState === 'error' && listed.length === 0 ? (
               <div className="py-16 text-center">
                 <h3 className="mb-2 text-xl font-semibold text-charcoal-800">Couldn&apos;t load products</h3>
                 <p className="mb-6 text-charcoal-600">Please try again in a moment.</p>
@@ -235,15 +243,15 @@ export default function CategoryPage({ initialCategory }) {
                   Try again
                 </button>
               </div>
-            ) : products.length > 0 ? (
+            ) : listed.length > 0 ? (
               <>
-                <div className="mb-3 flex items-center justify-between md:mb-6">
+                <div className="mb-3 md:mb-6">
                   <p className="text-charcoal-600">
-                    Showing <span className="font-semibold text-charcoal-800">{products.length}</span> products
+                    Showing <span className="font-semibold text-charcoal-800">{listed.length}</span> products
                   </p>
                 </div>
                 <ProductGrid>
-                  {products.map((product, index) => (
+                  {listed.map((product, index) => (
                     <motion.div
                       key={product.id}
                       initial={{ opacity: 0, y: 20 }}

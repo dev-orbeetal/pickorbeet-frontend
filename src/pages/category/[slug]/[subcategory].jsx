@@ -9,6 +9,7 @@ import ProductCard from '@/components/products/ProductCard';
 import ProductGrid from '@/components/products/ProductGrid';
 import ProductGridSkeleton from '@/components/loading/ProductGridSkeleton';
 import { useBootGate } from '@/components/loading/LoadingProvider';
+import CatalogControls, { catalogQuery } from '@/components/catalog/CatalogControls';
 import { fetchProducts, fetchCategories } from '@/store/slices/productsSlice';
 import { getMediaUrl } from '@/lib/siteConfig';
 
@@ -19,11 +20,14 @@ export default function SubcategoryPage() {
   const { slug, subcategory } = router.query;
   const dispatch = useDispatch();
 
-  const { products, categories, loading } = useSelector((state) => state.products);
+  const { categories } = useSelector((state) => state.products);
+  const [listed, setListed] = useState([]);
   const [listState, setListState] = useState('loading');
+  const [ordering, setOrdering] = useState('-created_at');
+  const [onSale, setOnSale] = useState(false);
   const category = categories.find(c => c.slug === slug);
   const subcategoryData = category?.subcategories?.find(s => s.slug === subcategory);
-  useBootGate(listState === 'loading' && products.length === 0);
+  useBootGate(listState === 'loading' && listed.length === 0);
 
   useEffect(() => {
     dispatch(fetchCategories());
@@ -32,13 +36,19 @@ export default function SubcategoryPage() {
   useEffect(() => {
     if (!subcategory) return undefined;
     let active = true;
+    setListed([]);
     setListState('loading');
-    dispatch(fetchProducts({ subcategory_slug: subcategory }))
+    dispatch(fetchProducts(catalogQuery({ subcategorySlug: subcategory, ordering, onSale })))
       .unwrap()
-      .then(() => { if (active) setListState('ready'); })
+      .then((data) => {
+        if (!active) return;
+        const rows = data?.results || data || [];
+        setListed(Array.isArray(rows) ? rows : []);
+        setListState('ready');
+      })
       .catch(() => { if (active) setListState('error'); });
     return () => { active = false; };
-  }, [dispatch, subcategory]);
+  }, [dispatch, subcategory, ordering, onSale]);
 
   return (
     <Layout title={`${subcategoryData?.name || 'Subcategory'} - ${category?.name || 'Category'} - Pickorbeet`}>
@@ -113,9 +123,15 @@ export default function SubcategoryPage() {
       {/* Products Grid */}
       <section className="py-4 md:py-12">
         <div className="container-custom">
-          {(listState === 'loading' || loading) && products.length === 0 ? (
+          <CatalogControls
+            ordering={ordering}
+            onSale={onSale}
+            onOrdering={setOrdering}
+            onSaleChange={setOnSale}
+          />
+          {listState === 'loading' && listed.length === 0 ? (
             <ProductGridSkeleton count={8} />
-          ) : listState === 'error' && products.length === 0 ? (
+          ) : listState === 'error' && listed.length === 0 ? (
             <div className="py-16 text-center">
               <h3 className="mb-2 text-xl font-semibold text-charcoal-800">Couldn&apos;t load products</h3>
               <p className="mb-6 text-charcoal-600">Please try again in a moment.</p>
@@ -123,9 +139,13 @@ export default function SubcategoryPage() {
                 type="button"
                 onClick={() => {
                   setListState('loading');
-                  dispatch(fetchProducts({ subcategory_slug: subcategory }))
+                  dispatch(fetchProducts(catalogQuery({ subcategorySlug: subcategory, ordering, onSale })))
                     .unwrap()
-                    .then(() => setListState('ready'))
+                    .then((data) => {
+                      const rows = data?.results || data || [];
+                      setListed(Array.isArray(rows) ? rows : []);
+                      setListState('ready');
+                    })
                     .catch(() => setListState('error'));
                 }}
                 className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3 font-medium text-white transition-colors hover:bg-primary-700"
@@ -133,15 +153,15 @@ export default function SubcategoryPage() {
                 Try again
               </button>
             </div>
-          ) : products.length > 0 ? (
+          ) : listed.length > 0 ? (
             <>
-              <div className="mb-3 flex items-center justify-between md:mb-6">
+              <div className="mb-3 md:mb-6">
                 <p className="text-charcoal-600">
-                  Showing <span className="font-semibold text-charcoal-800">{products.length}</span> products
+                  Showing <span className="font-semibold text-charcoal-800">{listed.length}</span> products
                 </p>
               </div>
               <ProductGrid>
-                {products.map((product, index) => (
+                {listed.map((product, index) => (
                   <motion.div
                     key={product.id}
                     initial={{ opacity: 0, y: 20 }}

@@ -12,7 +12,7 @@ import {
   loadChannels,
   saveChannels,
 } from './catalog';
-import { getNotificationState, loadNotifications, markNotificationsRead, subscribeNotifications } from '@/lib/notifications';
+import { getNotificationState, loadNotifications, markAllNotificationsRead, markNotificationsRead, subscribeNotifications } from '@/lib/notifications';
 
 const ease = [0.16, 1, 0.3, 1];
 
@@ -197,6 +197,18 @@ export default function NotificationsScreen() {
               <h1 className="notif-title">Notifications</h1>
               <p className="notif-subtitle">Stay updated with your orders, offers and more.</p>
             </div>
+            {inbox.unreadCount > 0 && (
+              <button
+                type="button"
+                className="notif-mark"
+                onClick={() => {
+                  markAllNotificationsRead();
+                  setStatus('All notifications marked as read');
+                }}
+              >
+                Mark all as read
+              </button>
+            )}
             <button type="button" className="notif-settings" onClick={() => setSettingsOpen(true)}>
               <motion.span
                 style={{ display: 'inline-flex' }}

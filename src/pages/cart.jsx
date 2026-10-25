@@ -7,23 +7,55 @@ import { Trash2, Minus, Plus, ShoppingBag, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
 import { useBootGate } from '@/components/loading/LoadingProvider';
+import CouponField from '@/components/checkout/CouponField';
 import { fetchCart, updateCartItem, removeFromCart } from '@/store/slices/cartSlice';
+import { money } from '@/lib/delivery';
 import { getMediaUrl } from '@/lib/siteConfig';
 
 export default function CartPage() {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { items, totalItems, subtotal, loading } = useSelector((state) => state.cart);
+  const { items, totalItems, loading, deliveryInside, deliveryOutside } = useSelector((state) => state.cart);
   const [pendingBoot, setPendingBoot] = useState(true);
+  const [selected, setSelected] = useState(null);
+  const [coupon, setCoupon] = useState(null);
   useBootGate(pendingBoot && (!items || items.length === 0));
+
+  const selectedIds = !items?.length
+    ? []
+    : (selected === null ? items.map((item) => item.id) : selected.filter((id) => items.some((item) => item.id === id)));
+  const selectedItems = (items || []).filter((item) => selectedIds.includes(item.id));
+  const selectedSubtotal = selectedItems.reduce((sum, item) => sum + (parseFloat(item.total_price) || 0), 0);
 
   useEffect(() => {
     dispatch(fetchCart()).finally(() => setPendingBoot(false));
   }, [dispatch]);
 
-  const handleUpdateQuantity = (itemId, newQuantity) => {
+  const handleUpdateQuantity = (item, newQuantity) => {
     if (newQuantity < 1) return;
-    dispatch(updateCartItem({ itemId, quantity: newQuantity }));
+    const stock = Number(item.stock_quantity);
+    const next = Number.isFinite(stock) && stock > 0 ? Math.min(stock, newQuantity) : newQuantity;
+    dispatch(updateCartItem({ itemId: item.id, quantity: next }));
+  };
+
+  const toggleItem = (itemId) => {
+    const next = selectedIds.includes(itemId)
+      ? selectedIds.filter((id) => id !== itemId)
+      : [...selectedIds, itemId];
+    setSelected(next);
+    setCoupon(null);
+  };
+
+  const checkout = () => {
+    if (selectedIds.length === 0) {
+      toast.error('Select at least one item');
+      return;
+    }
+    const params = new URLSearchParams();
+    if (selectedIds.length !== items.length) params.set('items', selectedIds.join(','));
+    if (coupon?.code) params.set('coupon', coupon.code);
+    const query = params.toString();
+    router.push(query ? `/checkout?${query}` : '/checkout');
   };
 
   const handleRemove = (itemId) => {
@@ -79,6 +111,18 @@ export default function CartPage() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
+            <label className="flex items-center gap-2 text-sm font-medium text-secondary-700">
+              <input
+                type="checkbox"
+                checked={selectedIds.length === items.length}
+                onChange={() => {
+                  setSelected(selectedIds.length === items.length ? [] : items.map((item) => item.id));
+                  setCoupon(null);
+                }}
+                className="h-4 w-4 rounded border-gray-300 text-primary-600"
+              />
+              Select all
+            </label>
             {items.map((item, index) => (
               <motion.div
                 key={item.id}
@@ -87,8 +131,14 @@ export default function CartPage() {
                 transition={{ delay: index * 0.1 }}
                 className="flex gap-4 p-4 bg-white rounded-xl shadow-sm border"
               >
-                {/* Product Image */}
-                <Link href={`/product/${item.product}`} className="flex-shrink-0">
+                <input
+                  type="checkbox"
+                  checked={selectedIds.includes(item.id)}
+                  onChange={() => toggleItem(item.id)}
+                  aria-label={`Select ${item.product_name}`}
+                  className="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 text-primary-600"
+                />
+                <Link href={`/product/${item.product_slug || item.product}`} className="flex-shrink-0">
                   <div className="w-24 h-24 md:w-32 md:h-32 rounded-lg overflow-hidden bg-gray-100">
                     <img
                       src={getMediaUrl(item.product_image, '/images/placeholder.jpg')}
@@ -100,7 +150,7 @@ export default function CartPage() {
 
                 {/* Product Info */}
                 <div className="flex-1 min-w-0">
-                  <Link href={`/product/${item.product}`}>
+                  <Link href={`/product/${item.product_slug || item.product}`}>
                     <h3 className="font-medium text-secondary-900 hover:text-primary-600 transition-colors line-clamp-2">
                       {item.product_name}
                     </h3>
@@ -122,14 +172,14 @@ export default function CartPage() {
                   <div className="flex items-center justify-between mt-4 md:hidden">
                     <div className="flex items-center border rounded-lg">
                       <button
-                        onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                        onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
                         className="p-2 hover:bg-gray-100"
                       >
                         <Minus className="w-4 h-4" />
                       </button>
                       <span className="w-8 text-center text-sm">{item.quantity}</span>
                       <button
-                        onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                        onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
                         className="p-2 hover:bg-gray-100"
                       >
                         <Plus className="w-4 h-4" />
@@ -147,14 +197,14 @@ export default function CartPage() {
                 {/* Desktop Quantity */}
                 <div className="hidden md:flex items-center border rounded-lg h-fit">
                   <button
-                    onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                    onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
                     className="p-2 hover:bg-gray-100"
                   >
                     <Minus className="w-4 h-4" />
                   </button>
                   <span className="w-10 text-center">{item.quantity}</span>
                   <button
-                    onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                    onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
                     className="p-2 hover:bg-gray-100"
                   >
                     <Plus className="w-4 h-4" />
@@ -186,33 +236,43 @@ export default function CartPage() {
 
               <div className="space-y-4 mb-6">
                 <div className="flex justify-between text-secondary-600">
-                  <span>Subtotal</span>
-                  <span>৳{parseFloat(subtotal).toLocaleString()}</span>
+                  <span>Selected ({selectedIds.length})</span>
+                  <span>৳{money(selectedSubtotal)}</span>
                 </div>
+                {coupon && (
+                  <div className="flex justify-between text-green-700">
+                    <span>Coupon</span>
+                    <span>−৳{money(coupon.discount)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-secondary-600">
                   <span>Delivery</span>
-                  <span className="text-sm text-secondary-500">Calculated at checkout</span>
-                </div>
-                <div className="border-t pt-4">
-                  <div className="flex justify-between text-lg font-semibold text-secondary-900">
-                    <span>Subtotal</span>
-                    <span className="text-primary-600">
-                      ৳{parseFloat(subtotal).toLocaleString()}
-                    </span>
-                  </div>
-                  <p className="text-xs text-secondary-500 mt-1">
-                    Delivery charge will be added at checkout
-                  </p>
+                  <span className="text-right text-sm text-secondary-500">
+                    Inside Dhaka ৳{money(deliveryInside)}
+                    <br />
+                    Outside Dhaka ৳{money(deliveryOutside)}
+                  </span>
                 </div>
               </div>
 
-              <Link
-                href="/checkout"
-                className="w-full btn btn-primary flex items-center justify-center"
+              <div className="mb-4">
+                <CouponField
+                  subtotal={selectedSubtotal}
+                  coupon={coupon}
+                  onApply={setCoupon}
+                  onClear={() => setCoupon(null)}
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={checkout}
+                disabled={selectedIds.length === 0}
+                className="w-full btn btn-primary flex items-center justify-center disabled:opacity-50"
               >
                 Proceed to Checkout
                 <ArrowRight className="w-4 h-4 ml-2" />
-              </Link>
+              </button>
 
               <Link
                 href="/products"

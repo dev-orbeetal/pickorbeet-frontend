@@ -12,6 +12,7 @@ import ProductDetailSkeleton from '@/components/loading/ProductDetailSkeleton';
 import { useBootGate } from '@/components/loading/LoadingProvider';
 import { fetchProduct, fetchProducts, clearProduct } from '@/store/slices/productsSlice';
 import { addToCart } from '@/store/slices/cartSlice';
+import { readList, subscribeLists, toggleList, WISHLIST_KEY } from '@/lib/productLists';
 import siteConfig, { buildOgImageUrl, getAbsoluteImageUrl, getMediaUrl } from '@/lib/siteConfig';
 
 export default function ProductDetailPage({ initialProduct }) {
@@ -29,6 +30,7 @@ export default function ProductDetailPage({ initialProduct }) {
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState(1);
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     if (!slug) return undefined;
@@ -51,29 +53,55 @@ export default function ProductDetailPage({ initialProduct }) {
     }
   }, [dispatch, product]);
 
+  const variants = product?.variants || [];
+  const sizes = [...new Set(variants.map((variant) => variant.size))].filter(Boolean);
+  const colors = [...new Set(
+    variants
+      .filter((variant) => !selectedSize || variant.size === selectedSize)
+      .map((variant) => variant.color),
+  )].filter(Boolean);
+  const matchedVariant = variants.find((variant) => (
+    (!sizes.length || variant.size === selectedSize)
+    && (!colors.length || variant.color === selectedColor)
+  ));
+  const stockLimit = matchedVariant
+    ? Number(matchedVariant.stock_quantity)
+    : Number(product?.stock_quantity || 0);
+  const displayPrice = matchedVariant?.effective_price || matchedVariant?.price || product?.price;
+  const outOfStock = variants.length > 0
+    ? (sizes.length && !selectedSize) || (colors.length && !selectedColor)
+      ? product?.is_out_of_stock
+      : !stockLimit
+    : product?.is_out_of_stock;
+
+  useEffect(() => {
+    const sync = () => setSaved(product?.id ? readList(WISHLIST_KEY).includes(product.id) : false);
+    sync();
+    return subscribeLists(sync);
+  }, [product?.id]);
+
+  useEffect(() => {
+    if (stockLimit > 0 && quantity > stockLimit) setQuantity(stockLimit);
+  }, [stockLimit, quantity]);
+
   const handleAddToCart = () => {
-    if (product?.variants?.length > 0 && !selectedSize) {
+    if (sizes.length > 0 && !selectedSize) {
       toast.error('Please select a size');
       return;
     }
-
-    // Find matching variant by selected size/color
-    let variant_id = null;
-    if (product?.variants?.length > 0) {
-      const matchedVariant = product.variants.find(v => {
-        const sizeMatch = !selectedSize || v.size === selectedSize;
-        const colorMatch = !selectedColor || v.color === selectedColor;
-        return sizeMatch && colorMatch;
-      });
-      if (matchedVariant) {
-        variant_id = matchedVariant.id;
-      }
+    if (colors.length > 0 && !selectedColor) {
+      toast.error('Please select a color');
+      return;
+    }
+    if (!stockLimit) {
+      toast.error('This option is out of stock');
+      return;
     }
 
     dispatch(addToCart({
       product_id: product.id,
-      variant_id,
-      quantity,
+      variant_id: matchedVariant?.id || null,
+      quantity: Math.min(quantity, stockLimit),
     }))
       .unwrap()
       .then(() => {
@@ -211,7 +239,7 @@ export default function ProductDetailPage({ initialProduct }) {
 
               <div className="flex items-center space-x-4 mb-6">
                 <span className="text-3xl font-bold text-primary-600">
-                  ৳{parseFloat(product.price).toLocaleString()}
+                  ৳{parseFloat(displayPrice).toLocaleString()}
                 </span>
                 {product.compare_price && product.compare_price > product.price && (
                   <>
@@ -253,15 +281,19 @@ export default function ProductDetailPage({ initialProduct }) {
               </p>
             )}
 
-            {/* Size Selection */}
-            {product.variants?.length > 0 && (
+            {sizes.length > 0 && (
               <div className="mb-6">
                 <h3 className="font-medium text-secondary-900 mb-3">Size</h3>
                 <div className="flex flex-wrap gap-2">
-                  {[...new Set(product.variants.map(v => v.size))].filter(Boolean).map((size) => (
+                  {sizes.map((size) => (
                     <button
                       key={size}
-                      onClick={() => setSelectedSize(size)}
+                      type="button"
+                      onClick={() => {
+                        setSelectedSize(size);
+                        setSelectedColor('');
+                        setQuantity(1);
+                      }}
                       className={`px-4 py-2 rounded-lg border-2 transition-colors ${selectedSize === size
                         ? 'bg-primary-600 text-white border-primary-600'
                         : 'bg-white text-secondary-700 border-gray-300 hover:border-primary-600'
@@ -274,12 +306,36 @@ export default function ProductDetailPage({ initialProduct }) {
               </div>
             )}
 
-            {/* Quantity */}
+            {colors.length > 0 && (
+              <div className="mb-6">
+                <h3 className="font-medium text-secondary-900 mb-3">Color</h3>
+                <div className="flex flex-wrap gap-2">
+                  {colors.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => {
+                        setSelectedColor(color);
+                        setQuantity(1);
+                      }}
+                      className={`px-4 py-2 rounded-lg border-2 transition-colors ${selectedColor === color
+                        ? 'bg-primary-600 text-white border-primary-600'
+                        : 'bg-white text-secondary-700 border-gray-300 hover:border-primary-600'
+                        }`}
+                    >
+                      {color}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="mb-6">
               <h3 className="font-medium text-secondary-900 mb-3">Quantity</h3>
               <div className="flex items-center space-x-4">
                 <div className="flex items-center border rounded-lg">
                   <button
+                    type="button"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     className="p-3 hover:bg-gray-100 transition-colors"
                   >
@@ -287,28 +343,43 @@ export default function ProductDetailPage({ initialProduct }) {
                   </button>
                   <span className="w-12 text-center font-medium">{quantity}</span>
                   <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="p-3 hover:bg-gray-100 transition-colors"
+                    type="button"
+                    onClick={() => setQuantity(stockLimit > 0 ? Math.min(stockLimit, quantity + 1) : quantity)}
+                    disabled={!stockLimit || quantity >= stockLimit}
+                    className="p-3 hover:bg-gray-100 transition-colors disabled:opacity-40"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
                 </div>
+                {stockLimit > 0 && <span className="text-sm text-secondary-500">{stockLimit} available</span>}
               </div>
             </div>
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
               <button
+                type="button"
                 onClick={handleAddToCart}
-                disabled={product.is_out_of_stock}
+                disabled={outOfStock || !stockLimit}
                 className="flex-1 btn btn-primary flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ShoppingBag className="w-5 h-5" />
                 <span>Add to Cart</span>
               </button>
-              <button className="btn btn-outline flex items-center justify-center space-x-2">
-                <Heart className="w-5 h-5" />
-                <span>Wishlist</span>
+              <button
+                type="button"
+                onClick={() => {
+                  const result = toggleList(WISHLIST_KEY, product.id, 50);
+                  if (!result.ok) {
+                    toast.error('Your wishlist is full');
+                    return;
+                  }
+                  toast.success(result.added ? 'Saved to wishlist' : 'Removed from wishlist');
+                }}
+                className={`btn btn-outline flex items-center justify-center space-x-2 ${saved ? 'border-primary-600 text-primary-700' : ''}`}
+              >
+                <Heart className={`w-5 h-5 ${saved ? 'fill-current text-primary-600' : ''}`} />
+                <span>{saved ? 'Saved' : 'Wishlist'}</span>
               </button>
             </div>
 

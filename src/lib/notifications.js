@@ -34,13 +34,21 @@ function apiOrigin() {
   return base.replace(/\/api\/v1\/?$/, '');
 }
 
-export function notificationSocketUrl(token) {
+function socketUrl(path, token) {
   const stripped = apiOrigin();
   const absolute = /^https?:\/\//.test(stripped)
     ? stripped
     : `${window.location.origin}${stripped}`;
   const ws = absolute.replace(/\/$/, '').replace(/^http/, 'ws');
-  return `${ws}/ws/notifications/?token=${encodeURIComponent(token)}`;
+  return `${ws}${path}?token=${encodeURIComponent(token)}`;
+}
+
+export function notificationSocketUrl(token) {
+  return socketUrl('/ws/notifications/', token);
+}
+
+export function supportSocketUrl(token) {
+  return socketUrl('/ws/support/', token);
 }
 
 function dayDiff(created) {
@@ -143,6 +151,16 @@ export async function loadNotifications() {
     publish({ ...loaded, loading: false, error: '' });
   } catch (error) {
     publish({ ...state, loading: false, error: 'Could not load notifications.' });
+  }
+}
+
+export async function markAllNotificationsRead() {
+  const items = state.items.map((item) => ({ ...item, unread: false }));
+  publish({ ...state, items, unreadCount: 0 });
+  try {
+    await notificationsAPI.markAllRead();
+  } catch {
+    loadNotifications();
   }
 }
 

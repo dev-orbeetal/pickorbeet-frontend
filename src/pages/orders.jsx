@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Package, ChevronRight, Search, Filter, ShoppingBag, Truck, CheckCircle, XCircle, Clock, ArrowLeft, Copy } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
 import ShipmentPanel from '@/components/orders/ShipmentPanel';
 import { ordersAPI } from '@/lib/api';
+import { addToCart } from '@/store/slices/cartSlice';
 
 const statusConfig = {
   pending: { color: 'bg-yellow-100 text-yellow-800 border-yellow-200', icon: Clock, label: 'Pending' },
@@ -18,8 +19,19 @@ const statusConfig = {
   cancelled: { color: 'bg-red-100 text-red-800 border-red-200', icon: XCircle, label: 'Cancelled' },
 };
 
+const CANCELLABLE = ['pending', 'confirmed', 'processing'];
+
+function canCancelOrder(order) {
+  return Boolean(order) && CANCELLABLE.includes(order.order_status) && !order.shipment?.consignment_id;
+}
+
+function canEditDelivery(order) {
+  return Boolean(order?.can_edit_delivery);
+}
+
 export default function OrdersPage() {
   const router = useRouter();
+  const dispatch = useDispatch();
   const { isAuthenticated } = useSelector((state) => state.auth);
 
   const [orders, setOrders] = useState([]);
@@ -29,6 +41,9 @@ export default function OrdersPage() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshingShipment, setRefreshingShipment] = useState(false);
+  const [acting, setActing] = useState(false);
+  const [editingDelivery, setEditingDelivery] = useState(false);
+  const [deliveryForm, setDeliveryForm] = useState({});
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -41,6 +56,10 @@ export default function OrdersPage() {
       fetchOrders();
     }
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    setEditingDelivery(false);
+  }, [selectedOrder?.id]);
 
   useEffect(() => {
     const orderId = router.query.order;
@@ -96,6 +115,79 @@ export default function OrdersPage() {
       toast.error(error.response?.data?.error || 'Could not refresh the courier status');
     } finally {
       setRefreshingShipment(false);
+    }
+  };
+
+  const replaceOrder = (next) => {
+    setSelectedOrder(next);
+    setOrders((current) => current.map((order) => (order.id === next.id ? { ...order, ...next } : order)));
+  };
+
+  const cancelOrder = async () => {
+    if (!selectedOrder || !canCancelOrder(selectedOrder)) return;
+    if (!window.confirm('Cancel this order?')) return;
+    setActing(true);
+    try {
+      const response = await ordersAPI.cancelOrder(selectedOrder.id);
+      setOrders((current) => current.map((order) => (order.id === response.data.id ? { ...order, ...response.data } : order)));
+      const detail = await ordersAPI.getOrder(selectedOrder.id);
+      setSelectedOrder(detail.data);
+      toast.success('Order cancelled');
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'This order can no longer be cancelled');
+    } finally {
+      setActing(false);
+    }
+  };
+
+  const buyAgain = async () => {
+    const lines = selectedOrder?.items || [];
+    if (lines.length === 0) return;
+    setActing(true);
+    try {
+      for (const item of lines) {
+        if (!item.product) continue;
+        await dispatch(addToCart({
+          product_id: item.product,
+          variant_id: item.variant || undefined,
+          quantity: item.quantity,
+        })).unwrap();
+      }
+      toast.success('Items added to your cart');
+      router.push('/cart');
+    } catch (error) {
+      toast.error(error?.error || error?.response?.data?.error || 'Could not add these items');
+    } finally {
+      setActing(false);
+    }
+  };
+
+  const beginDeliveryEdit = () => {
+    setDeliveryForm({
+      shipping_name: selectedOrder.shipping_name || '',
+      shipping_phone: selectedOrder.shipping_phone || '',
+      shipping_address_line1: selectedOrder.shipping_address_line1 || '',
+      shipping_address_line2: selectedOrder.shipping_address_line2 || '',
+      shipping_city: selectedOrder.shipping_city || '',
+      shipping_district: selectedOrder.shipping_district || '',
+      shipping_postal_code: selectedOrder.shipping_postal_code || '',
+    });
+    setEditingDelivery(true);
+  };
+
+  const saveDelivery = async () => {
+    setActing(true);
+    try {
+      const response = await ordersAPI.updateDelivery(selectedOrder.id, deliveryForm);
+      replaceOrder(response.data);
+      setEditingDelivery(false);
+      toast.success('Delivery address updated');
+    } catch (error) {
+      const data = error.response?.data;
+      const message = data?.error || data?.detail || data?.shipping_phone?.[0] || 'Could not update the address';
+      toast.error(typeof message === 'string' ? message : 'Could not update the address');
+    } finally {
+      setActing(false);
     }
   };
 
@@ -156,6 +248,16 @@ export default function OrdersPage() {
                       day: 'numeric', month: 'long', year: 'numeric'
                     })}
                   </p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {canCancelOrder(selectedOrder) && (
+                      <button type="button" onClick={cancelOrder} disabled={acting} className="rounded-lg bg-white/15 px-3 py-1.5 text-sm font-medium text-white hover:bg-white/25 disabled:opacity-60">
+                        Cancel order
+                      </button>
+                    )}
+                    <button type="button" onClick={buyAgain} disabled={acting} className="rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-primary-700 hover:bg-cream-100 disabled:opacity-60">
+                      Buy again
+                    </button>
+                  </div>
                 </div>
 
                 <div className="p-6 space-y-6">
@@ -196,15 +298,40 @@ export default function OrdersPage() {
                   {/* Shipping Info */}
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <h3 className="font-semibold text-charcoal-800 mb-3">Shipping Address</h3>
-                      <div className="text-sm text-charcoal-600 space-y-1 bg-cream-50 rounded-xl p-4">
-                        <p className="font-medium text-charcoal-800">{selectedOrder.shipping_name}</p>
-                        <p>{selectedOrder.shipping_phone}</p>
-                        <p>{selectedOrder.shipping_address_line1}</p>
-                        {selectedOrder.shipping_address_line2 && <p>{selectedOrder.shipping_address_line2}</p>}
-                        <p>{selectedOrder.shipping_city}, {selectedOrder.shipping_district}</p>
-                        {selectedOrder.shipping_postal_code && <p>{selectedOrder.shipping_postal_code}</p>}
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <h3 className="font-semibold text-charcoal-800">Shipping Address</h3>
+                        {canEditDelivery(selectedOrder) && !editingDelivery && (
+                          <button type="button" onClick={beginDeliveryEdit} className="text-sm font-medium text-primary-600">
+                            Edit
+                          </button>
+                        )}
                       </div>
+                      {editingDelivery ? (
+                        <div className="space-y-2 rounded-xl bg-cream-50 p-4">
+                          {['shipping_name', 'shipping_phone', 'shipping_address_line1', 'shipping_address_line2', 'shipping_city', 'shipping_district', 'shipping_postal_code'].map((field) => (
+                            <input
+                              key={field}
+                              value={deliveryForm[field] || ''}
+                              onChange={(event) => setDeliveryForm((current) => ({ ...current, [field]: event.target.value }))}
+                              className="input"
+                              aria-label={field.replace('shipping_', '').replace(/_/g, ' ')}
+                            />
+                          ))}
+                          <div className="flex gap-2 pt-1">
+                            <button type="button" onClick={saveDelivery} disabled={acting} className="btn btn-primary">Save</button>
+                            <button type="button" onClick={() => setEditingDelivery(false)} className="btn btn-secondary">Cancel</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-sm text-charcoal-600 space-y-1 bg-cream-50 rounded-xl p-4">
+                          <p className="font-medium text-charcoal-800">{selectedOrder.shipping_name}</p>
+                          <p>{selectedOrder.shipping_phone}</p>
+                          <p>{selectedOrder.shipping_address_line1}</p>
+                          {selectedOrder.shipping_address_line2 && <p>{selectedOrder.shipping_address_line2}</p>}
+                          <p>{selectedOrder.shipping_city}, {selectedOrder.shipping_district}</p>
+                          {selectedOrder.shipping_postal_code && <p>{selectedOrder.shipping_postal_code}</p>}
+                        </div>
+                      )}
                     </div>
 
                     <div>

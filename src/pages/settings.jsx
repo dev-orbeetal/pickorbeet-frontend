@@ -212,7 +212,7 @@ export default function SettingsPage() {
                 style={{ background: `radial-gradient(ellipse at center, color-mix(in srgb, ${tone.blobSoft} ${tone.dark ? 36 : 92}%, transparent) 0%, transparent 72%)` }}
               />
               <div className="relative flex items-center gap-3">
-                <Link href="/profile" aria-label="Profile photo" className="relative h-16 w-16 shrink-0">
+                <Link href="/account" aria-label="Profile photo" className="relative h-16 w-16 shrink-0">
                   <span className="flex h-[62px] w-[62px] items-center justify-center rounded-full bg-gradient-to-br from-[#8EB4FF] to-[#2F6BFF] text-lg font-bold text-white shadow-[0_4px_12px_rgba(20,40,154,0.12)]">
                     {initialsOf(user)}
                   </span>
@@ -236,7 +236,7 @@ export default function SettingsPage() {
                   )}
                 </div>
                 <Link
-                  href="/profile"
+                  href="/account"
                   className="inline-flex h-[34px] shrink-0 items-center gap-1 rounded-full border px-2.5 text-xs font-semibold transition active:scale-95"
                   style={{ color: tone.edit, borderColor: tone.edit, backgroundColor: tone.editFill }}
                 >
@@ -247,10 +247,10 @@ export default function SettingsPage() {
             </motion.section>
 
             <Section tone={tone} title="Account Settings" hint="Manage your account and personal information" delay={0.05}>
-              <Row tone={tone} icon={User} tile="bg-[#EAF3FF] text-[#3B82F6]" title="Personal Information" subtitle="Name, email, phone number" href="/profile" />
-              <Row tone={tone} icon={ShieldCheck} tile="bg-[#F0EDFF] text-[#7C6AE8]" title="Security & Password" subtitle="Change password, 2FA, login activity" href="/forgot-password" />
+              <Row tone={tone} icon={User} tile="bg-[#EAF3FF] text-[#3B82F6]" title="Personal Information" subtitle="Name, email, phone number" href="/account" />
+              <Row tone={tone} icon={ShieldCheck} tile="bg-[#F0EDFF] text-[#7C6AE8]" title="Security & Password" subtitle="Change your password" href="/account#password" />
               <Row tone={tone} icon={MapPin} tile="bg-[#FFF1E4] text-[#FF8A1F]" title="Addresses" subtitle="Manage your delivery addresses" href="/addresses" />
-              <Row tone={tone} icon={CreditCard} tile="bg-[#E5F8EE] text-[#22A35A]" title="Payment Methods" subtitle="Cards, bKash, Nagad and more" href="/checkout" />
+              <Row tone={tone} icon={CreditCard} tile="bg-[#E5F8EE] text-[#22A35A]" title="Payment" subtitle="bKash, Nagad, card, or cash at checkout" href="/cart" />
             </Section>
 
             <Section tone={tone} title="App Preferences" hint="Customize your shopping experience" delay={0.1}>
@@ -280,7 +280,7 @@ export default function SettingsPage() {
             </Section>
 
             <Section tone={tone} title="Support & About" hint="Get help or learn more" delay={0.16}>
-              <Row tone={tone} icon={Headphones} tile="bg-[#EAF1FF] text-[#3B78E8]" title="Help & Support" subtitle="FAQs, contact us, live chat" href="/contact" />
+              <Row tone={tone} icon={Headphones} tile="bg-[#EAF1FF] text-[#3B78E8]" title="Help & Support" subtitle="Chat with the store" href="/help" />
               <Row tone={tone} icon={FileText} tile="bg-[#F3EEFF] text-[#7B5CFA]" title="Terms & Conditions" subtitle="Read our terms and policies" href="/terms" />
               <Row
                 tone={tone}
