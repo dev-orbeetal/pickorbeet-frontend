@@ -66,7 +66,7 @@ export default function RegisterPage() {
     try {
       await dispatch(googleAuth(response.credential)).unwrap();
     } catch {
-      toast.error('Google sign-up failed');
+      // The auth slice shows the server's message.
     } finally {
       setGoogleLoading(false);
     }

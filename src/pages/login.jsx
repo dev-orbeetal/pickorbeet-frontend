@@ -44,7 +44,7 @@ export default function LoginPage() {
     try {
       await dispatch(googleAuth(response.credential)).unwrap();
     } catch {
-      toast.error('Google sign-in failed');
+      // The auth slice shows the server's message.
     } finally {
       setGoogleLoading(false);
     }
