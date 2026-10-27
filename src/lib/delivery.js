@@ -1,6 +1,14 @@
 /** Same areas Order.save treats as inside Dhaka. */
 const DHAKA_AREAS = ['dhaka', 'mirpur', 'uttara', 'gulshan', 'banani', 'dhanmondi', 'mohammadpur'];
 
+/** Free-text area or postal line from the product page delivery check. */
+export function matchesInsideDhaka(text) {
+  const value = String(text || '').trim().toLowerCase();
+  if (!value) return false;
+  if (isInsideDhaka(value, value)) return true;
+  return value.split(/[^a-z]+/).filter(Boolean).some((word) => isInsideDhaka(word, word));
+}
+
 export function isInsideDhaka(city, district) {
   const place = String(city || '').toLowerCase();
   const area = String(district || '').toLowerCase();

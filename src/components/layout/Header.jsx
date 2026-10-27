@@ -88,7 +88,8 @@ function SearchSuggestions({ query, results, loading, recentSearches, onPick, on
   );
 }
 
-export default function Header() {
+export default function Header({ variant = 'default' }) {
+  const productBar = variant === 'product';
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showCategories, setShowCategories] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -188,8 +189,8 @@ export default function Header() {
   const searchButtonClass = 'flex w-[var(--topbar-control)] shrink-0 items-center justify-center rounded-r-lg bg-gold-500 text-white transition-colors hover:bg-gold-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white';
 
   return (
-    <header className="site-header sticky top-0 z-50 bg-navy-800 text-white">
-      <div className="container-custom">
+    <header className={`site-header z-50 text-white ${productBar ? 'max-lg:pointer-events-none max-lg:absolute max-lg:inset-x-0 max-lg:top-0 lg:pointer-events-auto lg:sticky lg:top-0 lg:bg-navy-800' : 'sticky top-0 bg-navy-800'}`}>
+      <div className={`container-custom ${productBar ? 'max-lg:hidden' : ''}`}>
         <div className="flex items-center gap-2 py-1.5 md:gap-3 md:py-2">
           <Link href="/" aria-label="PickOrbeet" className="flex shrink-0 items-center leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
             <LogoMark
@@ -401,7 +402,7 @@ export default function Header() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden border-t border-white/10 lg:hidden"
+            className="pointer-events-auto overflow-hidden border-t border-white/10 bg-navy-800 lg:hidden"
           >
             <nav className="container-custom flex max-h-[min(70vh,28rem)] flex-col overflow-y-auto py-3">
               <Link href="/products?on_sale=1" onClick={() => setIsMenuOpen(false)} className="py-2.5 font-semibold text-gold-400">

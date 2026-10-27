@@ -67,6 +67,7 @@ export default function Layout({
   }
 
   const vouchers = frame === 'vouchers';
+  const productFrame = frame === 'product';
 
   return (
     <>
@@ -86,7 +87,7 @@ export default function Layout({
 
       <div className={`flex min-h-screen flex-col pb-[calc(4rem+1px+env(safe-area-inset-bottom))] lg:pb-0 ${vouchers ? 'bg-[#F4F7FE]' : 'bg-ice'}`}>
         <div className={vouchers ? 'hidden lg:block' : undefined}>
-          <Header />
+          <Header variant={productFrame ? 'product' : 'default'} />
         </div>
         <motion.main
           variants={mainVariants}
@@ -96,7 +97,7 @@ export default function Layout({
         >
           {children}
         </motion.main>
-        <div className={vouchers ? 'hidden lg:block' : undefined}>
+        <div className={vouchers || productFrame ? 'hidden lg:block' : undefined}>
           <Footer />
         </div>
         <MobileNav />
