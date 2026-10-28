@@ -5,6 +5,9 @@ import { useDispatch } from 'react-redux';
 import { ArrowLeftRight, Eye, Heart, ShoppingCart } from 'lucide-react';
 import { addToCart } from '@/store/slices/cartSlice';
 import toast from 'react-hot-toast';
+import OfficialBadge from '@/components/product/OfficialBadge';
+import { useOfficialBadgeStyle } from '@/components/product/OfficialBadgeProvider';
+import { officialPlacement } from '@/lib/officialBadge';
 import { getMediaUrl } from '@/lib/siteConfig';
 import { COMPARE_KEY, WISHLIST_KEY, readList, subscribeLists, toggleList } from '@/lib/productLists';
 import QuickViewModal from '@/components/products/QuickViewModal';
@@ -89,6 +92,8 @@ export default function ProductCard({ product }) {
     ? (Number(product.discount_percentage) || Math.round(((comparePrice - price) / comparePrice) * 100))
     : 0;
   const sku = product.sku || '';
+  const official = Boolean(product.is_official);
+  const place = officialPlacement(useOfficialBadgeStyle(), true, official);
   const imageUrl = getMediaUrl(product.primary_image, '/images/placeholder.svg');
 
   return (
@@ -108,8 +113,14 @@ export default function ProductCard({ product }) {
           </div>
         </Link>
 
+        {official && (
+          <span className={place.badgeClass}>
+            <OfficialBadge compact />
+          </span>
+        )}
+
         {hasDiscount && discount > 0 && (
-          <span className="absolute left-1.5 top-1.5 rounded-md bg-gold-500 px-1.5 py-0.5 text-[11px] font-bold leading-none text-white">
+          <span className={`absolute left-1.5 z-10 rounded-md bg-gold-500 px-1.5 py-0.5 text-[11px] font-bold leading-none text-white ${place.discountTop}`}>
             -{discount}%
           </span>
         )}
@@ -119,7 +130,7 @@ export default function ProductCard({ product }) {
           onClick={handleWishlist}
           aria-pressed={wishlisted}
           aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-          className={`absolute right-1.5 top-1.5 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-charcoal-500 shadow-sm ring-1 ring-black/5 transition-colors hover:text-gold-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action ${wishlisted ? 'text-gold-500' : ''}`}
+          className={`absolute right-1.5 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-charcoal-500 shadow-sm ring-1 ring-black/5 transition-colors hover:text-gold-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action ${place.heartTop} ${wishlisted ? 'text-gold-500' : ''}`}
         >
           <Heart className={`h-4 w-4 ${wishlisted ? 'fill-current' : ''}`} />
         </button>

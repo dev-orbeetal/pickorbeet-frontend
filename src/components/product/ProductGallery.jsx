@@ -1,17 +1,9 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { BadgeCheck, ChevronLeft, ChevronRight, Heart } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart } from 'lucide-react';
+import OfficialBadge from '@/components/product/OfficialBadge';
+import { useOfficialBadgeStyle } from '@/components/product/OfficialBadgeProvider';
+import { officialPlacement } from '@/lib/officialBadge';
 import { getMediaUrl } from '@/lib/siteConfig';
-
-export function OfficialBadge() {
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 py-1 pl-1 pr-2.5 text-[11px] font-bold tracking-wide text-[#1746B0] shadow-[0_6px_16px_rgba(23,32,51,0.16)] ring-1 ring-[#D6E4FF]">
-      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#2864E8] text-white">
-        <BadgeCheck className="h-3 w-3" aria-hidden="true" />
-      </span>
-      Official
-    </span>
-  );
-}
 
 export default function ProductGallery({
   images,
@@ -24,6 +16,7 @@ export default function ProductGallery({
   onToggleSaved,
 }) {
   const reduce = useReducedMotion();
+  const place = officialPlacement(useOfficialBadgeStyle(), false, official);
   const count = images.length;
   const current = images[selected] || images[0];
   const src = getMediaUrl(current?.image, '/images/placeholder.svg');
@@ -50,13 +43,13 @@ export default function ProductGallery({
         </AnimatePresence>
 
         {official && (
-          <span className="absolute left-3 top-3 z-10">
+          <span className={place.badgeClass}>
             <OfficialBadge />
           </span>
         )}
 
         {discount > 0 && (
-          <span className={`absolute left-3 z-10 rounded-lg bg-[#FF7A1A] px-2 py-1 text-xs font-bold leading-none text-white ${official ? 'top-12' : 'top-3'}`}>
+          <span className={`absolute left-3 z-10 rounded-lg bg-[#FF7A1A] px-2 py-1 text-xs font-bold leading-none text-white ${place.discountTop}`}>
             -{discount}%
           </span>
         )}
@@ -67,7 +60,7 @@ export default function ProductGallery({
           aria-pressed={saved}
           aria-label={saved ? 'Remove from wishlist' : 'Add to wishlist'}
           whileTap={reduce ? undefined : { scale: 1.15 }}
-          className="absolute right-3 top-3 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-[#E6ECF5] bg-white text-[#687386] shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8] lg:h-9 lg:w-9"
+          className={`absolute right-3 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-[#E6ECF5] bg-white text-[#687386] shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8] lg:h-9 lg:w-9 ${place.heartTop}`}
         >
           <Heart className={`h-[18px] w-[18px] ${saved ? 'fill-[#FF7A1A] text-[#FF7A1A]' : ''}`} />
         </motion.button>

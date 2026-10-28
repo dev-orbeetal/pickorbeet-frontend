@@ -8,6 +8,9 @@ import toast from 'react-hot-toast';
 import { addToCart } from '@/store/slices/cartSlice';
 import { getMediaUrl } from '@/lib/siteConfig';
 import { WISHLIST_KEY, readList, subscribeLists, toggleList } from '@/lib/productLists';
+import OfficialBadge from '@/components/product/OfficialBadge';
+import { useOfficialBadgeStyle } from '@/components/product/OfficialBadgeProvider';
+import { officialPlacement } from '@/lib/officialBadge';
 import Stars from '@/components/product/Stars';
 
 function taka(value) {
@@ -39,6 +42,8 @@ function RelatedCard({ product }) {
     : 0;
   const count = Number(product.review_count) || 0;
   const average = Number(product.rating_average);
+  const official = Boolean(product.is_official);
+  const place = officialPlacement(useOfficialBadgeStyle(), true, official);
   const image = getMediaUrl(product.primary_image, '/images/placeholder.svg');
 
   const wishlist = (event) => {
@@ -86,8 +91,13 @@ function RelatedCard({ product }) {
             className="aspect-square w-full object-contain motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-[1.03]"
           />
         </Link>
+        {official && (
+          <span className={place.badgeClass}>
+            <OfficialBadge compact />
+          </span>
+        )}
         {discount > 0 && (
-          <span className="absolute left-1.5 top-1.5 rounded-md bg-[#FF7A1A] px-1.5 py-0.5 text-[11px] font-bold leading-none text-white">
+          <span className={`absolute left-1.5 z-10 rounded-md bg-[#FF7A1A] px-1.5 py-0.5 text-[11px] font-bold leading-none text-white ${place.discountTop}`}>
             -{discount}%
           </span>
         )}
@@ -96,7 +106,7 @@ function RelatedCard({ product }) {
           onClick={wishlist}
           aria-pressed={saved}
           aria-label={saved ? 'Remove from wishlist' : 'Add to wishlist'}
-          className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center text-[#687386] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8] lg:h-7 lg:w-7"
+          className={`absolute right-1 flex h-11 w-11 items-center justify-center text-[#687386] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8] lg:h-7 lg:w-7 ${place.heartTop}`}
         >
           <Heart className={`h-3.5 w-3.5 ${saved ? 'fill-[#FF7A1A] text-[#FF7A1A]' : ''}`} />
         </button>

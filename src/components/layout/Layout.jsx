@@ -6,6 +6,7 @@ import Header from './Header';
 import Footer from './Footer';
 import MobileNav from './MobileNav';
 import SEO from '@/components/SEO';
+import { OfficialBadgeProvider } from '@/components/product/OfficialBadgeProvider';
 import { fetchCart } from '@/store/slices/cartSlice';
 import { getProfile, checkAuth } from '@/store/slices/authSlice';
 
@@ -47,6 +48,7 @@ export default function Layout({
 
   if (appChrome) {
     return (
+      <OfficialBadgeProvider>
       <>
         <SEO
           title={title}
@@ -63,6 +65,7 @@ export default function Layout({
         </Head>
         <div className="min-h-screen bg-[#D5E2F6]">{children}</div>
       </>
+      </OfficialBadgeProvider>
     );
   }
 
@@ -70,6 +73,7 @@ export default function Layout({
   const productFrame = frame === 'product';
 
   return (
+    <OfficialBadgeProvider>
     <>
       <SEO
         title={title}
@@ -103,5 +107,6 @@ export default function Layout({
         <MobileNav />
       </div>
     </>
+    </OfficialBadgeProvider>
   );
 }
