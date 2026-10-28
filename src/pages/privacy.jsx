@@ -192,6 +192,8 @@ export default function PrivacyPage() {
                     <li>Improve website functionality</li>
                     <li>Analyze website traffic</li>
                   </ul>
+                  <p>When you are signed in, pages you open can be linked to your account so store staff can see which customers visited which pages.</p>
+                  <p>We do not store your IP address.</p>
                   <p>Users can disable cookies through browser settings.</p>
                 </PolicySection>
 

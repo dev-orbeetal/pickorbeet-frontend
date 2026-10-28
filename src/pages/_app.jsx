@@ -8,6 +8,7 @@ import store from '@/store/store';
 import { getProfile, checkAuth } from '@/store/slices/authSlice';
 import { fetchCategories } from '@/store/slices/productsSlice';
 import { startNotificationSocket, stopNotificationSocket } from '@/lib/notifications';
+import { installAnalytics } from '@/lib/analytics';
 import LoadingProvider from '@/components/loading/LoadingProvider';
 import '@/styles/globals.css';
 import '@/styles/notifications.css';
@@ -85,6 +86,8 @@ function NotificationLive() {
 
 export default function App({ Component, pageProps }) {
   const router = useRouter();
+
+  useEffect(() => installAnalytics(router), [router]);
 
   return (
     <Provider store={store}>
