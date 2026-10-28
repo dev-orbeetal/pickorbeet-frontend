@@ -224,12 +224,17 @@ export default function Footer() {
           <div className="flex items-center gap-4">
             <span className="text-cream-400 text-sm">We Accept:</span>
             <div className="flex items-center gap-3">
-              {['bkash', 'nagad', 'visa', 'mastercard'].map((payment) => (
-                <div key={payment} className="px-3 py-1.5 bg-charcoal-800 rounded-lg border border-charcoal-700 shadow-sm">
+              {[
+                { name: 'bKash', src: '/images/payment/bkash.png', box: 'p-0 bg-transparent border-transparent shadow-none', img: 'h-8 w-8' },
+                { name: 'Nagad', src: '/images/payment/nagad.png', box: 'px-1.5 py-1 bg-white border-white', img: 'h-7 w-auto' },
+                { name: 'Visa', src: '/images/payment/visa.svg', box: 'px-3 py-1.5 bg-charcoal-800 border-charcoal-700', img: 'h-5' },
+                { name: 'Mastercard', src: '/images/payment/mastercard.svg', box: 'px-3 py-1.5 bg-charcoal-800 border-charcoal-700', img: 'h-5' },
+              ].map((payment) => (
+                <div key={payment.name} className={`rounded-lg border shadow-sm ${payment.box}`}>
                   <img
-                    src={`/images/payment/${payment}.svg`}
-                    alt={payment}
-                    className="h-5 opacity-70 hover:opacity-100 transition-opacity"
+                    src={payment.src}
+                    alt={payment.name}
+                    className={`${payment.img} object-contain`}
                   />
                 </div>
               ))}

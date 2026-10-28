@@ -80,7 +80,7 @@ export default function LoginPage() {
   };
 
   return (
-    <Layout title="Sign in - PickOrbeet">
+    <Layout title="Sign in - PickOrbeet" noindex>
       <Script src="https://accounts.google.com/gsi/client" onLoad={initializeGoogle} strategy="lazyOnload" />
       <AuthShell
         title="Welcome back"

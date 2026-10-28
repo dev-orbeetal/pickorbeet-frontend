@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
 import ShipmentPanel from '@/components/orders/ShipmentPanel';
 import { ordersAPI } from '@/lib/api';
+import { optionParts } from '@/lib/productOptions';
 import { addToCart } from '@/store/slices/cartSlice';
 
 const statusConfig = {
@@ -270,8 +271,7 @@ export default function OrdersPage() {
                           <div className="flex-1">
                             <p className="font-medium text-charcoal-800">{item.product_name}</p>
                             <div className="flex flex-wrap gap-3 text-sm text-charcoal-500 mt-1">
-                              {item.size && <span>Size: {item.size}</span>}
-                              {item.color && <span>Color: {item.color}</span>}
+                              {optionParts(item).map((part, index) => <span key={`${part}-${index}`}>{part}</span>)}
                               <span>Qty: {item.quantity}</span>
                             </div>
                           </div>

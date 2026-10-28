@@ -1,4 +1,4 @@
-# Robots.txt for Pickorbeet
+# Robots.txt for PickOrbeet
 User-agent: *
 Allow: /
 Allow: /api/og
@@ -6,8 +6,20 @@ Allow: /og.jpg
 Disallow: /account
 Disallow: /orders
 Disallow: /profile
+Disallow: /cart
+Disallow: /checkout
+Disallow: /login
+Disallow: /register
+Disallow: /wishlist
+Disallow: /forgot-password
 Disallow: /verify-email
 Disallow: /reset-password
+Disallow: /order-success
+Disallow: /settings
+Disallow: /notifications
+Disallow: /addresses
+Disallow: /vouchers
 Disallow: /api/
 
 Sitemap: https://www.pickorbeet.com/sitemap.xml
+Sitemap: https://www.pickorbeet.com/feed.xml

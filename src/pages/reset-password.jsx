@@ -83,7 +83,7 @@ export default function ResetPasswordPage() {
 
   if (!token && router.isReady) {
     return (
-      <Layout title="Reset Password - Pickorbeet">
+      <Layout title="Reset Password - PickOrbeet" noindex>
         <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
           <div className="text-center">
             <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
@@ -102,7 +102,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <Layout title="Reset Password - Pickorbeet">
+    <Layout title="Reset Password - PickOrbeet" noindex>
       <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

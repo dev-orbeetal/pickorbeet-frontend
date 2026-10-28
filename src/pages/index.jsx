@@ -9,17 +9,19 @@ import PromoBanners from '@/components/home/PromoBanners';
 import HomeSkeleton from '@/components/loading/HomeSkeleton';
 import { useBootGate } from '@/components/loading/LoadingProvider';
 import { productsAPI } from '@/lib/api';
+import { buildSiteJsonLd } from '@/lib/seo';
+import { fetchApi, serializable } from '@/lib/serverApi';
 
-export default function Home() {
+export default function Home({ initialSections = [], storeContact = null }) {
   const { categories } = useSelector((state) => state.products);
-  const [sections, setSections] = useState([]);
-  const [status, setStatus] = useState('loading');
+  const [sections, setSections] = useState(initialSections);
+  const [status, setStatus] = useState(initialSections.length ? 'ready' : 'loading');
   const [reloadKey, setReloadKey] = useState(0);
   useBootGate(status === 'loading');
 
   useEffect(() => {
     let active = true;
-    setStatus('loading');
+    if (reloadKey > 0) setStatus('loading');
     productsAPI.getHomepage()
       .then((response) => {
         if (!active) return;
@@ -28,7 +30,8 @@ export default function Home() {
         setStatus(next.length ? 'ready' : 'empty');
       })
       .catch(() => {
-        if (active) setStatus('error');
+        if (!active) return;
+        setStatus((current) => (current === 'ready' ? 'ready' : 'error'));
       });
     return () => {
       active = false;
@@ -39,7 +42,11 @@ export default function Home() {
     <Layout
       title="PickOrbeet - Shop Smarter, Live Better"
       description="Shop electronics, fashion, home, beauty, and everyday essentials at PickOrbeet. Original products, fast delivery, and secure payment across Bangladesh."
+      jsonLd={buildSiteJsonLd(storeContact)}
     >
+      <h1 className="container-custom py-4 text-xl font-bold text-charcoal-900 md:text-2xl">
+        Shop original products in Bangladesh
+      </h1>
       {status === 'loading' && <HomeSkeleton />}
       {status === 'error' && (
         <div className="container-custom py-16 text-center">
@@ -84,4 +91,24 @@ export default function Home() {
       })}
     </Layout>
   );
+}
+
+export async function getServerSideProps() {
+  try {
+    const [homeResult, settingsResult] = await Promise.all([
+      fetchApi('/products/homepage/'),
+      fetchApi('/products/settings/public/'),
+    ]);
+    const sections = homeResult.ok && Array.isArray(homeResult.data?.sections)
+      ? homeResult.data.sections
+      : [];
+    return {
+      props: {
+        initialSections: serializable(sections) || [],
+        storeContact: settingsResult.ok ? serializable(settingsResult.data) : null,
+      },
+    };
+  } catch (error) {
+    return { props: { initialSections: [], storeContact: null } };
+  }
 }

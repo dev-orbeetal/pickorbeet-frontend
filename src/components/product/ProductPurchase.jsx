@@ -27,12 +27,9 @@ export default function ProductPurchase({
   comparePrice,
   savedAmount,
   discount,
-  colors,
-  sizes,
-  selectedColor,
-  selectedSize,
-  onColor,
-  onSize,
+  groups = [],
+  selected = {},
+  onSelect,
   quantity,
   onQuantity,
   stockLimit,
@@ -113,65 +110,63 @@ export default function ProductPurchase({
         )}
       </div>
 
-      {colors.length > 0 && (
-        <div className="mt-4">
-          <p className="text-sm text-[#172033]">
-            Color: <span className="font-medium">{selectedColor || colors[0]}</span>
-          </p>
-          <div className="mt-1.5 flex flex-wrap">
-            {colors.map((color) => {
-              const selected = selectedColor === color;
-              const hex = swatchHex(color);
-              return (
-                <button
-                  key={color}
-                  type="button"
-                  onClick={() => onColor(color)}
-                  aria-label={color}
-                  aria-pressed={selected}
-                  className="flex h-11 w-11 items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8] lg:h-9 lg:w-9"
-                >
-                  <motion.span
-                    className="block h-7 w-7 rounded-full"
-                    style={{ backgroundColor: hex || '#D5DDE8' }}
-                    animate={{
-                      boxShadow: selected
-                        ? '0 0 0 2px #ffffff, 0 0 0 4px #172033'
-                        : (hex ? '0 0 0 1px rgba(23,32,51,0.08)' : 'inset 0 0 0 1px #C5CDD8'),
-                    }}
-                    transition={reduce ? { duration: 0 } : { type: 'spring', stiffness: 500, damping: 32 }}
-                  />
-                </button>
-              );
-            })}
+      {groups.map((group) => {
+        const current = selected[group.name] || '';
+        return (
+          <div key={group.name} className="mt-4">
+            <p className="text-sm text-[#172033]">
+              {group.name}: <span className="font-medium">{current || 'Select'}</span>
+            </p>
+            {group.kind === 'swatch' ? (
+              <div className="mt-1.5 flex flex-wrap">
+                {group.values.map((value) => {
+                  const active = current === value.label;
+                  const hex = swatchHex(value.label, value.colorHex);
+                  return (
+                    <button
+                      key={value.label}
+                      type="button"
+                      onClick={() => onSelect?.(group.name, value.label)}
+                      aria-label={value.label}
+                      aria-pressed={active}
+                      className="flex h-11 w-11 items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8] lg:h-9 lg:w-9"
+                    >
+                      <motion.span
+                        className="block h-7 w-7 rounded-full"
+                        style={{ backgroundColor: hex || '#D5DDE8' }}
+                        animate={{
+                          boxShadow: active
+                            ? '0 0 0 2px #ffffff, 0 0 0 4px #172033'
+                            : (hex ? '0 0 0 1px rgba(23,32,51,0.08)' : 'inset 0 0 0 1px #C5CDD8'),
+                        }}
+                        transition={reduce ? { duration: 0 } : { type: 'spring', stiffness: 500, damping: 32 }}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="mt-1.5 flex flex-wrap gap-2">
+                {group.values.map((value) => {
+                  const active = current === value.label;
+                  return (
+                    <motion.button
+                      key={value.label}
+                      type="button"
+                      onClick={() => onSelect?.(group.name, value.label)}
+                      aria-pressed={active}
+                      whileTap={reduce ? undefined : { scale: 0.97 }}
+                      className={`h-11 min-w-11 rounded-lg border px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8] lg:h-9 ${active ? 'border-[#172033] font-semibold text-[#172033]' : 'border-[#E6ECF5] text-[#525E70]'}`}
+                    >
+                      {value.label}
+                    </motion.button>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        </div>
-      )}
-
-      {sizes.length > 0 && (
-        <div className="mt-3">
-          <p className="text-sm text-[#172033]">
-            Size: <span className="font-medium">{selectedSize || 'Select'}</span>
-          </p>
-          <div className="mt-1.5 flex flex-wrap gap-2">
-            {sizes.map((size) => {
-              const selected = selectedSize === size;
-              return (
-                <motion.button
-                  key={size}
-                  type="button"
-                  onClick={() => onSize(size)}
-                  aria-pressed={selected}
-                  whileTap={reduce ? undefined : { scale: 0.97 }}
-                  className={`h-11 min-w-11 rounded-lg border px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8] lg:h-9 ${selected ? 'border-[#172033] font-semibold text-[#172033]' : 'border-[#E6ECF5] text-[#525E70]'}`}
-                >
-                  {size}
-                </motion.button>
-              );
-            })}
-          </div>
-        </div>
-      )}
+        );
+      })}
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <span className="text-sm text-[#172033]">Quantity:</span>

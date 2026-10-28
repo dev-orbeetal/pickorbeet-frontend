@@ -1,6 +1,17 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Heart } from 'lucide-react';
+import { BadgeCheck, ChevronLeft, ChevronRight, Heart } from 'lucide-react';
 import { getMediaUrl } from '@/lib/siteConfig';
+
+export function OfficialBadge() {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 py-1 pl-1 pr-2.5 text-[11px] font-bold tracking-wide text-[#1746B0] shadow-[0_6px_16px_rgba(23,32,51,0.16)] ring-1 ring-[#D6E4FF]">
+      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#2864E8] text-white">
+        <BadgeCheck className="h-3 w-3" aria-hidden="true" />
+      </span>
+      Official
+    </span>
+  );
+}
 
 export default function ProductGallery({
   images,
@@ -8,6 +19,7 @@ export default function ProductGallery({
   selected,
   onSelect,
   discount,
+  official = false,
   saved,
   onToggleSaved,
 }) {
@@ -37,8 +49,14 @@ export default function ProductGallery({
           />
         </AnimatePresence>
 
+        {official && (
+          <span className="absolute left-3 top-3 z-10">
+            <OfficialBadge />
+          </span>
+        )}
+
         {discount > 0 && (
-          <span className="absolute left-3 top-3 z-10 rounded-lg bg-[#FF7A1A] px-2 py-1 text-xs font-bold leading-none text-white">
+          <span className={`absolute left-3 z-10 rounded-lg bg-[#FF7A1A] px-2 py-1 text-xs font-bold leading-none text-white ${official ? 'top-12' : 'top-3'}`}>
             -{discount}%
           </span>
         )}

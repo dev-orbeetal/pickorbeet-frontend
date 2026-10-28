@@ -12,21 +12,25 @@ import { useBootGate } from '@/components/loading/LoadingProvider';
 import CatalogControls, { catalogQuery } from '@/components/catalog/CatalogControls';
 import { fetchProducts, fetchCategories } from '@/store/slices/productsSlice';
 import { getMediaUrl } from '@/lib/siteConfig';
+import { buildListingJsonLd, categoryPriceDescription, categoryPriceTitle } from '@/lib/seo';
+import { fetchApi, productRows, serializable } from '@/lib/serverApi';
 
 const getImageUrl = (url) => getMediaUrl(url, '/images/placeholder-category.png');
 
-export default function SubcategoryPage() {
+export default function SubcategoryPage({ initialCategory = null, initialSubcategory = null, initialProducts = [] }) {
   const router = useRouter();
   const { slug, subcategory } = router.query;
   const dispatch = useDispatch();
 
   const { categories } = useSelector((state) => state.products);
-  const [listed, setListed] = useState([]);
-  const [listState, setListState] = useState('loading');
+  const [listed, setListed] = useState(initialProducts);
+  const [listState, setListState] = useState(initialProducts.length ? 'ready' : 'loading');
   const [ordering, setOrdering] = useState('-created_at');
   const [onSale, setOnSale] = useState(false);
-  const category = categories.find(c => c.slug === slug);
-  const subcategoryData = category?.subcategories?.find(s => s.slug === subcategory);
+  const storedCategory = categories.find(c => c.slug === slug);
+  const category = storedCategory || (initialCategory?.slug === slug ? initialCategory : null);
+  const subcategoryData = category?.subcategories?.find(s => s.slug === subcategory)
+    || (initialSubcategory?.slug === subcategory ? initialSubcategory : null);
   useBootGate(listState === 'loading' && listed.length === 0);
 
   useEffect(() => {
@@ -36,8 +40,11 @@ export default function SubcategoryPage() {
   useEffect(() => {
     if (!subcategory) return undefined;
     let active = true;
-    setListed([]);
-    setListState('loading');
+    const keepInitial = ordering === '-created_at' && !onSale && initialProducts.length > 0;
+    if (!keepInitial) {
+      setListed([]);
+      setListState('loading');
+    }
     dispatch(fetchProducts(catalogQuery({ subcategorySlug: subcategory, ordering, onSale })))
       .unwrap()
       .then((data) => {
@@ -48,10 +55,28 @@ export default function SubcategoryPage() {
       })
       .catch(() => { if (active) setListState('error'); });
     return () => { active = false; };
-  }, [dispatch, subcategory, ordering, onSale]);
+  }, [dispatch, subcategory, ordering, onSale, initialProducts]);
+
+  const listingName = subcategoryData?.name || 'Subcategory';
+  const listingJsonLd = subcategoryData?.name && slug && subcategory
+    ? buildListingJsonLd({
+      name: listingName,
+      path: `/category/${slug}/${subcategory}`,
+      products: listed,
+      breadcrumbs: [
+        { name: 'Home', path: '/' },
+        { name: category?.name || 'Category', path: `/category/${slug}` },
+        { name: listingName, path: `/category/${slug}/${subcategory}` },
+      ],
+    })
+    : null;
 
   return (
-    <Layout title={`${subcategoryData?.name || 'Subcategory'} - ${category?.name || 'Category'} - Pickorbeet`}>
+    <Layout
+      title={categoryPriceTitle(listingName)}
+      description={categoryPriceDescription(listingName, subcategoryData?.description || category?.name)}
+      jsonLd={listingJsonLd}
+    >
       {/* Hero Banner */}
       <section className="relative h-48 md:h-64 bg-gradient-to-br from-primary-700 via-primary-600 to-primary-800 overflow-hidden">
         {subcategoryData?.image && (
@@ -81,13 +106,12 @@ export default function SubcategoryPage() {
               <span className="text-cream-100">{subcategoryData?.name || 'Subcategory'}</span>
             </nav>
             <h1 className="text-2xl md:text-4xl font-display font-bold mb-2">
-              {subcategoryData?.name || 'Subcategory'}
+              {listingName}
             </h1>
-            {subcategoryData?.description && (
-              <p className="text-base md:text-lg text-cream-200 max-w-2xl">
-                {subcategoryData.description}
-              </p>
-            )}
+            <p className="text-base md:text-lg text-cream-200 max-w-2xl">
+              {subcategoryData?.description ? `${subcategoryData.description} ` : ''}
+              Compare {listingName} prices in Bangladesh.
+            </p>
           </motion.div>
         </div>
       </section>
@@ -161,15 +185,8 @@ export default function SubcategoryPage() {
                 </p>
               </div>
               <ProductGrid>
-                {listed.map((product, index) => (
-                  <motion.div
-                    key={product.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.03 }}
-                  >
-                    <ProductCard product={product} />
-                  </motion.div>
+                {listed.map((product) => (
+                  <ProductCard key={product.id} product={product} />
                 ))}
               </ProductGrid>
             </>
@@ -196,4 +213,30 @@ export default function SubcategoryPage() {
       </section>
     </Layout>
   );
+}
+
+export async function getServerSideProps(context) {
+  const { slug, subcategory } = context.params;
+
+  try {
+    const categoryResult = await fetchApi(`/products/categories/${encodeURIComponent(slug)}/`);
+    if (categoryResult.status === 404) return { notFound: true };
+    if (!categoryResult.ok || !categoryResult.data) {
+      return { props: { initialCategory: null, initialSubcategory: null, initialProducts: [] } };
+    }
+    const match = (categoryResult.data.subcategories || []).find((item) => item.slug === subcategory);
+    if (!match) return { notFound: true };
+    const productResult = await fetchApi(
+      `/products/?subcategory_slug=${encodeURIComponent(subcategory)}&ordering=-created_at`,
+    );
+    return {
+      props: {
+        initialCategory: serializable(categoryResult.data),
+        initialSubcategory: serializable(match),
+        initialProducts: serializable(productRows(productResult.data)),
+      },
+    };
+  } catch (error) {
+    return { props: { initialCategory: null, initialSubcategory: null, initialProducts: [] } };
+  }
 }

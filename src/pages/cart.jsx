@@ -10,7 +10,12 @@ import { useBootGate } from '@/components/loading/LoadingProvider';
 import CouponField from '@/components/checkout/CouponField';
 import { fetchCart, updateCartItem, removeFromCart } from '@/store/slices/cartSlice';
 import { money } from '@/lib/delivery';
+import { optionParts } from '@/lib/productOptions';
 import { getMediaUrl } from '@/lib/siteConfig';
+
+function optionLine(item) {
+  return optionParts(item).join(' | ');
+}
 
 export default function CartPage() {
   const router = useRouter();
@@ -68,7 +73,7 @@ export default function CartPage() {
 
   if ((loading || pendingBoot) && (!items || items.length === 0)) {
     return (
-      <Layout title="Cart - Pickorbeet">
+      <Layout title="Cart - PickOrbeet" noindex>
         <div className="container-custom py-16" aria-busy="true" aria-label="Loading cart">
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
@@ -82,7 +87,7 @@ export default function CartPage() {
 
   if (!items || items.length === 0) {
     return (
-      <Layout title="Cart - Pickorbeet">
+      <Layout title="Cart - PickOrbeet" noindex>
         <div className="container-custom py-16 text-center">
           <div className="max-w-md mx-auto">
             <ShoppingBag className="w-24 h-24 text-secondary-300 mx-auto mb-6" />
@@ -102,7 +107,7 @@ export default function CartPage() {
   }
 
   return (
-    <Layout title="Cart - Pickorbeet">
+    <Layout title="Cart - PickOrbeet" noindex>
       <div className="container-custom py-8">
         <h1 className="text-3xl font-display font-bold text-secondary-900 mb-8">
           Shopping Cart ({totalItems} items)
@@ -156,12 +161,8 @@ export default function CartPage() {
                     </h3>
                   </Link>
 
-                  {(item.size || item.color) && (
-                    <p className="text-sm text-secondary-500 mt-1">
-                      {item.size && <span>Size: {item.size}</span>}
-                      {item.size && item.color && <span> | </span>}
-                      {item.color && <span>Color: {item.color}</span>}
-                    </p>
+                  {optionLine(item) && (
+                    <p className="text-sm text-secondary-500 mt-1">{optionLine(item)}</p>
                   )}
 
                   <p className="text-primary-600 font-semibold mt-2">

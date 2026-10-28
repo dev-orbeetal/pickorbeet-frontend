@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Inter, Playfair_Display } from 'next/font/google';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -10,6 +11,20 @@ import { startNotificationSocket, stopNotificationSocket } from '@/lib/notificat
 import LoadingProvider from '@/components/loading/LoadingProvider';
 import '@/styles/globals.css';
 import '@/styles/notifications.css';
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700', '800'],
+  display: 'swap',
+  variable: '--font-inter',
+});
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  display: 'swap',
+  variable: '--font-playfair',
+});
 
 const pageVariants = {
   initial: {
@@ -73,6 +88,7 @@ export default function App({ Component, pageProps }) {
 
   return (
     <Provider store={store}>
+      <div className={`${inter.variable} ${playfair.variable} font-sans`}>
       <LoadingProvider>
         <AppHydrator>
         <NotificationLive />
@@ -120,6 +136,7 @@ export default function App({ Component, pageProps }) {
         />
         </AppHydrator>
       </LoadingProvider>
+      </div>
     </Provider>
   );
 }

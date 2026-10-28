@@ -111,7 +111,7 @@ export default function RegisterPage() {
   const setField = (event) => setFormData({ ...formData, [event.target.name]: event.target.value });
 
   return (
-    <Layout title="Create account - PickOrbeet">
+    <Layout title="Create account - PickOrbeet" noindex>
       <Script src="https://accounts.google.com/gsi/client" onLoad={initializeGoogle} strategy="lazyOnload" />
       <AuthShell
         title="Create your account"

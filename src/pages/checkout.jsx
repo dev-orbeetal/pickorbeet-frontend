@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
-import { CreditCard, Truck, User, CheckCircle, Smartphone, Banknote } from 'lucide-react';
+import { CreditCard, Truck, User, CheckCircle, Banknote } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
 import CouponField from '@/components/checkout/CouponField';
@@ -10,13 +10,14 @@ import { useBootGate } from '@/components/loading/LoadingProvider';
 import { fetchCart } from '@/store/slices/cartSlice';
 import { addressAPI, ordersAPI, paymentsAPI } from '@/lib/api';
 import { deliveryChargeFor, isInsideDhaka, money } from '@/lib/delivery';
+import { optionParts } from '@/lib/productOptions';
 import { getMediaUrl } from '@/lib/siteConfig';
 
 const PAYMENTS = [
-  { id: 'bkash', title: 'bKash', detail: 'Pay with bKash', icon: Smartphone },
-  { id: 'nagad', title: 'Nagad', detail: 'Pay with Nagad', icon: Smartphone },
-  { id: 'card', title: 'Card', detail: 'Debit or credit card', icon: CreditCard },
-  { id: 'cod', title: 'Cash on Delivery', detail: 'Pay when you receive your order', icon: Banknote },
+  { id: 'bkash', title: 'bKash', detail: 'Pay with bKash', logo: '/images/payment/bkash.png', available: false },
+  { id: 'nagad', title: 'Nagad', detail: 'Pay with Nagad', logo: '/images/payment/nagad.png', available: false },
+  { id: 'card', title: 'Card', detail: 'Debit or credit card', icon: CreditCard, available: false },
+  { id: 'cod', title: 'Cash on Delivery', detail: 'Pay when you receive your order', icon: Banknote, available: true },
 ];
 
 function rowsOf(payload) {
@@ -178,6 +179,7 @@ export default function CheckoutPage() {
   };
 
   const handleSubmit = async (paymentMethod) => {
+    if (paymentMethod !== 'cod') return;
     if (!validateStep(2)) return;
     setLoading(true);
     try {
@@ -212,7 +214,7 @@ export default function CheckoutPage() {
 
   if (!cartLoaded) {
     return (
-      <Layout title="Checkout - Pickorbeet">
+      <Layout title="Checkout - PickOrbeet" noindex>
         <div className="container-custom py-16" aria-busy="true" aria-label="Loading checkout">
           <div className="space-y-6">
             <div className="skeleton h-8 w-48 rounded" />
@@ -227,7 +229,7 @@ export default function CheckoutPage() {
   if (checkoutItems.length === 0) return null;
 
   return (
-    <Layout title="Checkout - Pickorbeet">
+    <Layout title="Checkout - PickOrbeet" noindex>
       <div className="container-custom py-8">
         <h1 className="text-3xl font-display font-bold text-secondary-900 mb-8">Checkout</h1>
 
@@ -381,15 +383,35 @@ export default function CheckoutPage() {
                       <button
                         key={method.id}
                         type="button"
-                        onClick={() => handleSubmit(method.id)}
-                        disabled={loading}
-                        className="w-full p-4 border-2 rounded-xl hover:border-primary-600 transition-colors text-left flex items-center disabled:opacity-60"
+                        onClick={() => method.available && handleSubmit(method.id)}
+                        disabled={loading || !method.available}
+                        className={`w-full p-4 border-2 rounded-xl transition-colors text-left flex items-center ${
+                          method.available
+                            ? 'hover:border-primary-600 disabled:opacity-60'
+                            : 'cursor-not-allowed border-secondary-200 bg-secondary-50/80'
+                        }`}
                       >
-                        <method.icon className="w-8 h-8 text-primary-600 mr-4" />
-                        <div>
-                          <p className="font-semibold text-secondary-900">{method.title}</p>
-                          <p className="text-sm text-secondary-500">{method.detail}</p>
-                        </div>
+                        <span className={`flex min-w-0 flex-1 items-center ${method.available ? '' : 'opacity-60'}`}>
+                          {method.logo ? (
+                            <img
+                              src={method.logo}
+                              alt=""
+                              className={`object-contain mr-4 shrink-0 ${method.id === 'nagad' ? 'h-8 w-auto' : 'h-10 w-10'}`}
+                            />
+                          ) : (
+                            <method.icon className="w-8 h-8 text-primary-600 mr-4 shrink-0" />
+                          )}
+                          <span className="min-w-0">
+                            <p className="font-semibold text-secondary-900">{method.title}</p>
+                            <p className="text-sm text-secondary-500">{method.detail}</p>
+                          </span>
+                        </span>
+                        {!method.available && (
+                          <span className="ml-3 inline-flex shrink-0 items-center gap-1.5 rounded-full border border-gold-200 bg-gradient-to-r from-gold-50 to-gold-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gold-800">
+                            <span className="h-1.5 w-1.5 rounded-full bg-gold-500" />
+                            Coming soon
+                          </span>
+                        )}
                       </button>
                     ))}
                   </div>
@@ -410,6 +432,9 @@ export default function CheckoutPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-secondary-900 line-clamp-1">{item.product_name}</p>
+                      {optionParts(item).length > 0 && (
+                        <p className="text-xs text-secondary-500">{optionParts(item).join(' | ')}</p>
+                      )}
                       <p className="text-xs text-secondary-500">Qty: {item.quantity}</p>
                       <p className="text-sm font-semibold text-primary-600">৳{money(item.total_price)}</p>
                     </div>

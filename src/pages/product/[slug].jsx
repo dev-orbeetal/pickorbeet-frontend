@@ -17,7 +17,10 @@ import { fetchProduct, fetchProducts, clearProduct } from '@/store/slices/produc
 import { addToCart } from '@/store/slices/cartSlice';
 import { readList, subscribeLists, toggleList, WISHLIST_KEY } from '@/lib/productLists';
 import { productsAPI } from '@/lib/api';
+import { availableLabels, matchedVariant, selectionGroups } from '@/lib/productOptions';
 import siteConfig, { buildOgImageUrl, getAbsoluteImageUrl, getMediaUrl } from '@/lib/siteConfig';
+import { offerPrices, productBrand, productPriceDescription, productPriceTitle } from '@/lib/seo';
+import { fetchApi, serializable } from '@/lib/serverApi';
 
 function specificationRows(product) {
   const custom = Array.isArray(product.specifications)
@@ -46,8 +49,7 @@ export default function ProductDetailPage({ initialProduct }) {
   useBootGate(phase === 'loading' && !product);
 
   const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedSize, setSelectedSize] = useState('');
-  const [selectedColor, setSelectedColor] = useState('');
+  const [selected, setSelected] = useState({});
   const [quantity, setQuantity] = useState(1);
   const [saved, setSaved] = useState(false);
   const [pending, setPending] = useState(null);
@@ -59,8 +61,7 @@ export default function ProductDetailPage({ initialProduct }) {
 
   useEffect(() => {
     setSelectedImage(0);
-    setSelectedSize('');
-    setSelectedColor('');
+    setSelected({});
     setQuantity(1);
     setTab('description');
     setReviewPayload(null);
@@ -99,42 +100,43 @@ export default function ProductDetailPage({ initialProduct }) {
     return () => { active = false; };
   }, [product?.slug, reviewTick]);
 
-  const variantList = product?.variants || [];
-  const sizes = useMemo(
-    () => [...new Set(variantList.map((variant) => variant.size))].filter(Boolean),
-    [variantList],
-  );
-  const colors = useMemo(
-    () => [...new Set(
-      variantList
-        .filter((variant) => !selectedSize || variant.size === selectedSize)
-        .map((variant) => variant.color),
-    )].filter(Boolean),
-    [variantList, selectedSize],
-  );
-  const colorChoices = useMemo(
-    () => (colors.length ? colors : (product?.color ? [product.color] : [])),
-    [colors, product?.color],
-  );
+  const variantList = useMemo(() => product?.variants || [], [product]);
+  const groups = useMemo(() => selectionGroups(product), [product]);
+  const shownGroups = useMemo(() => groups.map((group) => {
+    const labels = availableLabels(group, groups, variantList, selected);
+    return {
+      ...group,
+      values: group.values.filter((value) => labels.includes(value.label)),
+    };
+  }), [groups, variantList, selected]);
 
   useEffect(() => {
-    if (selectedColor && colorChoices.includes(selectedColor)) return;
-    if (colorChoices.length) setSelectedColor(colorChoices[0]);
-  }, [colorChoices, selectedColor]);
+    setSelected((current) => {
+      const next = {};
+      groups.forEach((group) => {
+        const labels = availableLabels(group, groups, variantList, current);
+        const previous = current[group.name];
+        if (previous && labels.includes(previous)) next[group.name] = previous;
+        else if (labels.length === 1) next[group.name] = labels[0];
+        else if (group.kind === 'swatch' && group.name.toLowerCase() === 'color' && labels[0]) next[group.name] = labels[0];
+      });
+      const unchanged = Object.keys(current).length === Object.keys(next).length
+        && Object.keys(next).every((name) => current[name] === next[name]);
+      return unchanged ? current : next;
+    });
+  }, [groups, variantList]);
 
-  const selectionReady = (!sizes.length || Boolean(selectedSize)) && (!colorChoices.length || Boolean(selectedColor));
-  const matchedVariant = selectionReady
-    ? variantList.find((variant) => (
-      (!sizes.length || variant.size === selectedSize)
-      && (!colorChoices.length || variant.color === selectedColor)
-    ))
-    : null;
-  const stockLimit = matchedVariant
-    ? Number(matchedVariant.stock_quantity)
+  const chosen = useMemo(
+    () => matchedVariant(groups, variantList, selected),
+    [groups, variantList, selected],
+  );
+  const selectionReady = groups.filter((group) => group.required).every((group) => selected[group.name]);
+  const stockLimit = chosen
+    ? Number(chosen.stock_quantity)
     : selectionReady
       ? Number(product?.stock_quantity || 0)
       : variantList.reduce((max, variant) => Math.max(max, Number(variant.stock_quantity) || 0), 0);
-  const displayPrice = matchedVariant?.effective_price || matchedVariant?.price || product?.price;
+  const displayPrice = chosen?.effective_price || chosen?.price || product?.price;
   const comparePrice = product?.compare_price === null || product?.compare_price === undefined || product?.compare_price === ''
     ? null
     : Number(product.compare_price);
@@ -147,8 +149,8 @@ export default function ProductDetailPage({ initialProduct }) {
   const outOfStock = variantList.length > 0
     ? (selectionReady ? !stockLimit : product?.is_out_of_stock)
     : product?.is_out_of_stock;
-  const lowStock = matchedVariant
-    ? stockLimit > 0 && stockLimit <= Number(matchedVariant.low_stock_threshold || 0)
+  const lowStock = chosen
+    ? stockLimit > 0 && stockLimit <= Number(chosen.low_stock_threshold || 0)
     : Boolean(product?.is_low_stock) && !outOfStock;
   const stockState = outOfStock ? 'out' : lowStock ? 'low' : 'in';
 
@@ -162,13 +164,25 @@ export default function ProductDetailPage({ initialProduct }) {
     if (stockLimit > 0 && quantity > stockLimit) setQuantity(stockLimit);
   }, [stockLimit, quantity]);
 
+  const chooseOption = (name, label) => {
+    setSelected((current) => {
+      const next = { ...current, [name]: label };
+      groups.forEach((group) => {
+        if (group.name === name) return;
+        const labels = availableLabels(group, groups, variantList, next);
+        if (next[group.name] && !labels.includes(next[group.name])) {
+          next[group.name] = labels.length === 1 ? labels[0] : '';
+        }
+      });
+      return next;
+    });
+    setQuantity(1);
+  };
+
   const submitCart = (checkout) => {
-    if (sizes.length > 0 && !selectedSize) {
-      toast.error('Please select a size');
-      return;
-    }
-    if (colorChoices.length > 0 && !selectedColor) {
-      toast.error('Please select a color');
+    const missing = groups.find((group) => group.required && !selected[group.name]);
+    if (missing) {
+      toast.error(`Choose a ${missing.name.toLowerCase()}`);
       return;
     }
     if (!stockLimit) {
@@ -178,7 +192,7 @@ export default function ProductDetailPage({ initialProduct }) {
     setPending(checkout ? 'buy' : 'cart');
     dispatch(addToCart({
       product_id: product.id,
-      variant_id: matchedVariant?.id || null,
+      variant_id: chosen?.id || null,
       quantity: Math.min(quantity, stockLimit),
     }))
       .unwrap()
@@ -213,9 +227,15 @@ export default function ProductDetailPage({ initialProduct }) {
     }, 40);
   };
 
-  const seoTitle = product ? `${product.name} - PickOrbeet` : 'Product - PickOrbeet';
+  const pricePoints = product ? offerPrices(product) : [];
+  const seoTitle = product ? productPriceTitle(product.name) : 'Product - PickOrbeet';
   const seoDescription = product
-    ? (product.short_description || product.description?.replace(/<[^>]*>/g, '')?.slice(0, 160) || `Buy ${product.name} at PickOrbeet.`)
+    ? productPriceDescription({
+      name: product.name,
+      price: displayPrice,
+      inStock: !product.is_out_of_stock,
+      summary: product.short_description || product.description,
+    })
     : siteConfig.description;
   const productImage = product?.primary_image || product?.images?.[0]?.image || null;
   const absoluteProductImage = productImage ? getAbsoluteImageUrl(productImage) : '';
@@ -223,7 +243,7 @@ export default function ProductDetailPage({ initialProduct }) {
     ? buildOgImageUrl({
       title: product.name,
       eyebrow: product.category?.name,
-      price: product.price,
+      price: displayPrice,
       image: absoluteProductImage,
     })
     : undefined;
@@ -231,16 +251,28 @@ export default function ProductDetailPage({ initialProduct }) {
     ? {
       name: product.name,
       description: seoDescription,
-      price: product.price,
+      price: displayPrice,
+      prices: pricePoints.length ? pricePoints : [displayPrice],
       sku: product.sku,
+      brand: productBrand(product),
+      rating_average: product.rating_average,
+      review_count: product.review_count,
       in_stock: !product.is_out_of_stock,
-      images: product.images?.map((img) => getAbsoluteImageUrl(img.image)) || [seoImage],
+      images: product.images?.map((img) => getAbsoluteImageUrl(img.image)).filter(Boolean) || [],
+      breadcrumbs: [
+        { name: 'Home', path: '/' },
+        product.category?.name ? { name: product.category.name, path: `/category/${product.category.slug}` } : null,
+        product.subcategory?.name && product.category?.slug
+          ? { name: product.subcategory.name, path: `/category/${product.category.slug}/${product.subcategory.slug}` }
+          : null,
+        { name: product.name, path: `/product/${product.slug}` },
+      ].filter(Boolean),
     }
     : null;
 
   if (!product && phase === 'error') {
     return (
-      <Layout title="Product - Pickorbeet">
+      <Layout title="Product - PickOrbeet" noindex>
         <div className="min-h-full bg-[#F4F7FC]">
           <div className="container-custom py-16 text-center">
             <h1 className="text-xl font-bold text-charcoal-900">Product not found</h1>
@@ -256,7 +288,7 @@ export default function ProductDetailPage({ initialProduct }) {
 
   if (!product) {
     return (
-      <Layout title="Product - Pickorbeet">
+      <Layout title="Product - PickOrbeet" noindex>
         <ProductDetailSkeleton />
       </Layout>
     );
@@ -305,6 +337,7 @@ export default function ProductDetailPage({ initialProduct }) {
                 selected={Math.min(selectedImage, images.length - 1)}
                 onSelect={setSelectedImage}
                 discount={discount}
+                official={Boolean(product.is_official)}
                 saved={saved}
                 onToggleSaved={toggleSaved}
               />
@@ -317,19 +350,9 @@ export default function ProductDetailPage({ initialProduct }) {
                 comparePrice={comparePrice}
                 savedAmount={savedAmount}
                 discount={discount}
-                colors={colorChoices}
-                sizes={sizes}
-                selectedColor={selectedColor}
-                selectedSize={selectedSize}
-                onColor={(color) => {
-                  setSelectedColor(color);
-                  setQuantity(1);
-                }}
-                onSize={(size) => {
-                  setSelectedSize(size);
-                  setSelectedColor('');
-                  setQuantity(1);
-                }}
+                groups={shownGroups}
+                selected={selected}
+                onSelect={chooseOption}
                 quantity={quantity}
                 onQuantity={setQuantity}
                 stockLimit={stockLimit}
@@ -379,19 +402,12 @@ export default function ProductDetailPage({ initialProduct }) {
 
 export async function getServerSideProps(context) {
   const { slug } = context.params;
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://server.pickorbeet.com/api/v1';
 
   try {
-    const res = await fetch(`${API_BASE_URL}/products/${slug}/`, {
-      headers: { 'Content-Type': 'application/json' },
-    });
-
-    if (!res.ok) {
-      return { props: { initialProduct: null } };
-    }
-
-    const product = await res.json();
-    return { props: { initialProduct: product } };
+    const result = await fetchApi(`/products/${encodeURIComponent(slug)}/`);
+    if (result.status === 404) return { notFound: true };
+    if (!result.ok) return { props: { initialProduct: null } };
+    return { props: { initialProduct: serializable(result.data) } };
   } catch (error) {
     return { props: { initialProduct: null } };
   }

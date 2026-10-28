@@ -12,6 +12,8 @@ import { useBootGate } from '@/components/loading/LoadingProvider';
 import CatalogControls, { catalogQuery } from '@/components/catalog/CatalogControls';
 import { fetchProducts } from '@/store/slices/productsSlice';
 import { buildOgImageUrl, getAbsoluteImageUrl, getMediaUrl } from '@/lib/siteConfig';
+import { buildListingJsonLd, categoryPriceDescription, categoryPriceTitle } from '@/lib/seo';
+import { fetchApi, productRows, serializable } from '@/lib/serverApi';
 
 const getImageUrl = (url) => getMediaUrl(url, '/images/placeholder-category.png');
 
@@ -21,7 +23,7 @@ function orderedSubcategories(category) {
     .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
 }
 
-export default function CategoryPage({ initialCategory }) {
+export default function CategoryPage({ initialCategory, initialProducts = [] }) {
   const router = useRouter();
   const { slug } = router.query;
   const dispatch = useDispatch();
@@ -30,8 +32,8 @@ export default function CategoryPage({ initialCategory }) {
   const [onSale, setOnSale] = useState(false);
 
   const { categories, categoriesLoading } = useSelector((state) => state.products);
-  const [listed, setListed] = useState([]);
-  const [listState, setListState] = useState('loading');
+  const [listed, setListed] = useState(initialProducts);
+  const [listState, setListState] = useState(initialProducts.length ? 'ready' : 'loading');
   const storedCategory = categories.find((item) => item.slug === slug);
   const category = storedCategory || (initialCategory?.slug === slug ? initialCategory : null);
   const subcategories = orderedSubcategories(category);
@@ -47,12 +49,18 @@ export default function CategoryPage({ initialCategory }) {
   useEffect(() => {
     if (!slug || !category) return undefined;
     if (hasSubcategories && !activeSubcategory) {
+      setListed(initialProducts);
       setListState('ready');
       return undefined;
     }
     let active = true;
-    setListed([]);
-    setListState('loading');
+    const matchesInitial = !onSale && ordering === '-created_at' && (
+      (!hasSubcategories && !activeSubcategory) || activeSubcategory === 'all'
+    ) && initialProducts.length > 0;
+    if (!matchesInitial) {
+      setListed([]);
+      setListState('loading');
+    }
     const viewingSubcategory = activeSubcategory && activeSubcategory !== 'all';
     dispatch(fetchProducts(catalogQuery({
       categorySlug: viewingSubcategory ? undefined : slug,
@@ -69,7 +77,7 @@ export default function CategoryPage({ initialCategory }) {
       })
       .catch(() => { if (active) setListState('error'); });
     return () => { active = false; };
-  }, [dispatch, slug, category, hasSubcategories, activeSubcategory, ordering, onSale]);
+  }, [dispatch, slug, category, hasSubcategories, activeSubcategory, ordering, onSale, initialProducts]);
 
   useEffect(() => {
     if (!slug || category || categoriesLoading) return;
@@ -84,10 +92,25 @@ export default function CategoryPage({ initialCategory }) {
     setActiveSubcategory(null);
   };
 
+  const listingName = category?.name || 'Category';
+  const schemaProducts = hasSubcategories && !activeSubcategory ? initialProducts : listed;
+  const listingJsonLd = category?.name && slug
+    ? buildListingJsonLd({
+      name: listingName,
+      path: `/category/${slug}`,
+      products: schemaProducts,
+      breadcrumbs: [
+        { name: 'Home', path: '/' },
+        { name: listingName, path: `/category/${slug}` },
+      ],
+    })
+    : null;
+
   return (
     <Layout
-      title={`${category?.name || 'Category'} - PickOrbeet`}
-      description={category?.tagline || `Shop ${category?.name || 'products'} at PickOrbeet. Original products with fast delivery across Bangladesh.`}
+      title={categoryPriceTitle(listingName)}
+      description={categoryPriceDescription(listingName, category?.tagline || category?.description)}
+      jsonLd={listingJsonLd}
       image={category?.name ? buildOgImageUrl({
         title: category.name,
         eyebrow: 'Shop',
@@ -104,13 +127,12 @@ export default function CategoryPage({ initialCategory }) {
             <span className="font-medium text-charcoal-900">{category?.name || 'Category'}</span>
           </nav>
           <h1 className="text-2xl font-bold text-charcoal-900 md:text-3xl">
-            {category?.name || 'Category'}
+            {listingName}
           </h1>
-          {category?.tagline && (
-            <p className="mt-1 max-w-2xl text-sm text-charcoal-600 md:text-base">
-              {category.tagline}
-            </p>
-          )}
+          <p className="mt-1 max-w-2xl text-sm text-charcoal-600 md:text-base">
+            {category?.tagline ? `${category.tagline}. ` : ''}
+            Compare {listingName} prices in Bangladesh.
+          </p>
         </div>
       </section>
 
@@ -118,7 +140,7 @@ export default function CategoryPage({ initialCategory }) {
         <div className="container-custom pt-4">
           <img
             src={getImageUrl(category.banner_image)}
-            alt=""
+            alt={listingName}
             className="aspect-[3/1] w-full rounded-xl object-cover"
           />
         </div>
@@ -161,7 +183,7 @@ export default function CategoryPage({ initialCategory }) {
                     <span className="block aspect-[4/3] overflow-hidden bg-[#F5F7FC]">
                       <img
                         src={getImageUrl(sub.image)}
-                        alt=""
+                        alt={sub.name}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                         onError={(e) => {
                           e.target.src = '/images/placeholder-category.png';
@@ -178,6 +200,21 @@ export default function CategoryPage({ initialCategory }) {
                 </motion.div>
               ))}
             </div>
+          </div>
+        </section>
+      )}
+
+      {hasSubcategories && !activeSubcategory && initialProducts.length > 0 && (
+        <section className="pb-8" aria-labelledby="category-prices">
+          <div className="container-custom">
+            <h2 id="category-prices" className="mb-4 text-lg font-bold text-charcoal-900 md:text-xl">
+              {listingName} prices
+            </h2>
+            <ProductGrid>
+              {initialProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </ProductGrid>
           </div>
         </section>
       )}
@@ -251,15 +288,8 @@ export default function CategoryPage({ initialCategory }) {
                   </p>
                 </div>
                 <ProductGrid>
-                  {listed.map((product, index) => (
-                    <motion.div
-                      key={product.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.03 }}
-                    >
-                      <ProductCard product={product} />
-                    </motion.div>
+                  {listed.map((product) => (
+                    <ProductCard key={product.id} product={product} />
                   ))}
                 </ProductGrid>
               </>
@@ -291,18 +321,23 @@ export default function CategoryPage({ initialCategory }) {
 
 export async function getServerSideProps(context) {
   const { slug } = context.params;
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://server.pickorbeet.com/api/v1';
 
   try {
-    const res = await fetch(`${API_BASE_URL}/products/categories/${slug}/`, {
-      headers: { 'Content-Type': 'application/json' },
-    });
-
-    if (!res.ok) return { props: { initialCategory: null } };
-
-    const category = await res.json();
-    return { props: { initialCategory: category } };
+    const [categoryResult, productResult] = await Promise.all([
+      fetchApi(`/products/categories/${encodeURIComponent(slug)}/`),
+      fetchApi(`/products/?category_slug=${encodeURIComponent(slug)}&ordering=-created_at`),
+    ]);
+    if (categoryResult.status === 404) return { notFound: true };
+    if (!categoryResult.ok) {
+      return { props: { initialCategory: null, initialProducts: [] } };
+    }
+    return {
+      props: {
+        initialCategory: serializable(categoryResult.data),
+        initialProducts: serializable(productRows(productResult.data)),
+      },
+    };
   } catch (error) {
-    return { props: { initialCategory: null } };
+    return { props: { initialCategory: null, initialProducts: [] } };
   }
 }

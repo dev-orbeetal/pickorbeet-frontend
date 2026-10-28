@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import siteConfig, { shareImageSpec } from '@/lib/siteConfig';
+import { buildProductStructuredData, buildSiteJsonLd, schemaPrice } from '@/lib/seo';
 
 function cleanText(value, max) {
   const text = String(value || '')
@@ -53,62 +54,17 @@ export default function SEO({
   const spec = shareImageSpec(seo.image);
   const secureImage = seo.image.startsWith('https://') ? seo.image : null;
 
+  const priceAmount = product ? schemaPrice(product.price) : null;
   const productJsonLd = product
-    ? {
-        '@context': 'https://schema.org',
-        '@type': 'Product',
-        name: product.name,
-        description: product.description || product.short_description || seo.description,
-        image: product.images || [seo.image],
-        sku: product.sku || undefined,
-        brand: {
-          '@type': 'Brand',
-          name: siteConfig.name,
-        },
-        offers: {
-          '@type': 'Offer',
-          url: seo.url,
-          priceCurrency: siteConfig.currency,
-          price: product.price,
-          availability: product.in_stock
-            ? 'https://schema.org/InStock'
-            : 'https://schema.org/OutOfStock',
-          seller: {
-            '@type': 'Organization',
-            name: siteConfig.name,
-          },
-        },
-      }
+    ? buildProductStructuredData({
+      ...product,
+      description: product.description || product.short_description || seo.description,
+      images: product.images?.length ? product.images : [seo.image],
+      prices: product.prices?.length ? product.prices : [product.price],
+    }, seo.url)
     : null;
 
-  const siteJsonLd = {
-    '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type': 'Organization',
-        name: siteConfig.name,
-        url: siteConfig.siteUrl,
-        logo: {
-          '@type': 'ImageObject',
-          url: `${siteConfig.siteUrl}${siteConfig.mark}`,
-          width: 512,
-          height: 512,
-        },
-      },
-      {
-        '@type': 'WebSite',
-        name: siteConfig.name,
-        url: siteConfig.siteUrl,
-        potentialAction: {
-          '@type': 'SearchAction',
-          target: `${siteConfig.siteUrl}/products?search={search_term_string}`,
-          'query-input': 'required name=search_term_string',
-        },
-      },
-    ],
-  };
-
-  const structuredData = jsonLd || productJsonLd || (router.pathname === '/' ? siteJsonLd : null);
+  const structuredData = jsonLd || productJsonLd || (router.pathname === '/' ? buildSiteJsonLd() : null);
 
   return (
     <Head>
@@ -146,13 +102,13 @@ export default function SEO({
 
       {product && (
         <>
-          <meta property="product:price:amount" content={product.price} />
+          {priceAmount && <meta property="product:price:amount" content={priceAmount} />}
           <meta property="product:price:currency" content={siteConfig.currency} />
           <meta
             property="product:availability"
             content={product.in_stock ? 'in stock' : 'out of stock'}
           />
-          <meta property="product:brand" content={siteConfig.name} />
+          <meta property="product:brand" content={product.brand || siteConfig.name} />
         </>
       )}
 

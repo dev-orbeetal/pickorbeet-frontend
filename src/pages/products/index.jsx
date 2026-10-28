@@ -8,6 +8,8 @@ import ProductGrid from '@/components/products/ProductGrid';
 import ProductGridSkeleton from '@/components/loading/ProductGridSkeleton';
 import { useBootGate } from '@/components/loading/LoadingProvider';
 import { fetchProducts } from '@/store/slices/productsSlice';
+import { buildListingJsonLd, catalogFiltersActive, categoryPriceDescription, categoryPriceTitle, productPriceTitle } from '@/lib/seo';
+import { fetchApi, productRows, serializable } from '@/lib/serverApi';
 
 // Build query params object from filters, skipping empty values
 function buildQuery(filters) {
@@ -47,7 +49,7 @@ const defaultFilters = {
   ordering: '-created_at',
 };
 
-export default function ProductsPage() {
+export default function ProductsPage({ initialProducts = [], initialCount = 0 }) {
   const router = useRouter();
   const dispatch = useDispatch();
   const { products, categories, loading, pagination } = useSelector((state) => state.products);
@@ -149,22 +151,38 @@ export default function ProductsPage() {
   }, [filters, applyFilters]);
 
   const hasActiveFilters = Boolean(filters.search || filters.on_sale) || filters.category.length > 0 || filters.size.length > 0 || filters.min_price || filters.max_price;
+  const filtered = catalogFiltersActive(router.query);
+  const searchLabel = Array.isArray(router.query.search) ? router.query.search[0] : router.query.search;
+  const visibleProducts = products.length > 0 ? products : (filtered ? [] : initialProducts);
+  const resultCount = listState === 'ready' ? pagination.count : (initialCount || visibleProducts.length);
   const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'FREE'];
 
   return (
     <Layout
-      title="Shop All Products - Pickorbeet"
-      description="Browse our complete collection of premium Borkha, Hijab, Abaya, Niqab and modest fashion. Filter by category, size, and price."
+      title={searchLabel ? productPriceTitle(searchLabel) : categoryPriceTitle('All Products')}
+      description={searchLabel
+        ? `Prices for ${searchLabel} in Bangladesh at PickOrbeet, with delivery across Bangladesh.`
+        : categoryPriceDescription('everyday essentials', 'Shop electronics, fashion, home, and beauty.')}
+      noindex={filtered}
+      jsonLd={!filtered && initialProducts.length ? buildListingJsonLd({
+        name: 'All products',
+        path: '/products',
+        products: initialProducts,
+        breadcrumbs: [
+          { name: 'Home', path: '/' },
+          { name: 'All products', path: '/products' },
+        ],
+      }) : null}
     >
       <div className="container-custom py-4 md:py-8">
         {/* Header */}
         <div className="mb-3 flex flex-col md:mb-8 md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-3xl font-display font-bold text-secondary-900 mb-2">
-              All Products
+              All products in Bangladesh
             </h1>
             <p className="text-secondary-600">
-              {filters.search ? `Results for “${filters.search}” · ` : ''}{pagination.count} products found
+              {filters.search ? `Results for “${filters.search}” · ` : ''}{resultCount} products found
             </p>
           </div>
 
@@ -321,9 +339,9 @@ export default function ProductsPage() {
 
           {/* Products Grid */}
           <div className="flex-1">
-            {listState === 'loading' && products.length === 0 ? (
+            {listState === 'loading' && visibleProducts.length === 0 ? (
               <ProductGridSkeleton sidebar count={6} />
-            ) : listState === 'error' && products.length === 0 ? (
+            ) : listState === 'error' && visibleProducts.length === 0 ? (
               <div className="py-16 text-center">
                 <p className="text-lg text-secondary-600">Couldn&apos;t load products. Please try again.</p>
                 <button
@@ -342,9 +360,9 @@ export default function ProductsPage() {
                   Try again
                 </button>
               </div>
-            ) : products.length > 0 ? (
+            ) : visibleProducts.length > 0 ? (
               <ProductGrid sidebar className={`transition-opacity duration-200 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
-                {products.map((product) => (
+                {visibleProducts.map((product) => (
                   <div key={product.id}>
                     <ProductCard product={product} />
                   </div>
@@ -366,4 +384,23 @@ export default function ProductsPage() {
       </div>
     </Layout>
   );
+}
+
+export async function getServerSideProps(context) {
+  if (catalogFiltersActive(context.query)) {
+    return { props: { initialProducts: [], initialCount: 0 } };
+  }
+  try {
+    const result = await fetchApi('/products/?ordering=-created_at');
+    const rows = productRows(result.data);
+    const count = Number(result.data?.count);
+    return {
+      props: {
+        initialProducts: serializable(rows),
+        initialCount: Number.isFinite(count) ? count : rows.length,
+      },
+    };
+  } catch (error) {
+    return { props: { initialProducts: [], initialCount: 0 } };
+  }
 }

@@ -125,7 +125,7 @@ export default function VerifyEmailPage() {
 
   if (!email && router.isReady) {
     return (
-      <Layout title="Verify Email - Pickorbeet">
+      <Layout title="Verify Email - PickOrbeet" noindex>
         <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
           <div className="text-center">
             <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
@@ -144,7 +144,7 @@ export default function VerifyEmailPage() {
   }
 
   return (
-    <Layout title="Verify Email - Pickorbeet">
+    <Layout title="Verify Email - PickOrbeet" noindex>
       <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

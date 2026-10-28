@@ -18,7 +18,8 @@ const SWATCHES = {
   silver: '#C5CDD8',
 };
 
-export function swatchHex(name) {
+export function swatchHex(name, explicit) {
+  if (/^#[0-9A-Fa-f]{6}$/.test(explicit || '')) return explicit;
   const key = String(name || '').trim().toLowerCase();
   return SWATCHES[key] || null;
 }

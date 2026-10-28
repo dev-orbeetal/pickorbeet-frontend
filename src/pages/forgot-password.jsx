@@ -29,7 +29,7 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <Layout title="Reset password - PickOrbeet">
+    <Layout title="Reset password - PickOrbeet" noindex>
       <AuthShell
         title={sent ? 'Check your email' : 'Reset your password'}
         subtitle={sent

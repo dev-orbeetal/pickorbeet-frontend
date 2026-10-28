@@ -58,7 +58,7 @@ export default function WishlistPage() {
   }, [hydrated, ids, reloadKey]);
 
   return (
-    <Layout title="Wishlist - PickOrbeet" description="Products you saved on PickOrbeet.">
+    <Layout title="Wishlist - PickOrbeet" description="Products you saved on PickOrbeet." noindex>
       <div className="container-custom py-5 sm:py-8">
         <h1 className="text-xl font-bold text-charcoal-900 sm:text-2xl">Wishlist</h1>
         <p className="mt-1 text-sm text-charcoal-500">

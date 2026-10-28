@@ -17,8 +17,6 @@ export default function Document() {
         <meta name="apple-mobile-web-app-title" content="PickOrbeet" />
         <meta name="application-name" content="PickOrbeet" />
 
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://server.pickorbeet.com" />
       </Head>
       <body>

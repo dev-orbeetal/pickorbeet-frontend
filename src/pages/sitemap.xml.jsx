@@ -1,102 +1,82 @@
 /**
- * Dynamic sitemap.xml generation.
- * Fetches all products and categories from the API and generates a sitemap.
+ * Sitemap of public pages, categories, and every active product.
  */
+import siteConfig from '@/lib/siteConfig';
+import { loadCatalogIndex, xmlEscape } from '@/lib/serverApi';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://pickorbeet.com';
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://server.pickorbeet.com/api/v1';
+const STATIC_PAGES = [
+  { path: '/', changefreq: 'daily', priority: '1.0' },
+  { path: '/products', changefreq: 'daily', priority: '0.9' },
+  { path: '/about', changefreq: 'monthly', priority: '0.5' },
+  { path: '/contact', changefreq: 'monthly', priority: '0.5' },
+  { path: '/track-order', changefreq: 'monthly', priority: '0.4' },
+  { path: '/terms', changefreq: 'yearly', priority: '0.3' },
+  { path: '/privacy', changefreq: 'yearly', priority: '0.3' },
+  { path: '/returns', changefreq: 'yearly', priority: '0.3' },
+];
+
+function absolute(path) {
+  if (path === '/') return `${siteConfig.siteUrl}/`;
+  return `${siteConfig.siteUrl}${path}`;
+}
+
+function lastmod(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toISOString().slice(0, 10);
+}
+
+function urlEntry({ path, modified, changefreq, priority }) {
+  const stamp = lastmod(modified);
+  return `  <url>
+    <loc>${xmlEscape(absolute(path))}</loc>${stamp ? `
+    <lastmod>${stamp}</lastmod>` : ''}
+    <changefreq>${changefreq}</changefreq>
+    <priority>${priority}</priority>
+  </url>`;
+}
 
 function generateSiteMap(products, categories) {
+  const urls = [
+    ...STATIC_PAGES.map((page) => urlEntry(page)),
+    ...categories.flatMap((category) => [
+      urlEntry({
+        path: `/category/${encodeURIComponent(category.slug)}`,
+        modified: category.updated_at,
+        changefreq: 'weekly',
+        priority: '0.8',
+      }),
+      ...(category.subcategories || []).map((sub) => urlEntry({
+        path: `/category/${encodeURIComponent(category.slug)}/${encodeURIComponent(sub.slug)}`,
+        modified: sub.updated_at,
+        changefreq: 'weekly',
+        priority: '0.7',
+      })),
+    ]),
+    ...products.map((product) => urlEntry({
+      path: `/product/${encodeURIComponent(product.slug)}`,
+      modified: product.updated_at,
+      changefreq: 'weekly',
+      priority: '0.8',
+    })),
+  ];
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- Static Pages -->
-  <url>
-    <loc>${SITE_URL}</loc>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>${SITE_URL}/products</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>${SITE_URL}/about</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>${SITE_URL}/contact</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-
-  <!-- Category Pages -->
-  ${categories
-    .map(
-      (cat) => `
-  <url>
-    <loc>${SITE_URL}/category/${cat.slug}</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>${
-    cat.subcategories
-      ?.map(
-        (sub) => `
-  <url>
-    <loc>${SITE_URL}/category/${cat.slug}/${sub.slug}</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>`
-      )
-      .join('') || ''
-  }`
-    )
-    .join('')}
-
-  <!-- Product Pages -->
-  ${products
-    .map(
-      (product) => `
-  <url>
-    <loc>${SITE_URL}/product/${product.slug}</loc>
-    <lastmod>${product.updated_at ? new Date(product.updated_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>`
-    )
-    .join('')}
+${urls.join('\n')}
 </urlset>`;
 }
 
 export default function SiteMap() {
-  // getServerSideProps handles the response
+  return null;
 }
 
 export async function getServerSideProps({ res }) {
-  let products = [];
-  let categories = [];
-
-  try {
-    const [productsRes, categoriesRes] = await Promise.all([
-      fetch(`${API_BASE_URL}/products/?page_size=1000`),
-      fetch(`${API_BASE_URL}/products/categories/`),
-    ]);
-
-    if (productsRes.ok) {
-      const data = await productsRes.json();
-      products = data.results || data || [];
-    }
-    if (categoriesRes.ok) {
-      categories = await categoriesRes.json();
-    }
-  } catch (error) {
-    // Silently fail — return sitemap with static pages only
-  }
-
+  const { products, categories } = await loadCatalogIndex();
   const sitemap = generateSiteMap(products, categories);
 
-  res.setHeader('Content-Type', 'text/xml');
+  res.setHeader('Content-Type', 'text/xml; charset=utf-8');
   res.setHeader('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate');
   res.write(sitemap);
   res.end();

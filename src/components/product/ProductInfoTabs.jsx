@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useSelector } from 'react-redux';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { Star } from 'lucide-react';
+import { ShieldCheck, Star } from 'lucide-react';
 import { productsAPI } from '@/lib/api';
 import Stars from '@/components/product/Stars';
 
@@ -203,6 +203,7 @@ export default function ProductInfoTabs({
 }) {
   const reduce = useReducedMotion();
   const copy = aboutCopy(product);
+  const warranty = String(product.warranty_period || '').trim();
   const results = reviews?.results || [];
   const mine = reviews?.mine || null;
 
@@ -215,6 +216,18 @@ export default function ProductInfoTabs({
           <div className="mt-3">
             <DescriptionBody value={copy.body} />
           </div>
+          {warranty && (
+            <section className="mt-5 rounded-xl border border-[#D6E4FF] bg-[#F4F8FF] p-4">
+              <h3 className="flex items-center gap-2 text-sm font-semibold text-[#172033]">
+                <ShieldCheck className="h-4 w-4 text-[#2864E8]" aria-hidden="true" />
+                Warranty
+              </h3>
+              <p className="mt-2 text-base font-semibold text-[#172033]">{warranty}</p>
+              <p className="mt-1 text-sm leading-relaxed text-[#525E70]">
+                Covered for {warranty} from the day the order is delivered, for manufacturing defects. Keep the invoice if you need to make a claim.
+              </p>
+            </section>
+          )}
         </div>
         <div className="lg:border-l lg:border-[#EEF2F7] lg:pl-6">
           <SpecTable rows={rows} />
