@@ -1,11 +1,8 @@
-import { useState } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { useSelector } from 'react-redux';
+import { motion, useReducedMotion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import {
-  Banknote, Check, CreditCard, MapPin, Minus, Package, Plus, Share2, ShieldCheck, ShoppingCart, Zap,
+  Check, CreditCard, Minus, Package, Plus, Share2, ShieldCheck, ShoppingCart, Zap,
 } from 'lucide-react';
-import { matchesInsideDhaka, money } from '@/lib/delivery';
 import { swatchHex } from '@/lib/colorSwatch';
 import Stars from '@/components/product/Stars';
 import { productEase } from '@/components/product/motion';
@@ -47,10 +44,6 @@ export default function ProductPurchase({
   flat = false,
 }) {
   const reduce = useReducedMotion();
-  const { deliveryInside, deliveryOutside } = useSelector((state) => state.cart);
-  const [area, setArea] = useState('');
-  const [deliveryResult, setDeliveryResult] = useState(null);
-  const [deliveryError, setDeliveryError] = useState('');
 
   const eyebrow = [product.category?.name, product.subcategory?.name].filter(Boolean).join(' / ');
   const ratingLabel = reviewCount > 0 && average != null
@@ -75,22 +68,6 @@ export default function ProductPurchase({
         toast.error('Could not share');
       }
     }
-  };
-
-  const checkDelivery = (event) => {
-    event.preventDefault();
-    const query = area.trim();
-    if (!query) {
-      setDeliveryResult(null);
-      setDeliveryError('Enter an area or postal code');
-      return;
-    }
-    const inside = matchesInsideDhaka(query);
-    const charge = Number(inside ? deliveryInside : deliveryOutside);
-    const place = inside ? 'Inside Dhaka' : 'Outside Dhaka';
-    const fee = Number.isFinite(charge) && charge > 0 ? ` · ৳${money(charge)}` : '';
-    setDeliveryError('');
-    setDeliveryResult(`Delivery available · ${place}${fee}. Cash on delivery.`);
   };
 
   const shell = flat
@@ -279,50 +256,6 @@ export default function ProductPurchase({
           </li>
         ))}
       </ul>
-
-      <div className={`mt-4 ${flat ? 'rounded-2xl border border-[#E6ECF5] bg-white p-3' : 'border-t border-[#EEF2F7] pt-4'}`}>
-        <p className="flex items-center gap-1.5 text-sm font-bold text-[#172033]">
-          <MapPin className="h-4 w-4 text-[#2864E8]" aria-hidden="true" />
-          Check delivery availability
-        </p>
-        <form onSubmit={checkDelivery} className="mt-2.5 flex flex-wrap items-stretch gap-2">
-          <input
-            type="text"
-            value={area}
-            onChange={(event) => setArea(event.target.value)}
-            placeholder="Enter your area or postal code"
-            aria-label="Area or postal code"
-            className="h-10 min-w-0 flex-1 rounded-lg border border-[#E6ECF5] px-3 text-[13px] text-[#172033] outline-none placeholder:text-[#8B95A7] focus-visible:ring-2 focus-visible:ring-[#2864E8]"
-          />
-          <button
-            type="submit"
-            className="h-10 rounded-lg bg-[#2864E8] px-3.5 text-[13px] font-bold text-white hover:bg-[#1F56D0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8] focus-visible:ring-offset-2"
-          >
-            Check
-          </button>
-          <div className="inline-flex items-center gap-1 rounded-lg border border-[#D7F0E4] bg-[#E7F6EE] px-2 py-1">
-            <Banknote className="h-3.5 w-3.5 shrink-0 text-[#16835B]" aria-hidden="true" />
-            <span>
-              <span className="block text-[10px] font-bold leading-[1.15] text-[#16835B]">Cash on Delivery</span>
-              <span className="block text-[9px] leading-[1.15] text-[#8B95A7]">Pay when you receive</span>
-            </span>
-          </div>
-        </form>
-        <AnimatePresence initial={false}>
-          {(deliveryError || deliveryResult) && (
-            <motion.p
-              key={deliveryError || deliveryResult}
-              initial={reduce ? false : { opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={reduce ? undefined : { opacity: 0, height: 0 }}
-              transition={{ duration: reduce ? 0 : 0.2, ease: productEase }}
-              className={`overflow-hidden text-[13px] font-semibold ${deliveryError ? 'text-red-600' : 'text-[#16835B]'}`}
-            >
-              <span className="mt-2 block">{deliveryError || deliveryResult}</span>
-            </motion.p>
-          )}
-        </AnimatePresence>
-      </div>
     </div>
   );
 }
