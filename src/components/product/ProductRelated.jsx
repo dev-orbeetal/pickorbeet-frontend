@@ -19,7 +19,7 @@ function taka(value) {
   return `৳${Math.round(amount).toLocaleString()}`;
 }
 
-function RelatedCard({ product }) {
+function RelatedCard({ product, compact = false }) {
   const reduce = useReducedMotion();
   const dispatch = useDispatch();
   const router = useRouter();
@@ -79,9 +79,9 @@ function RelatedCard({ product }) {
 
   return (
     <motion.article
-      whileHover={reduce ? undefined : { y: -2 }}
+      whileHover={reduce || compact ? undefined : { y: -2 }}
       transition={{ duration: 0.2 }}
-      className="group flex h-full flex-col"
+      className={`group flex h-full flex-col ${compact ? 'w-[140px] shrink-0' : ''}`}
     >
       <div className="relative">
         <Link href={`/product/${product.slug}`} className="block overflow-hidden rounded-md bg-[#F7F9FC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8]">
@@ -106,7 +106,7 @@ function RelatedCard({ product }) {
           onClick={wishlist}
           aria-pressed={saved}
           aria-label={saved ? 'Remove from wishlist' : 'Add to wishlist'}
-          className={`absolute right-1 flex h-11 w-11 items-center justify-center text-[#687386] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8] lg:h-7 lg:w-7 ${place.heartTop}`}
+          className={`absolute right-1 flex items-center justify-center text-[#687386] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8] ${compact ? 'h-7 w-7' : 'h-11 w-11 lg:h-7 lg:w-7'} ${place.heartTop}`}
         >
           <Heart className={`h-3.5 w-3.5 ${saved ? 'fill-[#FF7A1A] text-[#FF7A1A]' : ''}`} />
         </button>
@@ -130,7 +130,7 @@ function RelatedCard({ product }) {
           onClick={cart}
           disabled={adding || product.is_out_of_stock}
           aria-label={product.is_out_of_stock ? 'Out of stock' : 'Add to cart'}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-[#E6ECF5] text-[#2864E8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8] disabled:opacity-40 lg:h-7 lg:w-7"
+          className={`flex shrink-0 items-center justify-center rounded-md border border-[#E6ECF5] text-[#2864E8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8] disabled:opacity-40 ${compact ? 'h-7 w-7' : 'h-11 w-11 lg:h-7 lg:w-7'}`}
         >
           <ShoppingCart className="h-3.5 w-3.5" />
         </button>
@@ -139,9 +139,34 @@ function RelatedCard({ product }) {
   );
 }
 
-export default function ProductRelated({ products, categorySlug }) {
+export default function ProductRelated({ products, categorySlug, rail = false }) {
   if (!products.length) return null;
   const href = categorySlug ? `/category/${categorySlug}` : '/products';
+
+  if (rail) {
+    return (
+      <section className="overflow-hidden rounded-2xl bg-white shadow-[0_8px_24px_rgba(23,32,51,0.05)]">
+        <div className="flex items-center justify-between gap-3 px-3.5 pb-0 pt-3">
+          <h2 className="flex items-center gap-2 text-[14.3px] font-bold text-[#172033]">
+            <span className="h-4 w-[3px] shrink-0 rounded-sm bg-[#FE7818]" aria-hidden="true" />
+            You may also like
+          </h2>
+          <Link
+            href={href}
+            className="inline-flex items-center gap-0.5 text-[10.2px] font-semibold text-[#0022CC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8]"
+          >
+            View All
+            <ArrowRight className="h-3 w-3" />
+          </Link>
+        </div>
+        <div className="flex gap-2 overflow-x-auto px-2.5 pb-3 pt-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {products.map((product) => (
+            <RelatedCard key={product.id} product={product} compact />
+          ))}
+        </div>
+      </section>
+    );
+  }
 
   return (
     <aside className="rounded-2xl border border-[#E6ECF5] bg-white p-3">

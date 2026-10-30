@@ -89,7 +89,7 @@ export default function Layout({
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
       </Head>
 
-      <div className={`flex min-h-screen flex-col pb-[calc(4rem+1px+env(safe-area-inset-bottom))] lg:pb-0 ${vouchers ? 'bg-[#F4F7FE]' : 'bg-ice'}`}>
+      <div className={`flex min-h-screen flex-col ${productFrame ? 'max-lg:pb-0' : 'pb-[calc(4rem+1px+env(safe-area-inset-bottom))]'} lg:pb-0 ${vouchers ? 'bg-[#F4F7FE]' : productFrame ? 'max-lg:bg-[#F4F7FC] bg-ice' : 'bg-ice'}`}>
         <div className={vouchers ? 'hidden lg:block' : undefined}>
           <Header variant={productFrame ? 'product' : 'default'} />
         </div>
@@ -104,7 +104,7 @@ export default function Layout({
         <div className={vouchers || productFrame ? 'hidden lg:block' : undefined}>
           <Footer />
         </div>
-        <MobileNav />
+        {!productFrame && <MobileNav />}
       </div>
     </>
     </OfficialBadgeProvider>

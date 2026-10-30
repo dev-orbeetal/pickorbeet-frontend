@@ -20,13 +20,17 @@ export function variantChoices(variant) {
   return choices;
 }
 
+function isColorGroup(group) {
+  return group?.kind === 'swatch' || /\bcolou?rs?\b/i.test(String(group?.name || '').trim());
+}
+
 export function selectionGroups(product) {
   const defined = Array.isArray(product?.option_groups) ? product.option_groups : [];
   if (defined.length) {
     return defined
       .map((group) => ({
         name: group.name,
-        kind: group.kind === 'swatch' ? 'swatch' : 'text',
+        kind: isColorGroup(group) ? 'swatch' : 'text',
         required: true,
         values: (group.values || [])
           .map((value) => ({ label: value.label, colorHex: value.color_hex || '' }))

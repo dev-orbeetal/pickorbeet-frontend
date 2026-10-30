@@ -7,10 +7,13 @@ import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import ProductDetailSkeleton from '@/components/loading/ProductDetailSkeleton';
+import ProductDetailsSheet from '@/components/product/ProductDetailsSheet';
 import ProductGallery from '@/components/product/ProductGallery';
 import ProductInfoTabs from '@/components/product/ProductInfoTabs';
+import ProductMobileBar from '@/components/product/ProductMobileBar';
 import ProductPurchase from '@/components/product/ProductPurchase';
 import ProductRelated from '@/components/product/ProductRelated';
+import ProductReviewSheet from '@/components/product/ProductReviewSheet';
 import { riseProps } from '@/components/product/motion';
 import { useBootGate } from '@/components/loading/LoadingProvider';
 import { fetchProduct, fetchProducts, clearProduct } from '@/store/slices/productsSlice';
@@ -18,7 +21,7 @@ import { addToCart } from '@/store/slices/cartSlice';
 import { readList, subscribeLists, toggleList, WISHLIST_KEY } from '@/lib/productLists';
 import { productsAPI } from '@/lib/api';
 import { availableLabels, matchedVariant, selectionGroups } from '@/lib/productOptions';
-import siteConfig, { buildOgImageUrl, getAbsoluteImageUrl, getMediaUrl } from '@/lib/siteConfig';
+import siteConfig, { buildOgImageUrl, getAbsoluteImageUrl } from '@/lib/siteConfig';
 import { offerPrices, productBrand, productPriceDescription, productPriceTitle } from '@/lib/seo';
 import { fetchApi, serializable } from '@/lib/serverApi';
 
@@ -58,6 +61,7 @@ export default function ProductDetailPage({ initialProduct }) {
   const [reviewPayload, setReviewPayload] = useState(null);
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [reviewTick, setReviewTick] = useState(0);
+  const [reviewOpen, setReviewOpen] = useState(false);
 
   useEffect(() => {
     setSelectedImage(0);
@@ -66,6 +70,7 @@ export default function ProductDetailPage({ initialProduct }) {
     setTab('description');
     setReviewPayload(null);
     setJustAdded(false);
+    setReviewOpen(false);
   }, [slug]);
 
   useEffect(() => {
@@ -84,10 +89,26 @@ export default function ProductDetailPage({ initialProduct }) {
   }, [dispatch, slug, initialProduct]);
 
   useEffect(() => {
-    if (product?.category?.id) {
-      dispatch(fetchProducts({ category: product.category.id, page_size: 8 }));
-    }
-  }, [dispatch, product?.category?.id]);
+    if (!product) return undefined;
+    let active = true;
+    const loadRelated = async () => {
+      if (product.subcategory?.id) {
+        const sub = await dispatch(fetchProducts({
+          subcategory: product.subcategory.id,
+          page_size: 12,
+        })).unwrap().catch(() => null);
+        const rows = Array.isArray(sub) ? sub : (sub?.results || []);
+        const siblings = rows.filter((item) => item.id !== product.id);
+        if (!active) return;
+        if (siblings.length >= 2) return;
+      }
+      if (product.category?.id) {
+        await dispatch(fetchProducts({ category: product.category.id, page_size: 12 }));
+      }
+    };
+    loadRelated();
+    return () => { active = false; };
+  }, [dispatch, product?.id, product?.category?.id, product?.subcategory?.id]);
 
   useEffect(() => {
     if (!product?.slug) return undefined;
@@ -220,7 +241,7 @@ export default function ProductDetailPage({ initialProduct }) {
     toast.success(result.added ? 'Saved to wishlist' : 'Removed from wishlist');
   };
 
-  const openReviews = () => {
+  const openReviewsDesktop = () => {
     setTab('reviews');
     window.setTimeout(() => {
       detailsRef.current?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
@@ -272,9 +293,10 @@ export default function ProductDetailPage({ initialProduct }) {
 
   if (!product && phase === 'error') {
     return (
-      <Layout title="Product - PickOrbeet" noindex>
+      <Layout title="Product - PickOrbeet" noindex frame="product">
+        <ProductMobileBar />
         <div className="min-h-full bg-[#F4F7FC]">
-          <div className="container-custom py-16 text-center">
+          <div className="px-4 py-16 text-center lg:container-custom">
             <h1 className="text-xl font-bold text-charcoal-900">Product not found</h1>
             <p className="mt-2 text-charcoal-600">This product is unavailable or the link is incorrect.</p>
             <Link href="/products" className="mt-4 inline-flex h-10 items-center rounded-lg bg-action px-4 text-sm font-semibold text-white">
@@ -288,7 +310,8 @@ export default function ProductDetailPage({ initialProduct }) {
 
   if (!product) {
     return (
-      <Layout title="Product - PickOrbeet" noindex>
+      <Layout title="Product - PickOrbeet" noindex frame="product">
+        <ProductMobileBar />
         <ProductDetailSkeleton />
       </Layout>
     );
@@ -297,7 +320,8 @@ export default function ProductDetailPage({ initialProduct }) {
   const images = product.images?.length > 0
     ? product.images
     : [{ image: product.primary_image || '/images/placeholder.svg' }];
-  const relatedProducts = products.filter((item) => item.id !== product.id).slice(0, 3);
+  const relatedProducts = products.filter((item) => item.id !== product.id).slice(0, 10);
+  const relatedDesktop = relatedProducts.slice(0, 3);
   const rows = specificationRows(product);
   const reviewCount = Number(reviewPayload?.count ?? product.review_count) || 0;
   const average = reviewPayload?.average ?? product.rating_average ?? null;
@@ -307,6 +331,40 @@ export default function ProductDetailPage({ initialProduct }) {
     product.subcategory?.name ? { label: product.subcategory.name, href: `/category/${product.category.slug}/${product.subcategory.slug}` } : null,
   ].filter(Boolean);
 
+  const purchaseProps = {
+    product,
+    displayPrice,
+    hasDiscount,
+    comparePrice,
+    savedAmount,
+    discount,
+    groups: shownGroups,
+    selected,
+    onSelect: chooseOption,
+    quantity,
+    onQuantity: setQuantity,
+    stockLimit,
+    stockState,
+    average,
+    reviewCount,
+    onAdd: () => submitCart(false),
+    onBuy: () => submitCart(true),
+    pending,
+    justAdded,
+    purchaseDisabled: Boolean(outOfStock) || !stockLimit,
+  };
+
+  const galleryProps = {
+    images,
+    name: product.name,
+    selected: Math.min(selectedImage, images.length - 1),
+    onSelect: setSelectedImage,
+    discount,
+    official: Boolean(product.is_official),
+    saved,
+    onToggleSaved: toggleSaved,
+  };
+
   return (
     <Layout
       title={seoTitle}
@@ -314,88 +372,95 @@ export default function ProductDetailPage({ initialProduct }) {
       image={seoImage}
       type="product"
       product={seoProduct}
+      frame="product"
     >
+      <ProductMobileBar />
       <div className="min-h-full bg-[#F4F7FC]">
-        <div className="container-custom py-4">
-          <nav className="mb-4 flex flex-wrap items-center gap-1.5 text-[13px] text-[#8B95A7]" aria-label="Breadcrumb">
-            {crumbs.map((crumb) => (
-              <span key={crumb.href} className="inline-flex items-center gap-1.5">
-                <Link href={crumb.href} className="hover:text-[#172033] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8]">
-                  {crumb.label}
-                </Link>
-                <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
-              </span>
-            ))}
-            <span className="text-[#172033]">{product.name}</span>
-          </nav>
-
-          <div className="grid items-stretch gap-5 lg:grid-cols-[minmax(0,1.17fr)_minmax(0,1fr)]">
-            <motion.div {...riseProps(reduce, 0)} className="min-w-0">
-              <ProductGallery
-                images={images}
-                name={product.name}
-                selected={Math.min(selectedImage, images.length - 1)}
-                onSelect={setSelectedImage}
-                discount={discount}
-                official={Boolean(product.is_official)}
-                saved={saved}
-                onToggleSaved={toggleSaved}
-              />
+        {/* Mobile Flutter stack */}
+        <div className="px-4 pb-7 pt-2 lg:hidden">
+          <motion.div {...riseProps(reduce, 0)}>
+            <ProductGallery {...galleryProps} flat />
+          </motion.div>
+          <motion.div {...riseProps(reduce, 0.06)} className="mt-3.5">
+            <ProductPurchase
+              {...purchaseProps}
+              flat
+              onWriteReview={() => setReviewOpen(true)}
+            />
+          </motion.div>
+          <motion.div {...riseProps(reduce, 0.1)} className="mt-4">
+            <ProductDetailsSheet product={product} rows={rows} />
+          </motion.div>
+          {relatedProducts.length > 0 && (
+            <motion.div {...riseProps(reduce, 0.14)} className="mt-4">
+              <ProductRelated products={relatedProducts} categorySlug={product.category?.slug} rail />
             </motion.div>
-            <motion.div {...riseProps(reduce, 0.06)} className="min-w-0">
-              <ProductPurchase
-                product={product}
-                displayPrice={displayPrice}
-                hasDiscount={hasDiscount}
-                comparePrice={comparePrice}
-                savedAmount={savedAmount}
-                discount={discount}
-                groups={shownGroups}
-                selected={selected}
-                onSelect={chooseOption}
-                quantity={quantity}
-                onQuantity={setQuantity}
-                stockLimit={stockLimit}
-                stockState={stockState}
-                average={average}
-                reviewCount={reviewCount}
-                onWriteReview={openReviews}
-                onAdd={() => submitCart(false)}
-                onBuy={() => submitCart(true)}
-                pending={pending}
-                justAdded={justAdded}
-                purchaseDisabled={Boolean(outOfStock) || !stockLimit}
-              />
-            </motion.div>
-          </div>
+          )}
         </div>
 
-        <motion.section
-          ref={detailsRef}
-          {...riseProps(reduce, 0.12)}
-          className="scroll-mt-24 border-t border-[#E6ECF5] bg-white"
-        >
-          <div className={`container-custom grid items-start gap-x-8 gap-y-5 py-5 ${relatedProducts.length ? 'lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.9fr)_minmax(240px,0.95fr)]' : 'lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.9fr)]'}`}>
-            <div className="min-w-0 lg:col-span-2 lg:col-start-1 lg:row-start-1">
-              <ProductInfoTabs
-                product={product}
-                rows={rows}
-                tab={tab}
-                onTab={setTab}
-                reviews={reviewPayload}
-                reviewsLoading={reviewsLoading}
-                onReviewsChanged={() => setReviewTick((value) => value + 1)}
-                reviewCount={reviewCount}
-              />
+        {/* Desktop layout */}
+        <div className="hidden lg:block">
+          <div className="container-custom py-4">
+            <nav className="mb-4 flex flex-wrap items-center gap-1.5 text-[13px] text-[#8B95A7]" aria-label="Breadcrumb">
+              {crumbs.map((crumb) => (
+                <span key={crumb.href} className="inline-flex items-center gap-1.5">
+                  <Link href={crumb.href} className="hover:text-[#172033] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8]">
+                    {crumb.label}
+                  </Link>
+                  <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+                </span>
+              ))}
+              <span className="text-[#172033]">{product.name}</span>
+            </nav>
+
+            <div className="grid items-stretch gap-5 lg:grid-cols-[minmax(0,1.17fr)_minmax(0,1fr)]">
+              <motion.div {...riseProps(reduce, 0)} className="min-w-0">
+                <ProductGallery {...galleryProps} />
+              </motion.div>
+              <motion.div {...riseProps(reduce, 0.06)} className="min-w-0">
+                <ProductPurchase
+                  {...purchaseProps}
+                  onWriteReview={openReviewsDesktop}
+                />
+              </motion.div>
             </div>
-            {relatedProducts.length > 0 && (
-              <div className="min-w-0 lg:col-start-3 lg:row-span-2 lg:row-start-1">
-                <ProductRelated products={relatedProducts} categorySlug={product.category?.slug} />
-              </div>
-            )}
           </div>
-        </motion.section>
+
+          <motion.section
+            ref={detailsRef}
+            {...riseProps(reduce, 0.12)}
+            className="scroll-mt-24 border-t border-[#E6ECF5] bg-white"
+          >
+            <div className={`container-custom grid items-start gap-x-8 gap-y-5 py-5 ${relatedDesktop.length ? 'lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.9fr)_minmax(240px,0.95fr)]' : 'lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.9fr)]'}`}>
+              <div className="min-w-0 lg:col-span-2 lg:col-start-1 lg:row-start-1">
+                <ProductInfoTabs
+                  product={product}
+                  rows={rows}
+                  tab={tab}
+                  onTab={setTab}
+                  reviews={reviewPayload}
+                  reviewsLoading={reviewsLoading}
+                  onReviewsChanged={() => setReviewTick((value) => value + 1)}
+                  reviewCount={reviewCount}
+                />
+              </div>
+              {relatedDesktop.length > 0 && (
+                <div className="min-w-0 lg:col-start-3 lg:row-span-2 lg:row-start-1">
+                  <ProductRelated products={relatedDesktop} categorySlug={product.category?.slug} />
+                </div>
+              )}
+            </div>
+          </motion.section>
+        </div>
       </div>
+
+      <ProductReviewSheet
+        open={reviewOpen}
+        onClose={() => setReviewOpen(false)}
+        product={product}
+        mine={reviewPayload?.mine || null}
+        onSaved={() => setReviewTick((value) => value + 1)}
+      />
     </Layout>
   );
 }
