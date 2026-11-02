@@ -19,7 +19,11 @@ const getImageUrl = (url) => getMediaUrl(url, '/images/placeholder-category.png'
 
 function orderedSubcategories(category) {
   return [...(category?.subcategories || [])]
-    .filter((sub) => sub && sub.is_active !== false)
+    .filter((sub) => (
+      sub
+      && sub.is_active !== false
+      && (typeof sub.product_count !== 'number' || sub.product_count > 0)
+    ))
     .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
 }
 

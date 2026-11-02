@@ -41,7 +41,9 @@ const titleVariants = {
 };
 
 export default function CategorySection({ categories }) {
-  const categoriesArray = Array.isArray(categories) ? categories : [];
+  const categoriesArray = (Array.isArray(categories) ? categories : []).filter(
+    (cat) => typeof cat.product_count !== 'number' || cat.product_count > 0
+  );
   // Sort by display_order, featured categories first
   const sortedCategories = [...categoriesArray].sort((a, b) => {
     if (a.is_featured && !b.is_featured) return -1;

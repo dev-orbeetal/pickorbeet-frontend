@@ -21,7 +21,9 @@ const slideVariants = {
 
 export default function FeaturedBanners({ categories }) {
   const featuredCategories = Array.isArray(categories)
-    ? categories.filter(cat => cat.is_featured).sort((a, b) => (a.featured_order || 0) - (b.featured_order || 0))
+    ? categories
+        .filter((cat) => cat.is_featured && (typeof cat.product_count !== 'number' || cat.product_count > 0))
+        .sort((a, b) => (a.featured_order || 0) - (b.featured_order || 0))
     : [];
 
   const [currentIndex, setCurrentIndex] = useState(0);

@@ -114,3 +114,31 @@ export function matchedVariant(groups, variants, selected) {
   });
   return matches.find((variant) => Number(variant.stock_quantity) > 0) || matches[0] || null;
 }
+
+/** Images for the product gallery: exact variant, same color siblings, then shared. */
+export function galleryForSelection(product, chosen) {
+  const all = Array.isArray(product?.images) ? product.images : [];
+  if (!all.length) {
+    return [{ image: product?.primary_image || '/images/placeholder.svg' }];
+  }
+  const shared = all.filter((image) => !image.variant);
+  if (!chosen?.id) return shared.length ? shared : all;
+
+  const exact = all.filter((image) => String(image.variant) === String(chosen.id));
+  if (exact.length) return exact;
+
+  const colorChoice = variantChoices(chosen).find((choice) => /\bcolou?rs?\b/i.test(choice.name));
+  if (colorChoice) {
+    const siblingIds = new Set(
+      (product.variants || [])
+        .filter((variant) => variantChoices(variant).some((choice) => (
+          choice.name === colorChoice.name && choice.label === colorChoice.label
+        )))
+        .map((variant) => String(variant.id)),
+    );
+    const byColor = all.filter((image) => image.variant && siblingIds.has(String(image.variant)));
+    if (byColor.length) return byColor;
+  }
+
+  return shared.length ? shared : all;
+}

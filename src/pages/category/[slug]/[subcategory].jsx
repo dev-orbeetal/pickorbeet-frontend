@@ -117,7 +117,12 @@ export default function SubcategoryPage({ initialCategory = null, initialSubcate
       </section>
 
       {/* Sibling Subcategories Navigation */}
-      {category?.subcategories?.length > 1 && (
+      {(() => {
+        const siblings = (category?.subcategories || []).filter(
+          (sub) => sub && sub.is_active !== false && (typeof sub.product_count !== 'number' || sub.product_count > 0)
+        );
+        if (siblings.length <= 1) return null;
+        return (
         <section className="py-4 border-b border-cream-400">
           <div className="container-custom">
             <div className="flex flex-wrap gap-2">
@@ -127,7 +132,7 @@ export default function SubcategoryPage({ initialCategory = null, initialSubcate
               >
                 ← All {category.name}
               </Link>
-              {category.subcategories.map((sub) => (
+              {siblings.map((sub) => (
                 <Link
                   key={sub.id}
                   href={`/category/${slug}/${sub.slug}`}
@@ -142,6 +147,8 @@ export default function SubcategoryPage({ initialCategory = null, initialSubcate
             </div>
           </div>
         </section>
+        );
+      })()}
       )}
 
       {/* Products Grid */}

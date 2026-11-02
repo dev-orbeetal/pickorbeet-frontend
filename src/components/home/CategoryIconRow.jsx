@@ -31,8 +31,14 @@ function SubcategoryTile({ href, name, image }) {
   );
 }
 
+function hasProducts(item) {
+  if (!item) return false;
+  if (typeof item.product_count === 'number') return item.product_count > 0;
+  return true;
+}
+
 export default function CategoryIconRow({ categories = [] }) {
-  const list = ordered(Array.isArray(categories) ? categories : []);
+  const list = ordered(Array.isArray(categories) ? categories : []).filter(hasProducts);
   if (list.length === 0) return null;
 
   return (
@@ -40,7 +46,9 @@ export default function CategoryIconRow({ categories = [] }) {
       <div className="container-custom grid grid-cols-1 items-start gap-3 pb-3 pt-0 sm:grid-cols-2 sm:gap-4 sm:py-3">
         {list.map((category) => {
           const subcategories = ordered(
-            (category.subcategories || []).filter((sub) => sub && sub.is_active !== false)
+            (category.subcategories || []).filter(
+              (sub) => sub && sub.is_active !== false && hasProducts(sub)
+            )
           ).slice(0, 4);
 
           return (

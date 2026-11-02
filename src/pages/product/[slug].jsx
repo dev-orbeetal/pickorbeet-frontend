@@ -20,7 +20,7 @@ import { fetchProduct, fetchProducts, clearProduct } from '@/store/slices/produc
 import { addToCart } from '@/store/slices/cartSlice';
 import { readList, subscribeLists, toggleList, WISHLIST_KEY } from '@/lib/productLists';
 import { productsAPI } from '@/lib/api';
-import { availableLabels, matchedVariant, selectionGroups } from '@/lib/productOptions';
+import { availableLabels, galleryForSelection, matchedVariant, selectionGroups } from '@/lib/productOptions';
 import siteConfig, { buildOgImageUrl, getAbsoluteImageUrl } from '@/lib/siteConfig';
 import { offerPrices, productBrand, productPriceDescription, productPriceTitle } from '@/lib/seo';
 import { fetchApi, serializable } from '@/lib/serverApi';
@@ -198,6 +198,7 @@ export default function ProductDetailPage({ initialProduct }) {
       return next;
     });
     setQuantity(1);
+    setSelectedImage(0);
   };
 
   const submitCart = (checkout) => {
@@ -317,9 +318,7 @@ export default function ProductDetailPage({ initialProduct }) {
     );
   }
 
-  const images = product.images?.length > 0
-    ? product.images
-    : [{ image: product.primary_image || '/images/placeholder.svg' }];
+  const images = galleryForSelection(product, chosen);
   const relatedProducts = products.filter((item) => item.id !== product.id).slice(0, 10);
   const relatedDesktop = relatedProducts.slice(0, 3);
   const rows = specificationRows(product);

@@ -280,7 +280,9 @@ export default function ProductsPage({ initialProducts = [], initialCount = 0 })
               <div className="mb-6">
                 <h4 className="font-medium text-secondary-800 mb-3">Category</h4>
                 <div className="space-y-2">
-                  {categories.map((category) => (
+                  {categories
+                    .filter((category) => typeof category.product_count !== 'number' || category.product_count > 0)
+                    .map((category) => (
                     <label key={category.id} className="flex items-center cursor-pointer group">
                       <input
                         type="checkbox"
