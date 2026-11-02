@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { CreditCard, Truck, User, CheckCircle, Banknote } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
+import BdAddressFields from '@/components/BdAddressFields';
 import CouponField from '@/components/checkout/CouponField';
 import { useBootGate } from '@/components/loading/LoadingProvider';
 import { fetchCart } from '@/store/slices/cartSlice';
@@ -48,8 +49,10 @@ export default function CheckoutPage() {
     shipping_phone: '',
     shipping_address_line1: '',
     shipping_address_line2: '',
+    shipping_division: '',
     shipping_city: '',
     shipping_district: '',
+    shipping_post_office: '',
     shipping_postal_code: '',
     use_different_billing: false,
     billing_name: '',
@@ -75,12 +78,17 @@ export default function CheckoutPage() {
   const deliveryCharge = deliveryChargeFor({
     city: formData.shipping_city,
     district: formData.shipping_district,
+    division: formData.shipping_division,
     inside: deliveryInside,
     outside: deliveryOutside,
   });
   const discount = coupon?.discount || 0;
   const total = Math.max(0, lineSubtotal - discount) + (deliveryCharge || 0);
-  const inside = isInsideDhaka(formData.shipping_city, formData.shipping_district);
+  const inside = isInsideDhaka(
+    formData.shipping_city,
+    formData.shipping_district,
+    formData.shipping_division,
+  );
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
@@ -142,8 +150,10 @@ export default function CheckoutPage() {
       shipping_phone: address.phone || '',
       shipping_address_line1: address.address_line1 || '',
       shipping_address_line2: address.address_line2 || '',
+      shipping_division: address.division || '',
       shipping_city: address.city || '',
       shipping_district: address.district || '',
+      shipping_post_office: address.post_office || '',
       shipping_postal_code: address.postal_code || '',
     }));
   };
@@ -165,8 +175,9 @@ export default function CheckoutPage() {
     }
     if (stepNum === 2) {
       if (!formData.shipping_name || !formData.shipping_phone
-        || !formData.shipping_address_line1 || !formData.shipping_city
-        || !formData.shipping_district) {
+        || !formData.shipping_address_line1 || !formData.shipping_division
+        || !formData.shipping_district || !formData.shipping_post_office
+        || !formData.shipping_city) {
         toast.error('Please fill in all required shipping fields');
         return false;
       }
@@ -341,24 +352,30 @@ export default function CheckoutPage() {
                       <label className="block text-sm font-medium text-secondary-700 mb-1">Address Line 2</label>
                       <input type="text" name="shipping_address_line2" value={formData.shipping_address_line2} onChange={handleChange} className="input" placeholder="Apartment, Suite, etc. (Optional)" />
                     </div>
-                    <div className="grid md:grid-cols-3 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-secondary-700 mb-1">City *</label>
-                        <input type="text" name="shipping_city" value={formData.shipping_city} onChange={handleChange} className="input" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-secondary-700 mb-1">District *</label>
-                        <input type="text" name="shipping_district" value={formData.shipping_district} onChange={handleChange} className="input" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-secondary-700 mb-1">Postal Code</label>
-                        <input type="text" name="shipping_postal_code" value={formData.shipping_postal_code} onChange={handleChange} className="input" />
-                      </div>
-                    </div>
+                    <BdAddressFields
+                      prefix="checkout-shipping"
+                      fieldClassName="input mt-1"
+                      labelClassName="mt-2.5 block text-sm font-medium text-secondary-700"
+                      value={{
+                        division: formData.shipping_division,
+                        district: formData.shipping_district,
+                        post_office: formData.shipping_post_office,
+                        postal_code: formData.shipping_postal_code,
+                        city: formData.shipping_city,
+                      }}
+                      onChange={(next) => setFormData((prev) => ({
+                        ...prev,
+                        shipping_division: next.division || '',
+                        shipping_district: next.district || '',
+                        shipping_post_office: next.post_office || '',
+                        shipping_postal_code: next.postal_code || '',
+                        shipping_city: next.city || '',
+                      }))}
+                    />
                     <div className="rounded-lg border border-cream-300 bg-cream-50 p-3 text-sm text-secondary-700">
                       <p className="font-medium text-secondary-900">Delivery charge</p>
                       {deliveryCharge == null ? (
-                        <p className="mt-1">Enter a city to see the charge for this order.</p>
+                        <p className="mt-1">Select a district to see the charge for this order.</p>
                       ) : (
                         <p className="mt-1">{inside ? 'Inside Dhaka' : 'Outside Dhaka'} · ৳{money(deliveryCharge)}</p>
                       )}

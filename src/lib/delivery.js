@@ -9,16 +9,19 @@ export function matchesInsideDhaka(text) {
   return value.split(/[^a-z]+/).filter(Boolean).some((word) => isInsideDhaka(word, word));
 }
 
-export function isInsideDhaka(city, district) {
+export function isInsideDhaka(city, district, division = '') {
   const place = String(city || '').toLowerCase();
   const area = String(district || '').toLowerCase();
-  return DHAKA_AREAS.includes(place) || area === 'dhaka';
+  const div = String(division || '').toLowerCase();
+  return DHAKA_AREAS.includes(place) || area === 'dhaka' || div === 'dhaka';
 }
 
 /** Charge the server will save, or null until a city or district is known. */
-export function deliveryChargeFor({ city, district, inside, outside }) {
-  if (!String(city || '').trim() && !String(district || '').trim()) return null;
-  const amount = isInsideDhaka(city, district) ? inside : outside;
+export function deliveryChargeFor({ city, district, division, inside, outside }) {
+  if (!String(city || '').trim() && !String(district || '').trim() && !String(division || '').trim()) {
+    return null;
+  }
+  const amount = isInsideDhaka(city, district, division) ? inside : outside;
   const value = Number(amount);
   return Number.isFinite(value) ? value : 0;
 }

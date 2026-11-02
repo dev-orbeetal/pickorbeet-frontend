@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Package, ChevronRight, Search, Filter, ShoppingBag, Truck, CheckCircle, XCircle, Clock, ArrowLeft, Copy } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
+import BdAddressFields from '@/components/BdAddressFields';
 import ShipmentPanel from '@/components/orders/ShipmentPanel';
 import { ordersAPI } from '@/lib/api';
 import { optionParts } from '@/lib/productOptions';
@@ -169,8 +170,10 @@ export default function OrdersPage() {
       shipping_phone: selectedOrder.shipping_phone || '',
       shipping_address_line1: selectedOrder.shipping_address_line1 || '',
       shipping_address_line2: selectedOrder.shipping_address_line2 || '',
+      shipping_division: selectedOrder.shipping_division || '',
       shipping_city: selectedOrder.shipping_city || '',
       shipping_district: selectedOrder.shipping_district || '',
+      shipping_post_office: selectedOrder.shipping_post_office || '',
       shipping_postal_code: selectedOrder.shipping_postal_code || '',
     });
     setEditingDelivery(true);
@@ -308,7 +311,7 @@ export default function OrdersPage() {
                       </div>
                       {editingDelivery ? (
                         <div className="space-y-2 rounded-xl bg-cream-50 p-4">
-                          {['shipping_name', 'shipping_phone', 'shipping_address_line1', 'shipping_address_line2', 'shipping_city', 'shipping_district', 'shipping_postal_code'].map((field) => (
+                          {['shipping_name', 'shipping_phone', 'shipping_address_line1', 'shipping_address_line2'].map((field) => (
                             <input
                               key={field}
                               value={deliveryForm[field] || ''}
@@ -317,6 +320,26 @@ export default function OrdersPage() {
                               aria-label={field.replace('shipping_', '').replace(/_/g, ' ')}
                             />
                           ))}
+                          <BdAddressFields
+                            prefix="order-delivery"
+                            fieldClassName="input mt-1"
+                            labelClassName="mt-2 block text-sm font-medium text-charcoal-700"
+                            value={{
+                              division: deliveryForm.shipping_division || '',
+                              district: deliveryForm.shipping_district || '',
+                              post_office: deliveryForm.shipping_post_office || '',
+                              postal_code: deliveryForm.shipping_postal_code || '',
+                              city: deliveryForm.shipping_city || '',
+                            }}
+                            onChange={(next) => setDeliveryForm((current) => ({
+                              ...current,
+                              shipping_division: next.division || '',
+                              shipping_district: next.district || '',
+                              shipping_post_office: next.post_office || '',
+                              shipping_postal_code: next.postal_code || '',
+                              shipping_city: next.city || '',
+                            }))}
+                          />
                           <div className="flex gap-2 pt-1">
                             <button type="button" onClick={saveDelivery} disabled={acting} className="btn btn-primary">Save</button>
                             <button type="button" onClick={() => setEditingDelivery(false)} className="btn btn-secondary">Cancel</button>
@@ -328,7 +351,11 @@ export default function OrdersPage() {
                           <p>{selectedOrder.shipping_phone}</p>
                           <p>{selectedOrder.shipping_address_line1}</p>
                           {selectedOrder.shipping_address_line2 && <p>{selectedOrder.shipping_address_line2}</p>}
-                          <p>{selectedOrder.shipping_city}, {selectedOrder.shipping_district}</p>
+                          <p>
+                            {[selectedOrder.shipping_city, selectedOrder.shipping_post_office, selectedOrder.shipping_district, selectedOrder.shipping_division]
+                              .filter(Boolean)
+                              .join(', ')}
+                          </p>
                           {selectedOrder.shipping_postal_code && <p>{selectedOrder.shipping_postal_code}</p>}
                         </div>
                       )}

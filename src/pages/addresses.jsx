@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
+import BdAddressFields from '@/components/BdAddressFields';
 import { addressAPI } from '@/lib/api';
 
 const ease = [0.16, 1, 0.3, 1];
@@ -56,7 +57,15 @@ function placeName(address) {
 }
 
 function deliveryLine(address) {
-  const parts = [address.address_line1, address.address_line2, address.city, address.district, address.country]
+  const parts = [
+    address.address_line1,
+    address.address_line2,
+    address.city,
+    address.post_office,
+    address.district,
+    address.division,
+    address.country,
+  ]
     .map((part) => String(part || '').trim())
     .filter(Boolean);
   return parts.filter((part, index) => index === 0 || part.toLowerCase() !== parts[index - 1].toLowerCase()).join(', ');
@@ -153,8 +162,10 @@ export default function AddressesPage() {
       phone: user?.phone || '',
       address_line1: seed.address_line1 || '',
       address_line2: seed.address_line2 || '',
+      division: seed.division || '',
       city: seed.city || '',
       district: seed.district || '',
+      post_office: seed.post_office || '',
       postal_code: seed.postal_code || '',
       country: seed.country || 'Bangladesh',
       is_default: addresses.length === 0,
@@ -412,9 +423,17 @@ function AddressEditor({ draft, onClose, onSaved }) {
   const save = async (event) => {
     event.preventDefault();
     const phone = phoneForApi(form.phone);
-    const district = form.district.trim() || form.city.trim();
-    if (!form.label.trim() || !form.full_name.trim() || phone.length < 11 || !form.address_line1.trim() || !form.city.trim()) {
-      setError('Add a label, name, phone, street, and city.');
+    if (
+      !form.label.trim()
+      || !form.full_name.trim()
+      || phone.length < 11
+      || !form.address_line1.trim()
+      || !form.division?.trim()
+      || !form.district?.trim()
+      || !form.post_office?.trim()
+      || !form.city.trim()
+    ) {
+      setError('Add a label, name, phone, street, division, district, post office, and city.');
       return;
     }
     setSaving(true);
@@ -426,9 +445,11 @@ function AddressEditor({ draft, onClose, onSaved }) {
       phone,
       address_line1: form.address_line1.trim(),
       address_line2: form.address_line2.trim(),
+      division: form.division.trim(),
       city: form.city.trim(),
-      district,
-      postal_code: form.postal_code.trim(),
+      district: form.district.trim(),
+      post_office: form.post_office.trim(),
+      postal_code: (form.postal_code || '').trim(),
       country: form.country || 'Bangladesh',
       is_default: Boolean(form.is_default),
     };
@@ -485,9 +506,6 @@ function AddressEditor({ draft, onClose, onSaved }) {
           ['phone', 'Phone', ''],
           ['address_line1', 'Street address', ''],
           ['address_line2', 'Area or landmark', 'Optional'],
-          ['city', 'City', ''],
-          ['district', 'District', 'Same as city if you leave this blank'],
-          ['postal_code', 'Postal code', 'Optional'],
         ].map(([key, label, hint]) => (
           <label key={key} className="mt-2.5 block text-sm font-medium text-[#3C4660]">
             {label}
@@ -499,6 +517,17 @@ function AddressEditor({ draft, onClose, onSaved }) {
             />
           </label>
         ))}
+        <BdAddressFields
+          prefix={created ? 'new-address' : `edit-${draft.id}`}
+          value={{
+            division: form.division || '',
+            district: form.district || '',
+            post_office: form.post_office || '',
+            postal_code: form.postal_code || '',
+            city: form.city || '',
+          }}
+          onChange={(next) => setForm((current) => ({ ...current, ...next }))}
+        />
         <label className="mt-3 flex items-center justify-between text-sm font-medium text-[#051340]">
           Use as default delivery address
           <input type="checkbox" checked={Boolean(form.is_default)} onChange={(event) => setForm((current) => ({ ...current, is_default: event.target.checked }))} />

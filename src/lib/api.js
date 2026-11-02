@@ -104,6 +104,12 @@ export const addressAPI = {
   remove: (id) => api.delete(`/auth/addresses/${id}/`),
 };
 
+export const geoAPI = {
+  divisions: () => api.get('/geo/divisions/'),
+  districts: (division) => api.get('/geo/districts/', { params: { division } }),
+  postOffices: (district) => api.get('/geo/post-offices/', { params: { district } }),
+};
+
 // Products API
 export const productsAPI = {
   getCategories: () => api.get('/products/categories/'),
