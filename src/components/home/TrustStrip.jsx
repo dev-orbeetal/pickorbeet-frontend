@@ -1,42 +1,19 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { CreditCard, RotateCcw, ShieldCheck, Truck } from 'lucide-react';
+import { Headphones, PackageCheck, ShieldCheck, Truck } from 'lucide-react';
 
-const WIDE_QUERY = '(min-width: 420px)';
+const WIDE_QUERY = '(min-width: 900px)';
 const TRUCK_WIDTH = 228;
 const TRUCK_HEIGHT = 104;
-const ROW_HEIGHT = 132;
-const TRAVEL_SECONDS = 11 / 1.5;
+const ROW_HEIGHT = 108;
+const TRAVEL_SECONDS = 11 / (1.5 * 1.5);
 
-const fallback = [
-  {
-    icon: 'shield',
-    title: '100% Original Products',
-    description: 'Trusted Quality',
-  },
-  {
-    icon: 'truck',
-    title: 'Fast & Reliable Delivery',
-    description: 'All over Bangladesh',
-  },
-  {
-    icon: 'card',
-    title: 'Secure Payment',
-    description: 'Multiple Payment Options',
-  },
-  {
-    icon: 'returns',
-    title: 'Easy Returns',
-    description: 'Hassle Free',
-  },
+const ITEMS = [
+  { title: '100% Authentic', description: 'Original Products', Icon: ShieldCheck },
+  { title: 'Fast Delivery', description: 'All Over Bangladesh', Icon: Truck },
+  { title: 'Cash on Delivery', description: 'No Pre Payment', Icon: PackageCheck },
+  { title: '24/7 Support', description: 'Always Here', Icon: Headphones },
 ];
-
-const ICONS = {
-  shield: { icon: ShieldCheck, className: 'bg-[#EEF1FA] text-navy-900' },
-  truck: { icon: Truck, className: 'bg-[#E8F0FF] text-action' },
-  card: { icon: CreditCard, className: 'bg-[#FFF3E8] text-gold-600' },
-  returns: { icon: RotateCcw, className: 'bg-[#E7F6EF] text-savings' },
-};
 
 const hidden = [false, false, false, false];
 
@@ -87,12 +64,66 @@ function DeliveryTruck({ spinSeconds }) {
   );
 }
 
-export default function TrustStrip({ items }) {
-  const rows = (items && items.length ? items : fallback).slice(0, 4).map((item) => {
-    const key = typeof item.icon === 'string' ? item.icon : 'shield';
-    const visual = ICONS[key] || ICONS.shield;
-    return { ...item, Icon: visual.icon, iconClass: visual.className };
-  });
+function WaveDecor({ side }) {
+  const isLeft = side === 'left';
+  return (
+    <svg
+      className={`pointer-events-none absolute top-0 h-full w-24 opacity-70 sm:w-32 ${isLeft ? 'left-0' : 'right-0 -scale-x-100'}`}
+      viewBox="0 0 120 120"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <path d="M0 0c18 18 28 38 28 60S18 102 0 120V0z" fill="#D7E6FF" />
+      <path d="M0 10c22 16 34 34 34 50S22 94 0 110V10z" fill="#C9DCFF" opacity="0.55" />
+      <path d="M0 28c16 12 24 24 24 32S16 80 0 92V28z" fill="#BFD6FF" opacity="0.45" />
+    </svg>
+  );
+}
+
+function BenefitItem({ item, index, active, mode }) {
+  return (
+    <li
+      data-benefit
+      className={[
+        'flex min-w-0 items-center gap-3 px-3 py-3 sm:gap-3.5 sm:px-4 sm:py-4',
+        index > 0 ? 'border-t border-[#D5E3F8]' : '',
+        index % 2 === 1 ? 'min-[480px]:border-l min-[480px]:border-[#D5E3F8]' : '',
+        index >= 2 ? 'min-[480px]:border-t min-[480px]:border-[#D5E3F8]' : 'min-[480px]:border-t-0',
+        index > 0 ? 'lg:border-l lg:border-t-0 lg:border-[#D5E3F8]' : '',
+        mode === 'truck' ? 'border-0 min-[480px]:border-0 lg:border-0' : '',
+      ].filter(Boolean).join(' ')}
+    >
+      <motion.span
+        initial={false}
+        animate={{ opacity: active ? 1 : 0, y: active ? 0 : 6 }}
+        transition={revealTransition(active, mode, index, 'icon')}
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-navy-900 text-white shadow-[0_6px_14px_rgba(32,45,112,0.28)] sm:h-12 sm:w-12"
+      >
+        <item.Icon className="h-5 w-5 sm:h-[22px] sm:w-[22px]" strokeWidth={2.25} aria-hidden="true" />
+      </motion.span>
+      <div className="min-w-0">
+        <motion.p
+          initial={false}
+          animate={{ opacity: active ? 1 : 0, y: active ? 0 : 6 }}
+          transition={revealTransition(active, mode, index, 'title')}
+          className="text-sm font-bold leading-tight text-navy-900 sm:text-[15px]"
+        >
+          {item.title}
+        </motion.p>
+        <motion.p
+          initial={false}
+          animate={{ opacity: active ? 1 : 0, y: active ? 0 : 6 }}
+          transition={revealTransition(active, mode, index, 'copy')}
+          className="mt-0.5 text-xs leading-snug text-charcoal-500 sm:text-[13px]"
+        >
+          {item.description}
+        </motion.p>
+      </div>
+    </li>
+  );
+}
+
+export default function TrustStrip() {
   const sectionRef = useRef(null);
   const trackRef = useRef(null);
   const statusRef = useRef('idle');
@@ -139,7 +170,7 @@ export default function TrustStrip({ items }) {
     const begin = () => {
       if (statusRef.current !== 'idle') return;
       if (mode === 'stagger') {
-        const next = rows.map(() => true);
+        const next = ITEMS.map(() => true);
         shownRef.current = next;
         statusRef.current = 'playing';
         setShown(next);
@@ -196,11 +227,11 @@ export default function TrustStrip({ items }) {
       window.removeEventListener('pageshow', onPageShow);
       if (frame) cancelAnimationFrame(frame);
     };
-  }, [mode, rows.length]);
+  }, [mode]);
 
   const finish = () => {
     if (statusRef.current !== 'playing') return;
-    const next = rows.map(() => true);
+    const next = ITEMS.map(() => true);
     shownRef.current = next;
     statusRef.current = 'done';
     setShown(next);
@@ -267,46 +298,31 @@ export default function TrustStrip({ items }) {
       <div className="container-custom pb-2 pt-0 sm:py-3">
         <div
           ref={trackRef}
-          className="relative overflow-hidden rounded-xl border border-[#E4E9F2] bg-white px-2 shadow-[0_1px_2px_rgba(23,32,51,0.04)] sm:px-4"
+          className="relative overflow-hidden rounded-2xl border border-[#B7CFF5] bg-gradient-to-b from-[#F4F8FF] via-[#EEF4FF] to-[#E8F0FF] shadow-[0_1px_2px_rgba(32,45,112,0.06)]"
           style={mode === 'truck' ? { height: ROW_HEIGHT } : undefined}
         >
+          <WaveDecor side="left" />
+          <WaveDecor side="right" />
+
           <ul
-            className={`grid grid-cols-2 gap-x-2 gap-y-3 py-3 min-[420px]:grid-cols-4 ${mode === 'truck' ? 'h-full items-center' : ''}`}
+            className={`relative z-[1] grid grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-4 ${
+              mode === 'truck' ? 'h-full items-center' : ''
+            }`}
           >
-            {rows.map((item, index) => {
+            {ITEMS.map((item, index) => {
               const active = mode === 'off' || shown[index];
               return (
-                <li key={item.title} data-benefit className="flex min-w-0 flex-col items-center px-1 text-center">
-                  <motion.span
-                    initial={false}
-                    animate={{ opacity: active ? 1 : 0, y: active ? 0 : 6 }}
-                    transition={revealTransition(active, mode, index, 'icon')}
-                    className={`mb-1.5 flex h-9 w-9 items-center justify-center rounded-full ${item.iconClass}`}
-                  >
-                    <item.Icon className="h-[18px] w-[18px]" aria-hidden="true" />
-                  </motion.span>
-                  <motion.p
-                    initial={false}
-                    animate={{ opacity: active ? 1 : 0, y: active ? 0 : 6 }}
-                    transition={revealTransition(active, mode, index, 'title')}
-                    className="text-[11px] font-semibold leading-tight text-charcoal-900 sm:text-sm"
-                  >
-                    {item.title}
-                  </motion.p>
-                  {item.description ? (
-                    <motion.p
-                      initial={false}
-                      animate={{ opacity: active ? 1 : 0, y: active ? 0 : 6 }}
-                      transition={revealTransition(active, mode, index, 'copy')}
-                      className="mt-0.5 line-clamp-2 text-[10px] leading-snug text-charcoal-500 sm:text-xs"
-                    >
-                      {item.description}
-                    </motion.p>
-                  ) : null}
-                </li>
+                <BenefitItem
+                  key={item.title}
+                  item={item}
+                  index={index}
+                  active={active}
+                  mode={mode}
+                />
               );
             })}
           </ul>
+
           {driving && (
             <div
               key={run}

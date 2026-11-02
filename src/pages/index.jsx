@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Layout from '@/components/layout/Layout';
 import HeroSlider from '@/components/home/HeroSlider';
@@ -12,9 +12,33 @@ import { productsAPI } from '@/lib/api';
 import { buildSiteJsonLd } from '@/lib/seo';
 import { fetchApi, serializable } from '@/lib/serverApi';
 
-export default function Home({ initialSections = [], storeContact = null }) {
+function productSectionRank(section) {
+  const key = `${section.key || ''} ${section.title || ''}`.toLowerCase();
+  if (key.includes('trending')) return 0;
+  if (key.includes('new')) return 1;
+  return 2;
+}
+
+async function fetchAllProductsServer() {
+  const products = [];
+  let page = 1;
+  while (page <= 50) {
+    const result = await fetchApi(`/products/?ordering=-created_at&page=${page}`);
+    if (!result.ok) break;
+    const data = result.data;
+    const batch = Array.isArray(data?.results) ? data.results : (Array.isArray(data) ? data : []);
+    if (!batch.length) break;
+    products.push(...batch);
+    if (!data?.next) break;
+    page += 1;
+  }
+  return products;
+}
+
+export default function Home({ initialSections = [], storeContact = null, initialAllProducts = [] }) {
   const { categories } = useSelector((state) => state.products);
   const [sections, setSections] = useState(initialSections);
+  const [allProducts, setAllProducts] = useState(initialAllProducts);
   const [status, setStatus] = useState(initialSections.length ? 'ready' : 'loading');
   const [reloadKey, setReloadKey] = useState(0);
   useBootGate(status === 'loading');
@@ -22,11 +46,15 @@ export default function Home({ initialSections = [], storeContact = null }) {
   useEffect(() => {
     let active = true;
     if (reloadKey > 0) setStatus('loading');
-    productsAPI.getHomepage()
-      .then((response) => {
+    Promise.all([
+      productsAPI.getHomepage(),
+      productsAPI.getAllProducts(),
+    ])
+      .then(([homeResponse, products]) => {
         if (!active) return;
-        const next = response.data.sections || [];
+        const next = homeResponse.data.sections || [];
         setSections(next);
+        setAllProducts(Array.isArray(products) ? products : []);
         setStatus(next.length ? 'ready' : 'empty');
       })
       .catch(() => {
@@ -38,15 +66,57 @@ export default function Home({ initialSections = [], storeContact = null }) {
     };
   }, [reloadKey]);
 
+  const productRows = useMemo(() => {
+    const fromApi = sections
+      .filter((section) => section.type === 'products')
+      .sort((a, b) => productSectionRank(a) - productSectionRank(b))
+      .map((section) => ({
+        key: section.key || section.title,
+        title: section.title,
+        viewAllHref: section.view_all_url || '/products',
+        viewAllLabel: section.view_all_label || 'View All',
+        products: section.products || [],
+        showAll: false,
+      }));
+
+    return [
+      ...fromApi,
+      {
+        key: 'all-products',
+        title: 'All Products',
+        viewAllHref: '/products',
+        viewAllLabel: 'View All',
+        products: allProducts,
+        showAll: true,
+      },
+    ];
+  }, [sections, allProducts]);
+
+  const homeBlocks = useMemo(() => {
+    const blocks = [];
+    let productsPlaced = false;
+    sections.forEach((section) => {
+      if (section.type === 'products') {
+        if (!productsPlaced) {
+          blocks.push({ kind: 'products', key: 'home-product-rows' });
+          productsPlaced = true;
+        }
+        return;
+      }
+      blocks.push({ kind: 'section', key: section.key || section.type, section });
+    });
+    if (!productsPlaced && productRows.some((row) => row.products.length > 0)) {
+      blocks.push({ kind: 'products', key: 'home-product-rows' });
+    }
+    return blocks;
+  }, [sections, productRows]);
+
   return (
     <Layout
       title="PickOrbeet - Shop Smarter, Live Better"
       description="Shop electronics, fashion, home, beauty, and everyday essentials at PickOrbeet. Original products, fast delivery, and secure payment across Bangladesh."
       jsonLd={buildSiteJsonLd(storeContact)}
     >
-      <h1 className="container-custom py-4 text-xl font-bold text-charcoal-900 md:text-2xl">
-        Shop original products in Bangladesh
-      </h1>
       {status === 'loading' && <HomeSkeleton />}
       {status === 'error' && (
         <div className="container-custom py-16 text-center">
@@ -65,7 +135,24 @@ export default function Home({ initialSections = [], storeContact = null }) {
           <p className="text-charcoal-600">No products to show right now.</p>
         </div>
       )}
-      {status === 'ready' && sections.map((section) => {
+      {status === 'ready' && homeBlocks.map((block) => {
+        if (block.kind === 'products') {
+          return (
+            <Fragment key={block.key}>
+              {productRows.map((row) => (
+                <HomeProductRow
+                  key={row.key}
+                  title={row.title}
+                  viewAllHref={row.viewAllHref}
+                  viewAllLabel={row.viewAllLabel}
+                  products={row.products}
+                  showAll={row.showAll}
+                />
+              ))}
+            </Fragment>
+          );
+        }
+        const section = block.section;
         if (section.type === 'hero') {
           const sideCards = sections.find((item) => item.type === 'promos')?.banners || [];
           return <HeroSlider key={section.key} banners={section.banners} cards={sideCards} />;
@@ -76,17 +163,6 @@ export default function Home({ initialSections = [], storeContact = null }) {
           if (sections.some((item) => item.type === 'hero')) return null;
           return <PromoBanners key={section.key} banners={section.banners} />;
         }
-        if (section.type === 'products') {
-          return (
-            <HomeProductRow
-              key={section.key}
-              title={section.title}
-              viewAllHref={section.view_all_url || '/products'}
-              viewAllLabel={section.view_all_label || 'View All'}
-              products={section.products}
-            />
-          );
-        }
         return null;
       })}
     </Layout>
@@ -95,9 +171,10 @@ export default function Home({ initialSections = [], storeContact = null }) {
 
 export async function getServerSideProps() {
   try {
-    const [homeResult, settingsResult] = await Promise.all([
+    const [homeResult, settingsResult, allProducts] = await Promise.all([
       fetchApi('/products/homepage/'),
       fetchApi('/products/settings/public/'),
+      fetchAllProductsServer(),
     ]);
     const sections = homeResult.ok && Array.isArray(homeResult.data?.sections)
       ? homeResult.data.sections
@@ -105,10 +182,11 @@ export async function getServerSideProps() {
     return {
       props: {
         initialSections: serializable(sections) || [],
+        initialAllProducts: serializable(allProducts) || [],
         storeContact: settingsResult.ok ? serializable(settingsResult.data) : null,
       },
     };
   } catch (error) {
-    return { props: { initialSections: [], storeContact: null } };
+    return { props: { initialSections: [], initialAllProducts: [], storeContact: null } };
   }
 }
