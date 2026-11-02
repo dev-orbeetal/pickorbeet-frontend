@@ -126,8 +126,13 @@ export const productsAPI = {
     return products;
   },
   getProduct: (slug) => api.get(`/products/${slug}/`),
-  getReviews: (slug) => api.get(`/products/${slug}/reviews/`),
-  saveReview: (slug, data) => api.post(`/products/${slug}/reviews/`, data),
+  getReviews: (slug, params) => api.get(`/products/${slug}/reviews/`, { params }),
+  saveReview: (slug, data) => {
+    if (typeof FormData !== 'undefined' && data instanceof FormData) {
+      return api.post(`/products/${slug}/reviews/`, data);
+    }
+    return api.post(`/products/${slug}/reviews/`, data);
+  },
   deleteReview: (slug) => api.delete(`/products/${slug}/reviews/`),
   getFeaturedProducts: () => api.get('/products/featured/'),
   getBanners: (params) => api.get('/products/banners/', { params }),

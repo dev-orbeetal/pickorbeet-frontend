@@ -6,30 +6,40 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { Star, X } from 'lucide-react';
 import { productsAPI } from '@/lib/api';
+import { getMediaUrl } from '@/lib/siteConfig';
 import { productEase } from '@/components/product/motion';
 
 function reviewError(error) {
   const data = error?.response?.data;
   if (!data) return 'Could not save your review';
   if (typeof data.detail === 'string') return data.detail;
+  if (typeof data.error === 'string') return data.error;
+  const images = data.images?.[0] || data.images;
   const comment = data.comment?.[0] || data.comment;
   const rating = data.rating?.[0] || data.rating;
-  return comment || rating || 'Could not save your review';
+  return images || comment || rating || 'Could not save your review';
 }
 
-export default function ProductReviewSheet({ open, onClose, product, mine, onSaved }) {
+export default function ProductReviewSheet({ open, onClose, product, mine, canReview, onSaved }) {
   const reduce = useReducedMotion();
   const router = useRouter();
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const [rating, setRating] = useState(mine?.rating || 0);
   const [hover, setHover] = useState(0);
   const [comment, setComment] = useState(mine?.comment || '');
+  const [files, setFiles] = useState([]);
+  const [previews, setPreviews] = useState([]);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!open) return undefined;
     setRating(mine?.rating || 0);
     setComment(mine?.comment || '');
+    setFiles([]);
+    setPreviews((old) => {
+      old.forEach((url) => URL.revokeObjectURL(url));
+      return [];
+    });
     const previous = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const onKey = (event) => {
@@ -41,6 +51,35 @@ export default function ProductReviewSheet({ open, onClose, product, mine, onSav
       window.removeEventListener('keydown', onKey);
     };
   }, [open, mine?.rating, mine?.comment, onClose]);
+
+  useEffect(() => () => {
+    previews.forEach((url) => URL.revokeObjectURL(url));
+  }, [previews]);
+
+  const onPick = (event) => {
+    const picked = Array.from(event.target.files || []);
+    event.target.value = '';
+    if (!picked.length) return;
+    setFiles((current) => {
+      const next = [...current, ...picked].slice(0, 5);
+      setPreviews((old) => {
+        old.forEach((url) => URL.revokeObjectURL(url));
+        return next.map((file) => URL.createObjectURL(file));
+      });
+      return next;
+    });
+  };
+
+  const removeFile = (index) => {
+    setFiles((current) => {
+      const next = current.filter((_, i) => i !== index);
+      setPreviews((old) => {
+        old.forEach((url) => URL.revokeObjectURL(url));
+        return next.map((file) => URL.createObjectURL(file));
+      });
+      return next;
+    });
+  };
 
   const submit = async (event) => {
     event.preventDefault();
@@ -54,7 +93,11 @@ export default function ProductReviewSheet({ open, onClose, product, mine, onSav
     }
     setSaving(true);
     try {
-      await productsAPI.saveReview(product.slug, { rating, comment: comment.trim() });
+      const body = new FormData();
+      body.append('rating', String(rating));
+      body.append('comment', comment.trim());
+      files.forEach((file) => body.append('images', file));
+      await productsAPI.saveReview(product.slug, body);
       toast.success(mine ? 'Review updated' : 'Review published');
       onSaved?.();
       onClose();
@@ -67,6 +110,8 @@ export default function ProductReviewSheet({ open, onClose, product, mine, onSav
 
   const shown = hover || rating;
   const next = router.asPath || `/product/${product.slug}`;
+  const existingImages = mine?.images || [];
+  const eligible = canReview || Boolean(mine);
 
   return (
     <AnimatePresence>
@@ -113,6 +158,10 @@ export default function ProductReviewSheet({ open, onClose, product, mine, onSav
                 </Link>
                 {' '}to write a review.
               </p>
+            ) : !eligible ? (
+              <p className="text-sm text-[#687386]">
+                Available after delivery — you can review this product once an order with it is delivered.
+              </p>
             ) : (
               <form onSubmit={submit}>
                 <div className="flex" onMouseLeave={() => setHover(0)}>
@@ -150,6 +199,45 @@ export default function ProductReviewSheet({ open, onClose, product, mine, onSav
                   placeholder="How did this product work for you?"
                   className="mt-2 w-full rounded-lg border border-[#E6ECF5] px-3 py-2.5 text-sm text-[#172033] outline-none placeholder:text-[#8B95A7] focus-visible:ring-2 focus-visible:ring-[#2864E8]"
                 />
+                {!!existingImages.length && !files.length && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {existingImages.map((item) => (
+                      <div key={item.id} className="h-14 w-14 overflow-hidden rounded-lg bg-[#F1F4F9]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={getMediaUrl(item.image)} alt="" className="h-full w-full object-cover" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {previews.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {previews.map((src, index) => (
+                      <div key={src} className="relative h-14 w-14 overflow-hidden rounded-lg bg-[#F1F4F9]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={src} alt="" className="h-full w-full object-cover" />
+                        <button
+                          type="button"
+                          aria-label="Remove photo"
+                          onClick={() => removeFile(index)}
+                          className="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#172033]/70 text-white"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <label className="mt-3 inline-flex h-11 cursor-pointer items-center rounded-[10px] border border-[#E6ECF5] px-4 text-sm font-semibold text-[#172033]">
+                  Add photos
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    multiple
+                    className="sr-only"
+                    onChange={onPick}
+                  />
+                </label>
+                <p className="mt-1 text-xs text-[#8B95A7]">Up to 5 photos. New uploads replace existing ones.</p>
                 <button
                   type="submit"
                   disabled={saving}

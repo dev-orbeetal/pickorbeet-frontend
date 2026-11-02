@@ -62,6 +62,12 @@ export default function ProductDetailPage({ initialProduct }) {
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [reviewTick, setReviewTick] = useState(0);
   const [reviewOpen, setReviewOpen] = useState(false);
+  const [reviewQuery, setReviewQuery] = useState({
+    sort: 'newest',
+    rating: '',
+    with_photos: false,
+    page: 1,
+  });
 
   useEffect(() => {
     setSelectedImage(0);
@@ -71,6 +77,7 @@ export default function ProductDetailPage({ initialProduct }) {
     setReviewPayload(null);
     setJustAdded(false);
     setReviewOpen(false);
+    setReviewQuery({ sort: 'newest', rating: '', with_photos: false, page: 1 });
   }, [slug]);
 
   useEffect(() => {
@@ -114,12 +121,19 @@ export default function ProductDetailPage({ initialProduct }) {
     if (!product?.slug) return undefined;
     let active = true;
     setReviewsLoading(true);
-    productsAPI.getReviews(product.slug)
+    const params = {
+      sort: reviewQuery.sort || 'newest',
+      page: reviewQuery.page || 1,
+      page_size: 20,
+    };
+    if (reviewQuery.rating) params.rating = reviewQuery.rating;
+    if (reviewQuery.with_photos) params.with_photos = '1';
+    productsAPI.getReviews(product.slug, params)
       .then((response) => { if (active) setReviewPayload(response.data); })
       .catch(() => { if (active) setReviewPayload(null); })
       .finally(() => { if (active) setReviewsLoading(false); });
     return () => { active = false; };
-  }, [product?.slug, reviewTick]);
+  }, [product?.slug, reviewTick, reviewQuery]);
 
   const variantList = useMemo(() => product?.variants || [], [product]);
   const groups = useMemo(() => selectionGroups(product), [product]);
@@ -346,6 +360,8 @@ export default function ProductDetailPage({ initialProduct }) {
     stockState,
     average,
     reviewCount,
+    canReview: Boolean(reviewPayload?.can_review),
+    hasMine: Boolean(reviewPayload?.mine),
     onAdd: () => submitCart(false),
     onBuy: () => submitCart(true),
     pending,
@@ -441,6 +457,8 @@ export default function ProductDetailPage({ initialProduct }) {
                   reviewsLoading={reviewsLoading}
                   onReviewsChanged={() => setReviewTick((value) => value + 1)}
                   reviewCount={reviewCount}
+                  reviewQuery={reviewQuery}
+                  onReviewQuery={setReviewQuery}
                 />
               </div>
               {relatedDesktop.length > 0 && (
@@ -458,6 +476,7 @@ export default function ProductDetailPage({ initialProduct }) {
         onClose={() => setReviewOpen(false)}
         product={product}
         mine={reviewPayload?.mine || null}
+        canReview={Boolean(reviewPayload?.can_review)}
         onSaved={() => setReviewTick((value) => value + 1)}
       />
     </Layout>

@@ -1,3 +1,4 @@
+import { useSelector } from 'react-redux';
 import { motion, useReducedMotion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import {
@@ -35,6 +36,8 @@ export default function ProductPurchase({
   stockState,
   average,
   reviewCount,
+  canReview = false,
+  hasMine = false,
   onWriteReview,
   onAdd,
   onBuy,
@@ -44,6 +47,8 @@ export default function ProductPurchase({
   flat = false,
 }) {
   const reduce = useReducedMotion();
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const canWrite = !isAuthenticated || canReview || hasMine;
 
   const eyebrow = [product.category?.name, product.subcategory?.name].filter(Boolean).join(' / ');
   const ratingLabel = reviewCount > 0 && average != null
@@ -111,9 +116,11 @@ export default function ProductPurchase({
         <button
           type="button"
           onClick={onWriteReview}
-          className="text-[13px] font-medium text-[#2864E8] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8]"
+          className={`text-[13px] font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8] ${canWrite ? 'text-[#2864E8]' : 'text-[#8B95A7]'}`}
         >
-          Write a review
+          {!isAuthenticated || canWrite
+            ? (hasMine ? 'Edit your review' : 'Write a review')
+            : 'Available after delivery'}
         </button>
       </div>
 
