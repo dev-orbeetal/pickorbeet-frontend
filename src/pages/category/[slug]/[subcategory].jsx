@@ -149,7 +149,6 @@ export default function SubcategoryPage({ initialCategory = null, initialSubcate
         </section>
         );
       })()}
-      )}
 
       {/* Products Grid */}
       <section className="py-4 md:py-12">
