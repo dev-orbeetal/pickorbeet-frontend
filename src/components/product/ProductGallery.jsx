@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Heart, Play, X } from 'lucide-react';
 import OfficialBadge from '@/components/product/OfficialBadge';
@@ -18,18 +19,19 @@ function youtubeEmbed(id) {
 function ZoomLightbox({ images, name, index, onClose, onIndex }) {
   const reduce = useReducedMotion();
   const count = images.length;
-  const src = getMediaUrl(images[index]?.image, '/images/placeholder.svg');
+  const safeIndex = Math.min(Math.max(index, 0), Math.max(count - 1, 0));
+  const src = getMediaUrl(images[safeIndex]?.image, '/images/placeholder.svg');
   const [scale, setScale] = useState(1);
 
   useEffect(() => {
     setScale(1);
-  }, [index]);
+  }, [safeIndex]);
 
   useEffect(() => {
     const onKey = (event) => {
       if (event.key === 'Escape') onClose();
-      if (event.key === 'ArrowLeft' && count > 1) onIndex((index - 1 + count) % count);
-      if (event.key === 'ArrowRight' && count > 1) onIndex((index + 1) % count);
+      if (event.key === 'ArrowLeft' && count > 1) onIndex((safeIndex - 1 + count) % count);
+      if (event.key === 'ArrowRight' && count > 1) onIndex((safeIndex + 1) % count);
     };
     window.addEventListener('keydown', onKey);
     const previous = document.body.style.overflow;
@@ -38,22 +40,26 @@ function ZoomLightbox({ images, name, index, onClose, onIndex }) {
       window.removeEventListener('keydown', onKey);
       document.body.style.overflow = previous;
     };
-  }, [count, index, onClose, onIndex]);
+  }, [count, safeIndex, onClose, onIndex]);
 
   return (
     <motion.div
       role="dialog"
       aria-modal="true"
-      aria-label={`${name} image ${index + 1}`}
+      aria-label={`${name} image ${safeIndex + 1}`}
       initial={reduce ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={reduce ? undefined : { opacity: 0 }}
       transition={{ duration: reduce ? 0 : 0.28, ease: productEase }}
-      className="fixed inset-0 z-[80] flex flex-col bg-[#051340]/96"
+      className="fixed inset-0 z-[200] flex flex-col bg-[#051340]"
+      onClick={onClose}
     >
-      <div className="flex items-center justify-between px-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+      <div
+        className="flex items-center justify-between px-3 pt-[max(0.75rem,env(safe-area-inset-top))]"
+        onClick={(event) => event.stopPropagation()}
+      >
         <span className="rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-bold text-white">
-          {index + 1}/{count}
+          {safeIndex + 1}/{count}
         </span>
         <button
           type="button"
@@ -64,25 +70,30 @@ function ZoomLightbox({ images, name, index, onClose, onIndex }) {
           <X className="h-5 w-5" />
         </button>
       </div>
-      <div className="relative flex min-h-0 flex-1 items-center justify-center px-2 pb-[max(1rem,env(safe-area-inset-bottom))]">
-        <img
-          src={src}
-          alt={name}
-          draggable={false}
-          onWheel={(event) => {
-            event.preventDefault();
-            const next = scale + (event.deltaY < 0 ? 0.12 : -0.12);
-            setScale(Math.min(4, Math.max(1, next)));
-          }}
-          style={{ transform: `scale(${scale})` }}
-          className="max-h-full max-w-full touch-none select-none object-contain transition-transform duration-150"
-        />
+      <div
+        className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden px-2 pb-[max(1rem,env(safe-area-inset-bottom))]"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="flex max-h-full max-w-full items-center justify-center overflow-hidden rounded-xl bg-[#F7F9FC] p-3 shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
+          <img
+            src={src}
+            alt={name}
+            draggable={false}
+            onWheel={(event) => {
+              event.preventDefault();
+              const next = scale + (event.deltaY < 0 ? 0.12 : -0.12);
+              setScale(Math.min(4, Math.max(1, next)));
+            }}
+            style={{ transform: `scale(${scale})` }}
+            className="max-h-[min(80vh,720px)] max-w-[min(92vw,960px)] touch-none select-none object-contain transition-transform duration-150"
+          />
+        </div>
         {count > 1 && (
           <>
             <button
               type="button"
               aria-label="Previous image"
-              onClick={() => onIndex((index - 1 + count) % count)}
+              onClick={() => onIndex((safeIndex - 1 + count) % count)}
               className="absolute left-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#172033] shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8]"
             >
               <ChevronLeft className="h-4 w-4" />
@@ -90,7 +101,7 @@ function ZoomLightbox({ images, name, index, onClose, onIndex }) {
             <button
               type="button"
               aria-label="Next image"
-              onClick={() => onIndex((index + 1) % count)}
+              onClick={() => onIndex((safeIndex + 1) % count)}
               className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#172033] shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8]"
             >
               <ChevronRight className="h-4 w-4" />
@@ -160,6 +171,10 @@ export default function ProductGallery({
   const shell = flat
     ? 'flex h-full flex-col rounded-2xl bg-white p-2 shadow-[0_8px_24px_rgba(23,32,51,0.05)]'
     : 'flex h-full flex-col rounded-2xl border border-[#E6ECF5] bg-white p-3 shadow-[0_8px_24px_rgba(23,32,51,0.05)]';
+  const [portalReady, setPortalReady] = useState(false);
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
 
   return (
     <>
@@ -300,22 +315,28 @@ export default function ProductGallery({
         )}
       </div>
 
-      <AnimatePresence>
-        {zoomed && zoomImages.length > 0 && (
-          <ZoomLightbox
-            images={zoomImages}
-            name={name}
-            index={Math.max(0, zoomImages.findIndex((item) => item.key === current?.key))}
-            onClose={() => setZoomed(false)}
-            onIndex={(next) => {
-              const target = zoomImages[typeof next === 'function' ? next(0) : next];
-              if (!target) return;
-              const mediaIndex = slides.findIndex((item) => item.key === target.key);
-              if (mediaIndex >= 0) onSelect(mediaIndex);
-            }}
-          />
-        )}
-      </AnimatePresence>
+      {portalReady
+        ? createPortal(
+          <AnimatePresence>
+            {zoomed && zoomImages.length > 0 && (
+              <ZoomLightbox
+                key="product-zoom"
+                images={zoomImages}
+                name={name}
+                index={Math.max(0, zoomImages.findIndex((item) => item.key === current?.key))}
+                onClose={() => setZoomed(false)}
+                onIndex={(nextIndex) => {
+                  const target = zoomImages[nextIndex];
+                  if (!target) return;
+                  const mediaIndex = slides.findIndex((item) => item.key === target.key);
+                  if (mediaIndex >= 0) onSelect(mediaIndex);
+                }}
+              />
+            )}
+          </AnimatePresence>,
+          document.body,
+        )
+        : null}
     </>
   );
 }
