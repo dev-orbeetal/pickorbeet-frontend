@@ -1,11 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Heart, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart, Play, X } from 'lucide-react';
 import OfficialBadge from '@/components/product/OfficialBadge';
 import { useOfficialBadgeStyle } from '@/components/product/OfficialBadgeProvider';
 import { productEase } from '@/components/product/motion';
 import { officialPlacement } from '@/lib/officialBadge';
 import { getMediaUrl } from '@/lib/siteConfig';
+
+function youtubeThumb(id) {
+  return id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : '/images/placeholder.svg';
+}
+
+function youtubeEmbed(id) {
+  return id ? `https://www.youtube-nocookie.com/embed/${id}?rel=0&modestbranding=1` : '';
+}
 
 function ZoomLightbox({ images, name, index, onClose, onIndex }) {
   const reduce = useReducedMotion();
@@ -95,6 +103,7 @@ function ZoomLightbox({ images, name, index, onClose, onIndex }) {
 }
 
 export default function ProductGallery({
+  media,
   images,
   name,
   selected,
@@ -107,12 +116,24 @@ export default function ProductGallery({
 }) {
   const reduce = useReducedMotion();
   const place = officialPlacement(useOfficialBadgeStyle(), false, official);
-  const count = images.length;
-  const current = images[selected] || images[0];
-  const src = getMediaUrl(current?.image, '/images/placeholder.svg');
+  const slides = Array.isArray(media) && media.length
+    ? media
+    : (Array.isArray(images) ? images.map((image, index) => ({
+      type: 'image',
+      key: `image-${image.id || image.image || index}`,
+      ...image,
+    })) : []);
+  const count = slides.length;
+  const current = slides[selected] || slides[0];
+  const isVideo = current?.type === 'video';
+  const src = isVideo
+    ? youtubeThumb(current?.youtube_id)
+    : getMediaUrl(current?.image, '/images/placeholder.svg');
+  const embed = isVideo ? youtubeEmbed(current?.youtube_id) : '';
   const dragStart = useRef(null);
   const swiped = useRef(false);
   const [zoomed, setZoomed] = useState(false);
+  const zoomImages = slides.filter((item) => item.type !== 'video');
 
   const step = useCallback((delta) => {
     if (count < 2) return;
@@ -121,7 +142,7 @@ export default function ProductGallery({
 
   const onPointerDown = (event) => {
     swiped.current = false;
-    if (count < 2) return;
+    if (count < 2 || isVideo) return;
     dragStart.current = { x: event.clientX, y: event.clientY };
   };
 
@@ -150,25 +171,44 @@ export default function ProductGallery({
           onPointerCancel={() => { dragStart.current = null; }}
         >
           <AnimatePresence initial={false} mode="wait">
-            <motion.button
-              key={src}
-              type="button"
-              onClick={() => {
-                if (swiped.current) {
-                  swiped.current = false;
-                  return;
-                }
-                setZoomed(true);
-              }}
-              aria-label={`View ${name} fullscreen`}
-              initial={reduce ? false : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={reduce ? undefined : { opacity: 0 }}
-              transition={{ duration: reduce ? 0 : 0.2, ease: productEase }}
-              className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2864E8]"
-            >
-              <img src={src} alt={name} className="h-full w-full object-contain" draggable={false} />
-            </motion.button>
+            {isVideo && embed ? (
+              <motion.div
+                key={current.key || embed}
+                initial={reduce ? false : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={reduce ? undefined : { opacity: 0 }}
+                transition={{ duration: reduce ? 0 : 0.2, ease: productEase }}
+                className="absolute inset-0"
+              >
+                <iframe
+                  title={current.title || `${name} video`}
+                  src={embed}
+                  className="h-full w-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              </motion.div>
+            ) : (
+              <motion.button
+                key={src}
+                type="button"
+                onClick={() => {
+                  if (swiped.current) {
+                    swiped.current = false;
+                    return;
+                  }
+                  setZoomed(true);
+                }}
+                aria-label={`View ${name} fullscreen`}
+                initial={reduce ? false : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={reduce ? undefined : { opacity: 0 }}
+                transition={{ duration: reduce ? 0 : 0.2, ease: productEase }}
+                className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2864E8]"
+              >
+                <img src={src} alt={name} className="h-full w-full object-contain" draggable={false} />
+              </motion.button>
+            )}
           </AnimatePresence>
 
           {official && (
@@ -203,7 +243,7 @@ export default function ProductGallery({
               <motion.button
                 type="button"
                 onClick={(event) => { event.stopPropagation(); step(-1); }}
-                aria-label="Previous image"
+                aria-label="Previous media"
                 whileTap={reduce ? undefined : { scale: 0.97 }}
                 className="absolute left-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white text-[#172033] shadow-[0_2px_8px_rgba(23,32,51,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8]"
               >
@@ -212,7 +252,7 @@ export default function ProductGallery({
               <motion.button
                 type="button"
                 onClick={(event) => { event.stopPropagation(); step(1); }}
-                aria-label="Next image"
+                aria-label="Next media"
                 whileTap={reduce ? undefined : { scale: 0.97 }}
                 className="absolute right-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white text-[#172033] shadow-[0_2px_8px_rgba(23,32,51,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8]"
               >
@@ -227,22 +267,32 @@ export default function ProductGallery({
 
         {count > 1 && (
           <div className="mt-2 flex gap-2 overflow-x-auto pb-0.5">
-            {images.map((image, index) => {
+            {slides.map((item, index) => {
               const active = index === selected;
-              const thumb = getMediaUrl(image.image, '/images/placeholder.svg');
+              const video = item.type === 'video';
+              const thumb = video
+                ? youtubeThumb(item.youtube_id)
+                : getMediaUrl(item.image, '/images/placeholder.svg');
               return (
                 <motion.button
-                  key={image.id || `${thumb}-${index}`}
+                  key={item.key || `${thumb}-${index}`}
                   type="button"
                   onClick={() => onSelect(index)}
-                  aria-label={`Show image ${index + 1}`}
+                  aria-label={video ? `Show video ${index + 1}` : `Show image ${index + 1}`}
                   aria-pressed={active}
                   whileTap={reduce ? undefined : { scale: 0.97 }}
                   animate={{ borderColor: active ? '#2864E8' : 'transparent' }}
                   transition={{ duration: reduce ? 0 : 0.2, ease: productEase }}
-                  className="h-16 w-[72px] shrink-0 overflow-hidden rounded-[10px] border-2 bg-[#F7F9FC] p-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8]"
+                  className="relative h-16 w-[72px] shrink-0 overflow-hidden rounded-[10px] border-2 bg-[#F7F9FC] p-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8]"
                 >
                   <img src={thumb} alt="" className="h-full w-full rounded-lg object-contain" />
+                  {video && (
+                    <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#172033]/7 text-white">
+                        <Play className="h-3.5 w-3.5 fill-white" />
+                      </span>
+                    </span>
+                  )}
                 </motion.button>
               );
             })}
@@ -251,13 +301,18 @@ export default function ProductGallery({
       </div>
 
       <AnimatePresence>
-        {zoomed && (
+        {zoomed && zoomImages.length > 0 && (
           <ZoomLightbox
-            images={images}
+            images={zoomImages}
             name={name}
-            index={selected}
+            index={Math.max(0, zoomImages.findIndex((item) => item.key === current?.key))}
             onClose={() => setZoomed(false)}
-            onIndex={onSelect}
+            onIndex={(next) => {
+              const target = zoomImages[typeof next === 'function' ? next(0) : next];
+              if (!target) return;
+              const mediaIndex = slides.findIndex((item) => item.key === target.key);
+              if (mediaIndex >= 0) onSelect(mediaIndex);
+            }}
           />
         )}
       </AnimatePresence>

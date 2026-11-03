@@ -115,30 +115,106 @@ export function matchedVariant(groups, variants, selected) {
   return matches.find((variant) => Number(variant.stock_quantity) > 0) || matches[0] || null;
 }
 
-/** Images for the product gallery: exact variant, same color siblings, then shared. */
-export function galleryForSelection(product, chosen) {
-  const all = Array.isArray(product?.images) ? product.images : [];
-  if (!all.length) {
-    return [{ image: product?.primary_image || '/images/placeholder.svg' }];
+function itemsForVariantIds(all, ids) {
+  if (!ids?.size) return [];
+  return all.filter((item) => item.variant && ids.has(String(item.variant)));
+}
+
+/** Active variants whose options include every currently picked label. */
+export function candidateVariants(product, selected = {}) {
+  const picks = Object.entries(selected || {}).filter(([, label]) => String(label || '').trim());
+  const active = (product?.variants || []).filter((variant) => variant.is_active !== false);
+  if (!picks.length) return active;
+  return active.filter((variant) => {
+    const choices = variantChoices(variant);
+    return picks.every(([name, label]) => (
+      choices.some((choice) => choice.name === name && choice.label === label)
+    ));
+  });
+}
+
+function colorLinkedItems(all, variants, selected = {}) {
+  const colorPick = Object.entries(selected || {}).find(([name, label]) => (
+    String(label || '').trim() && /\bcolou?rs?\b/i.test(String(name || ''))
+  ));
+  if (!colorPick) return [];
+  const [colorName, colorLabel] = colorPick;
+  const siblingIds = new Set(
+    (variants || [])
+      .filter((variant) => variantChoices(variant).some((choice) => (
+        choice.name === colorName && choice.label === colorLabel
+      )))
+      .map((variant) => String(variant.id)),
+  );
+  return itemsForVariantIds(all, siblingIds);
+}
+
+/** Filter images or videos by exact / partial / shared variant scope. */
+export function scopedGalleryItems(all, product, chosen, selected = {}) {
+  const items = Array.isArray(all) ? all : [];
+  if (!items.length) return [];
+  const shared = items.filter((item) => !item.variant);
+
+  if (chosen?.id) {
+    const exact = items.filter((item) => String(item.variant) === String(chosen.id));
+    if (exact.length) return exact;
+
+    const byColor = colorLinkedItems(items, product?.variants, {
+      ...selected,
+      ...Object.fromEntries(
+        variantChoices(chosen)
+          .filter((choice) => /\bcolou?rs?\b/i.test(choice.name))
+          .map((choice) => [choice.name, choice.label]),
+      ),
+    });
+    if (byColor.length) return byColor;
+    return shared.length ? shared : items;
   }
-  const shared = all.filter((image) => !image.variant);
-  if (!chosen?.id) return shared.length ? shared : all;
 
-  const exact = all.filter((image) => String(image.variant) === String(chosen.id));
-  if (exact.length) return exact;
+  const hasPicks = Object.values(selected || {}).some((label) => String(label || '').trim());
+  if (hasPicks) {
+    const candidates = candidateVariants(product, selected);
+    const candidateIds = new Set(candidates.map((variant) => String(variant.id)));
+    const forCandidates = itemsForVariantIds(items, candidateIds);
+    if (forCandidates.length) return forCandidates;
 
-  const colorChoice = variantChoices(chosen).find((choice) => /\bcolou?rs?\b/i.test(choice.name));
-  if (colorChoice) {
-    const siblingIds = new Set(
-      (product.variants || [])
-        .filter((variant) => variantChoices(variant).some((choice) => (
-          choice.name === colorChoice.name && choice.label === colorChoice.label
-        )))
-        .map((variant) => String(variant.id)),
-    );
-    const byColor = all.filter((image) => image.variant && siblingIds.has(String(image.variant)));
+    const byColor = colorLinkedItems(items, product?.variants, selected);
     if (byColor.length) return byColor;
   }
 
-  return shared.length ? shared : all;
+  return shared.length ? shared : items;
+}
+
+/**
+ * Images for the product gallery.
+ * Prefer exact matched variant, then images for the current (possibly partial)
+ * option picks / same color, then shared images, then the full set.
+ */
+export function galleryForSelection(product, chosen, selected = {}) {
+  const scoped = scopedGalleryItems(product?.images, product, chosen, selected);
+  if (scoped.length) return scoped;
+  return [{ image: product?.primary_image || '/images/placeholder.svg' }];
+}
+
+/** Mixed gallery slides: images first, then YouTube videos for the selection. */
+export function galleryMediaForSelection(product, chosen, selected = {}) {
+  const images = scopedGalleryItems(product?.images, product, chosen, selected);
+  const videos = scopedGalleryItems(product?.videos, product, chosen, selected);
+  const imageSlides = images.length
+    ? images
+    : (product?.primary_image ? [{ image: product.primary_image }] : []);
+  const media = [
+    ...imageSlides.map((item, index) => ({
+      type: 'image',
+      key: `image-${item.id || item.image || index}`,
+      ...item,
+    })),
+    ...videos.map((item, index) => ({
+      type: 'video',
+      key: `video-${item.id || item.youtube_id || index}`,
+      ...item,
+    })),
+  ];
+  if (media.length) return media;
+  return [{ type: 'image', key: 'placeholder', image: '/images/placeholder.svg' }];
 }

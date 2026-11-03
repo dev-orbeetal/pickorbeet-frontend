@@ -20,7 +20,7 @@ import { fetchProduct, fetchProducts, clearProduct } from '@/store/slices/produc
 import { addToCart } from '@/store/slices/cartSlice';
 import { readList, subscribeLists, toggleList, WISHLIST_KEY } from '@/lib/productLists';
 import { productsAPI } from '@/lib/api';
-import { availableLabels, galleryForSelection, matchedVariant, selectionGroups } from '@/lib/productOptions';
+import { availableLabels, galleryMediaForSelection, matchedVariant, selectionGroups } from '@/lib/productOptions';
 import siteConfig, { buildOgImageUrl, getAbsoluteImageUrl } from '@/lib/siteConfig';
 import { offerPrices, productBrand, productPriceDescription, productPriceTitle } from '@/lib/seo';
 import { fetchApi, serializable } from '@/lib/serverApi';
@@ -332,7 +332,7 @@ export default function ProductDetailPage({ initialProduct }) {
     );
   }
 
-  const images = galleryForSelection(product, chosen);
+  const media = galleryMediaForSelection(product, chosen, selected);
   const relatedProducts = products.filter((item) => item.id !== product.id).slice(0, 10);
   const relatedDesktop = relatedProducts.slice(0, 3);
   const rows = specificationRows(product);
@@ -370,9 +370,9 @@ export default function ProductDetailPage({ initialProduct }) {
   };
 
   const galleryProps = {
-    images,
+    media,
     name: product.name,
-    selected: Math.min(selectedImage, images.length - 1),
+    selected: Math.min(selectedImage, Math.max(media.length - 1, 0)),
     onSelect: setSelectedImage,
     discount,
     official: Boolean(product.is_official),

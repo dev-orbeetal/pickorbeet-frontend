@@ -8,8 +8,10 @@ import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
 import ProductGrid from '@/components/products/ProductGrid';
 import ProductGridSkeleton from '@/components/loading/ProductGridSkeleton';
+import DirectoryHero from '@/components/listing/DirectoryHero';
 import { useBootGate } from '@/components/loading/LoadingProvider';
 import CatalogControls, { catalogQuery } from '@/components/catalog/CatalogControls';
+import useDirectoryBanner from '@/hooks/useDirectoryBanner';
 import { fetchProducts } from '@/store/slices/productsSlice';
 import { buildOgImageUrl, getAbsoluteImageUrl, getMediaUrl } from '@/lib/siteConfig';
 import { buildListingJsonLd, categoryPriceDescription, categoryPriceTitle } from '@/lib/seo';
@@ -97,6 +99,7 @@ export default function CategoryPage({ initialCategory, initialProducts = [] }) 
   };
 
   const listingName = category?.name || 'Category';
+  const defaultBanner = useDirectoryBanner();
   const schemaProducts = hasSubcategories && !activeSubcategory ? initialProducts : listed;
   const listingJsonLd = category?.name && slug
     ? buildListingJsonLd({
@@ -123,32 +126,13 @@ export default function CategoryPage({ initialCategory, initialProducts = [] }) 
           : undefined,
       }) : undefined}
     >
-      <section className="border-b border-[#E4E9F2] bg-white">
-        <div className="container-custom py-4 md:py-6">
-          <nav className="mb-2 flex items-center gap-1 text-sm text-charcoal-500" aria-label="Breadcrumb">
-            <Link href="/" className="hover:text-navy-900">Home</Link>
-            <ChevronRight className="h-4 w-4" aria-hidden="true" />
-            <span className="font-medium text-charcoal-900">{category?.name || 'Category'}</span>
-          </nav>
-          <h1 className="text-2xl font-bold text-charcoal-900 md:text-3xl">
-            {listingName}
-          </h1>
-          <p className="mt-1 max-w-2xl text-sm text-charcoal-600 md:text-base">
-            {category?.tagline ? `${category.tagline}. ` : ''}
-            Compare {listingName} prices in Bangladesh.
-          </p>
-        </div>
-      </section>
-
-      {category?.banner_image && (
-        <div className="container-custom pt-4">
-          <img
-            src={getImageUrl(category.banner_image)}
-            alt={listingName}
-            className="aspect-[3/1] w-full rounded-xl object-cover"
-          />
-        </div>
-      )}
+      <DirectoryHero
+        title={listingName}
+        subtitle={`${category?.tagline ? `${category.tagline}. ` : ''}Compare ${listingName} prices in Bangladesh.`}
+        crumbs={[{ label: listingName }]}
+        image={category?.banner_image || category?.image || ''}
+        defaultBanner={defaultBanner}
+      />
 
       {hasSubcategories && !activeSubcategory && (
         <section className="py-4 md:py-8" aria-labelledby="browse-category">

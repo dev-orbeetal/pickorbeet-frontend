@@ -1,21 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
-import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Grid, ChevronRight } from 'lucide-react';
+import { Grid } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
 import ProductGrid from '@/components/products/ProductGrid';
 import ProductGridSkeleton from '@/components/loading/ProductGridSkeleton';
+import DirectoryHero from '@/components/listing/DirectoryHero';
 import { useBootGate } from '@/components/loading/LoadingProvider';
 import CatalogControls, { catalogQuery } from '@/components/catalog/CatalogControls';
+import useDirectoryBanner from '@/hooks/useDirectoryBanner';
 import { fetchProducts, fetchCategories } from '@/store/slices/productsSlice';
-import { getMediaUrl } from '@/lib/siteConfig';
 import { buildListingJsonLd, categoryPriceDescription, categoryPriceTitle } from '@/lib/seo';
 import { fetchApi, productRows, serializable } from '@/lib/serverApi';
-
-const getImageUrl = (url) => getMediaUrl(url, '/images/placeholder-category.png');
 
 export default function SubcategoryPage({ initialCategory = null, initialSubcategory = null, initialProducts = [] }) {
   const router = useRouter();
@@ -58,6 +56,7 @@ export default function SubcategoryPage({ initialCategory = null, initialSubcate
   }, [dispatch, subcategory, ordering, onSale, initialProducts]);
 
   const listingName = subcategoryData?.name || 'Subcategory';
+  const defaultBanner = useDirectoryBanner();
   const listingJsonLd = subcategoryData?.name && slug && subcategory
     ? buildListingJsonLd({
       name: listingName,
@@ -77,44 +76,16 @@ export default function SubcategoryPage({ initialCategory = null, initialSubcate
       description={categoryPriceDescription(listingName, subcategoryData?.description || category?.name)}
       jsonLd={listingJsonLd}
     >
-      {/* Hero Banner */}
-      <section className="relative h-48 md:h-64 bg-gradient-to-br from-primary-700 via-primary-600 to-primary-800 overflow-hidden">
-        {subcategoryData?.image && (
-          <div className="absolute inset-0">
-            <img
-              src={getImageUrl(subcategoryData.image)}
-              alt={subcategoryData.name}
-              className="w-full h-full object-cover opacity-20"
-            />
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-primary-900/50 to-transparent" />
-        <div className="container-custom h-full flex items-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-white"
-          >
-            {/* Breadcrumb */}
-            <nav className="flex items-center gap-2 text-sm text-cream-200 mb-4 flex-wrap">
-              <Link href="/" className="hover:text-white transition-colors">Home</Link>
-              <ChevronRight className="w-4 h-4" />
-              <Link href={`/category/${slug}`} className="hover:text-white transition-colors">
-                {category?.name || 'Category'}
-              </Link>
-              <ChevronRight className="w-4 h-4" />
-              <span className="text-cream-100">{subcategoryData?.name || 'Subcategory'}</span>
-            </nav>
-            <h1 className="text-2xl md:text-4xl font-display font-bold mb-2">
-              {listingName}
-            </h1>
-            <p className="text-base md:text-lg text-cream-200 max-w-2xl">
-              {subcategoryData?.description ? `${subcategoryData.description} ` : ''}
-              Compare {listingName} prices in Bangladesh.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+      <DirectoryHero
+        title={listingName}
+        subtitle={`${subcategoryData?.description ? `${subcategoryData.description} ` : ''}Compare ${listingName} prices in Bangladesh.`}
+        crumbs={[
+          { label: category?.name || 'Category', href: `/category/${slug}` },
+          { label: listingName },
+        ]}
+        image={subcategoryData?.image || ''}
+        defaultBanner={defaultBanner}
+      />
 
       {/* Sibling Subcategories Navigation */}
       {(() => {

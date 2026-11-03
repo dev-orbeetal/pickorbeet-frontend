@@ -6,7 +6,9 @@ import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
 import ProductGrid from '@/components/products/ProductGrid';
 import ProductGridSkeleton from '@/components/loading/ProductGridSkeleton';
+import DirectoryHero from '@/components/listing/DirectoryHero';
 import { useBootGate } from '@/components/loading/LoadingProvider';
+import useDirectoryBanner from '@/hooks/useDirectoryBanner';
 import { fetchProducts } from '@/store/slices/productsSlice';
 import { buildListingJsonLd, catalogFiltersActive, categoryPriceDescription, categoryPriceTitle, productPriceTitle } from '@/lib/seo';
 import { fetchApi, productRows, serializable } from '@/lib/serverApi';
@@ -156,6 +158,8 @@ export default function ProductsPage({ initialProducts = [], initialCount = 0 })
   const visibleProducts = products.length > 0 ? products : (filtered ? [] : initialProducts);
   const resultCount = listState === 'ready' ? pagination.count : (initialCount || visibleProducts.length);
   const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'FREE'];
+  const defaultBanner = useDirectoryBanner();
+  const heroTitle = searchLabel ? String(searchLabel) : 'Products';
 
   return (
     <Layout
@@ -174,12 +178,18 @@ export default function ProductsPage({ initialProducts = [], initialCount = 0 })
         ],
       }) : null}
     >
+      <DirectoryHero
+        title={heroTitle}
+        subtitle={`${filters.search ? `Results for “${filters.search}” · ` : ''}${resultCount} products`}
+        crumbs={[{ label: heroTitle }]}
+        defaultBanner={defaultBanner}
+      />
       <div className="container-custom py-4 md:py-8">
         {/* Header */}
         <div className="mb-3 flex flex-col md:mb-8 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-display font-bold text-secondary-900 mb-2">
-              All products in Bangladesh
+            <h1 className="text-2xl font-display font-bold text-secondary-900 mb-1 md:text-3xl">
+              {heroTitle}
             </h1>
             <p className="text-secondary-600">
               {filters.search ? `Results for “${filters.search}” · ` : ''}{resultCount} products found
