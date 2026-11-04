@@ -70,10 +70,20 @@ export function selectionGroups(product) {
   return groups;
 }
 
+function isSellableVariant(variant) {
+  if (variant?.is_active === false) return false;
+  // Public API only returns dealer-available variants; treat missing flag as sellable.
+  if (Object.prototype.hasOwnProperty.call(variant || {}, 'dealer_available')) {
+    return Boolean(variant.dealer_available);
+  }
+  return true;
+}
+
 export function availableLabels(group, groups, variants, selected) {
   if (!variants.length) return group.values.map((value) => value.label);
-  const labels = group.values.filter((value) => variants.some((variant) => {
-    if (variant.is_active === false) return false;
+  const sellable = variants.filter(isSellableVariant);
+  if (!sellable.length) return [];
+  const labels = group.values.filter((value) => sellable.some((variant) => {
     const choices = variantChoices(variant);
     if (!choices.some((choice) => choice.name === group.name && choice.label === value.label)) return false;
     return groups.every((other) => {
@@ -83,7 +93,7 @@ export function availableLabels(group, groups, variants, selected) {
       return choices.some((choice) => choice.name === other.name && choice.label === picked);
     });
   })).map((value) => value.label);
-  return labels.length ? labels : group.values.map((value) => value.label);
+  return labels;
 }
 
 export function optionParts(item) {
@@ -100,7 +110,7 @@ export function optionParts(item) {
 
 export function matchedVariant(groups, variants, selected) {
   const required = groups.filter((group) => group.required);
-  const active = variants.filter((variant) => variant.is_active !== false);
+  const active = variants.filter(isSellableVariant);
   if (!active.length) return null;
   if (required.some((group) => !selected[group.name])) return null;
   if (!required.length) {
