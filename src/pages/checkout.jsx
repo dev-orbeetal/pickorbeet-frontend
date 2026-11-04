@@ -199,6 +199,7 @@ export default function CheckoutPage() {
         if (value !== '' && value !== null && value !== undefined) cleanData[key] = value;
       });
       cleanData.payment_method = paymentMethod;
+      cleanData.platform = 'web';
       if (coupon?.code) cleanData.coupon_code = coupon.code;
       if (requestedIds) cleanData.item_ids = checkoutItems.map((item) => item.id);
       const response = await ordersAPI.checkout(cleanData);
