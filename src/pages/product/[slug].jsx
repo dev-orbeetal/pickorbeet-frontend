@@ -121,15 +121,21 @@ export default function ProductDetailPage({ initialProduct }) {
     return () => { active = false; };
   }, [product?.slug, reviewTick]);
 
-  const variantList = useMemo(() => product?.variants || [], [product]);
-  const groups = useMemo(() => selectionGroups(product), [product]);
+  const variantList = useMemo(
+    () => (product?.variants || []).filter((variant) => (
+      variant.is_active !== false
+      && (variant.dealer_available !== false || !Object.prototype.hasOwnProperty.call(variant, 'dealer_available'))
+    )),
+    [product],
+  );
+  const groups = useMemo(() => selectionGroups({ ...product, variants: variantList, option_groups: product?.option_groups }), [product, variantList]);
   const shownGroups = useMemo(() => groups.map((group) => {
     const labels = availableLabels(group, groups, variantList, selected);
     return {
       ...group,
       values: group.values.filter((value) => labels.includes(value.label)),
     };
-  }), [groups, variantList, selected]);
+  }).filter((group) => group.values.length > 0), [groups, variantList, selected]);
 
   useEffect(() => {
     setSelected((current) => {
@@ -152,11 +158,18 @@ export default function ProductDetailPage({ initialProduct }) {
     [groups, variantList, selected],
   );
   const selectionReady = groups.filter((group) => group.required).every((group) => selected[group.name]);
-  const stockLimit = chosen
+  const dealerSellable = chosen
+    ? chosen.dealer_available !== false
+    : !product?.is_out_of_stock;
+  const recordedStock = chosen
     ? Number(chosen.stock_quantity)
     : selectionReady
       ? Number(product?.stock_quantity || 0)
       : variantList.reduce((max, variant) => Math.max(max, Number(variant.stock_quantity) || 0), 0);
+  // Dealer-available options stay buyable even when warehouse books are empty.
+  const stockLimit = dealerSellable
+    ? Math.max(recordedStock, recordedStock > 0 ? recordedStock : 99)
+    : recordedStock;
   const displayPrice = chosen?.effective_price || chosen?.price || product?.price;
   const comparePrice = product?.compare_price === null || product?.compare_price === undefined || product?.compare_price === ''
     ? null
@@ -168,10 +181,10 @@ export default function ProductDetailPage({ initialProduct }) {
     ? (Number(product?.discount_percentage) || Math.round(((comparePrice - priceNumber) / comparePrice) * 100))
     : 0;
   const outOfStock = variantList.length > 0
-    ? (selectionReady ? !stockLimit : product?.is_out_of_stock)
-    : product?.is_out_of_stock;
+    ? (selectionReady ? !dealerSellable : Boolean(product?.is_out_of_stock))
+    : Boolean(product?.is_out_of_stock);
   const lowStock = chosen
-    ? stockLimit > 0 && stockLimit <= Number(chosen.low_stock_threshold || 0)
+    ? recordedStock > 0 && recordedStock <= Number(chosen.low_stock_threshold || 0)
     : Boolean(product?.is_low_stock) && !outOfStock;
   const stockState = outOfStock ? 'out' : lowStock ? 'low' : 'in';
 
