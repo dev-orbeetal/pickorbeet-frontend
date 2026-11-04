@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { useSelector } from 'react-redux';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ChevronLeft, Heart, Search, ShoppingCart } from 'lucide-react';
+import BrandLogo from '@/components/brand/BrandLogo';
 import { productEase } from '@/components/product/motion';
 
 const searchButton =
@@ -50,16 +51,11 @@ export default function ProductMobileBar() {
         >
           <ChevronLeft className="h-6 w-6" strokeWidth={2.25} />
         </button>
-        <Link
-          href="/"
-          aria-label="PickOrbeet"
-          className="flex min-w-0 items-center gap-1.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8]"
-        >
-          <img src="/images/logo.png" alt="" width={26} height={28} className="h-7 w-[26px] object-contain" />
-          <span className="truncate text-[17px] font-extrabold leading-none tracking-[-0.04em] text-[#0C49D8]">
-            Pick<span className="text-[#FF7A1A]">Orbeet</span>
-          </span>
-        </Link>
+        <BrandLogo
+          size="sm"
+          tone="light"
+          className="min-w-0 truncate rounded-md focus-visible:ring-[#2864E8]"
+        />
         <div className="ml-auto flex items-center gap-0.5 pr-1">
           <motion.button
             type="button"

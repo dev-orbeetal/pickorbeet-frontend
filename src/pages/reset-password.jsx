@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Lock, Eye, EyeOff, Loader2, CheckCircle, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
+import BrandLogo from '@/components/brand/BrandLogo';
 import { authAPI } from '@/lib/api';
 
 export default function ResetPasswordPage() {
@@ -109,10 +110,10 @@ export default function ResetPasswordPage() {
           animate={{ opacity: 1, y: 0 }}
           className="w-full max-w-md"
         >
-          <div className="text-center mb-8">
-            <Link href="/">
-              <img src="/images/logo.png" alt="Pickorbeet" className="h-16 mx-auto" />
-            </Link>
+          <div className="mb-8 text-center">
+            <div className="flex justify-center">
+              <BrandLogo size="lg" tone="light" />
+            </div>
             <h1 className="mt-6 text-2xl font-display font-bold text-charcoal-800">
               {success ? 'Password Reset!' : 'Create New Password'}
             </h1>

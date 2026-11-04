@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, ArrowRight, Heart, Crown } from 'lucide-react';
 import { storeSettingsAPI } from '@/lib/api';
 import { storeEmail, storePhone } from '@/lib/storeContact';
-import LogoMark from '@/components/brand/LogoMark';
+import BrandLogo from '@/components/brand/BrandLogo';
 
 const footerLinks = {
   quickLinks: [
@@ -84,16 +84,7 @@ export default function Footer() {
         >
           {/* Brand */}
           <motion.div variants={itemVariants}>
-            <Link href="/" aria-label="PickOrbeet" className="inline-flex items-center group">
-              <LogoMark
-                src={settings?.logo || '/images/logo.png'}
-                alt=""
-                width={settings?.logo ? undefined : 688}
-                height={settings?.logo ? undefined : 809}
-                className="h-16 w-auto overflow-hidden rounded-xl bg-ice sm:h-20"
-                imgClassName="block h-[112%] w-auto max-w-none -translate-y-[6%]"
-              />
-            </Link>
+            <BrandLogo size="lg" tone="dark" className="group" />
             <p className="mt-5 text-cream-400 leading-relaxed">
               Shop electronics, fashion, home, and everyday essentials. Original products,
               reliable delivery, and secure payment across Bangladesh.

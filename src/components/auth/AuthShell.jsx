@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ShieldCheck, Truck, BadgePercent } from 'lucide-react';
+import BrandLogo from '@/components/brand/BrandLogo';
 
 const perks = [
   { icon: Truck, title: 'Fast delivery', text: 'Across Bangladesh, cash on delivery.' },
@@ -15,10 +16,7 @@ export default function AuthShell({ title, subtitle, children, footer }) {
         <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#FE7818]/30 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-20 left-10 h-64 w-64 rounded-full bg-[#4C7DFF]/30 blur-3xl" />
         <div className="relative">
-          <Link href="/" className="inline-flex items-center gap-3">
-            <img src="/images/logo.png" alt="" className="h-12 w-12 rounded-2xl bg-white/10 p-1" />
-            <span className="text-2xl font-bold tracking-tight">Pick<span className="text-[#FF8A3D]">Orbeet</span></span>
-          </Link>
+          <BrandLogo size="lg" tone="dark" />
           <h2 className="mt-12 max-w-md text-4xl font-bold leading-tight">Shop faster with an account that remembers you.</h2>
           <p className="mt-4 max-w-sm text-base text-white/75">Track orders, save addresses, and check out in one step.</p>
         </div>
@@ -44,9 +42,9 @@ export default function AuthShell({ title, subtitle, children, footer }) {
           transition={{ duration: 0.35 }}
           className="w-full max-w-[440px]"
         >
-          <Link href="/" className="mb-6 flex items-center justify-center lg:hidden">
-            <img src="/images/logo.png" alt="PickOrbeet" className="h-14" />
-          </Link>
+          <div className="mb-6 flex justify-center lg:hidden">
+            <BrandLogo size="lg" tone="light" />
+          </div>
           <h1 className="text-3xl font-bold tracking-tight text-[#051340]">{title}</h1>
           {subtitle && <p className="mt-2 text-sm leading-6 text-[#5C6984]">{subtitle}</p>}
           <div className="mt-6 rounded-3xl border border-[#E6ECF8] bg-white p-6 shadow-[0_18px_50px_rgba(10,30,90,0.08)] sm:p-8">

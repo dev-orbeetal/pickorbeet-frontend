@@ -4,7 +4,7 @@ const siteConfig = {
   description: 'Shop electronics, fashion, home, beauty, and everyday essentials at PickOrbeet. Original products, fast delivery, and secure payment across Bangladesh.',
   siteUrl: (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.pickorbeet.com').replace(/\/+$/, ''),
   apiUrl: (process.env.NEXT_PUBLIC_API_URL || 'https://server.pickorbeet.com/api/v1').replace(/\/+$/, ''),
-  logo: '/images/logo.png',
+  logo: '/images/brand/pickorbeet-mark.png',
   mark: '/android-chrome-512x512.png',
   ogImage: '/og.jpg',
   ogImageWidth: 1200,

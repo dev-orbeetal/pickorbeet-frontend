@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Loader2, CheckCircle, XCircle, Mail, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
+import BrandLogo from '@/components/brand/BrandLogo';
 import { authAPI } from '@/lib/api';
 
 export default function VerifyEmailPage() {
@@ -151,10 +152,8 @@ export default function VerifyEmailPage() {
           animate={{ opacity: 1, y: 0 }}
           className="w-full max-w-md"
         >
-          <div className="text-center mb-8">
-            <Link href="/">
-              <img src="/images/logo.png" alt="Pickorbeet" className="h-16 mx-auto" />
-            </Link>
+          <div className="mb-8 flex justify-center">
+            <BrandLogo size="lg" tone="light" />
           </div>
 
           <div className="bg-white rounded-2xl shadow-elegant border border-cream-200 p-8">

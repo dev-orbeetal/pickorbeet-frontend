@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
+import BrandLogo from '@/components/brand/BrandLogo';
 import BdAddressFields from '@/components/BdAddressFields';
 import { addressAPI } from '@/lib/api';
 
@@ -226,12 +227,7 @@ export default function AddressesPage() {
               <button type="button" aria-label="Back" onClick={() => router.push('/account')} className="flex h-10 w-10 items-center justify-center">
                 <ChevronLeft className="h-6 w-6" />
               </button>
-              <Link href="/" className="mx-auto flex items-center gap-2" aria-label="PickOrbeet">
-                <img src="/images/logo.png" alt="" className="h-8 w-8 rounded-lg bg-white/10 object-contain" />
-                <span className="text-[20px] font-bold tracking-[-0.04em]">
-                  Pick<span className="text-[#FF7D16]">Orbeet</span>
-                </span>
-              </Link>
+              <BrandLogo size="md" tone="dark" className="mx-auto" />
               <Link href="/cart" aria-label="Cart" className="relative flex h-10 w-10 items-center justify-center">
                 <ShoppingCart className="h-5 w-5" />
                 <span className="absolute right-0.5 top-1 flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-[#FE7818] px-1 text-[10px] font-semibold">

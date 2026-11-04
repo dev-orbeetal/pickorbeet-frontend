@@ -14,7 +14,7 @@ export default function OfficialBadge({ compact = false }) {
     <img
       src="/images/badges/official.png"
       alt="Official"
-      width={Math.round(height * (313 / 98))}
+      width={Math.round(height * (452 / 146))}
       height={height}
       className="block max-w-none select-none"
       style={{ height, width: 'auto' }}

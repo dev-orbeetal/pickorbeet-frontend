@@ -8,11 +8,10 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { logout } from '@/store/slices/authSlice';
-import { storeSettingsAPI } from '@/lib/api';
 import { getMediaUrl } from '@/lib/siteConfig';
 import { useSearch } from '@/hooks';
 import { DesktopCategoryNav, MobileCategoryNav } from '@/components/layout/CategoryNav';
-import LogoMark from '@/components/brand/LogoMark';
+import BrandLogo from '@/components/brand/BrandLogo';
 import InlineDots from '@/components/loading/InlineDots';
 import NotificationBell from '@/components/notifications/NotificationBell';
 
@@ -93,7 +92,6 @@ export default function Header({ variant = 'default' }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showCategories, setShowCategories] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [logo, setLogo] = useState('');
   const [searchFocus, setSearchFocus] = useState(null);
   const [desktopSearchLayout, setDesktopSearchLayout] = useState(false);
   const desktopSearchRef = useRef(null);
@@ -114,12 +112,6 @@ export default function Header({ variant = 'default' }) {
     update();
     media.addEventListener('change', update);
     return () => media.removeEventListener('change', update);
-  }, []);
-
-  useEffect(() => {
-    storeSettingsAPI.getPublicSettings()
-      .then((res) => setLogo(res.data?.logo || ''))
-      .catch(() => {});
   }, []);
 
   const dispatch = useDispatch();
@@ -192,16 +184,7 @@ export default function Header({ variant = 'default' }) {
     <header className={`site-header z-50 text-white ${productBar ? 'max-lg:pointer-events-none max-lg:absolute max-lg:inset-x-0 max-lg:top-0 lg:pointer-events-auto lg:sticky lg:top-0 lg:bg-navy-800' : 'sticky top-0 bg-navy-800'}`}>
       <div className={`container-custom ${productBar ? 'max-lg:hidden' : ''}`}>
         <div className="flex items-center gap-2 py-1.5 md:gap-3 md:py-2">
-          <Link href="/" aria-label="PickOrbeet" className="flex shrink-0 items-center leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
-            <LogoMark
-              src={logo || '/images/logo.png'}
-              alt=""
-              width={688}
-              height={809}
-              className="topbar-logo shrink-0 overflow-hidden rounded-xl bg-ice"
-              imgClassName="object-contain"
-            />
-          </Link>
+          <BrandLogo size="md" tone="dark" priority className="topbar-brand shrink-0" />
 
           <form
             ref={desktopSearchRef}

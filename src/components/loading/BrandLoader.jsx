@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import LogoMark from '@/components/brand/LogoMark';
+import BrandLogo from '@/components/brand/BrandLogo';
 
 export default function BrandLoader() {
   useEffect(() => {
@@ -19,14 +19,7 @@ export default function BrandLoader() {
     >
       <div className="flex flex-col items-center px-6">
         <div className="brand-loader-bag">
-          <LogoMark
-            src="/images/logo.png"
-            alt=""
-            width={96}
-            height={113}
-            className="h-24 w-auto sm:h-28"
-            imgClassName="block h-full w-auto"
-          />
+          <BrandLogo href={null} size="xl" tone="light" showWordmark={false} />
         </div>
         <p className="mt-5 text-2xl font-extrabold tracking-tight sm:text-3xl" aria-hidden="true">
           <span className="text-navy-900">Pick</span>

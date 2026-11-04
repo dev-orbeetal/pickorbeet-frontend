@@ -139,26 +139,20 @@
     }
   }
 
-  .topbar-logo,
   .topbar-search {
     height: var(--topbar-control);
     max-height: var(--topbar-control);
     box-sizing: border-box;
   }
 
-  .topbar-logo {
-    display: inline-flex;
-    align-items: center;
-    width: auto;
-    line-height: 0;
+  .topbar-brand {
+    max-height: var(--topbar-control);
   }
 
-  .topbar-logo img {
+  .topbar-brand img {
     display: block;
-    height: 100%;
+    max-height: calc(var(--topbar-control) - 8px);
     width: auto;
-    max-width: none;
-    max-height: 100%;
     object-fit: contain;
   }
 
