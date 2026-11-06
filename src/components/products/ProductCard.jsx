@@ -150,7 +150,7 @@ export default function ProductCard({ product }) {
           )}
         </p>
         <p className={`h-4 truncate text-[11px] font-medium ${product.is_out_of_stock ? 'text-red-600' : 'text-savings'}`}>
-          {product.is_out_of_stock ? 'Out of stock' : hasDiscount ? `Save ${money(saved)}` : '\u00A0'}
+          {product.is_out_of_stock ? 'Out of Stock' : hasDiscount ? `Save ${money(saved)}` : '\u00A0'}
         </p>
 
         <div className="mt-auto flex items-center gap-1 pt-1.5">
@@ -178,7 +178,7 @@ export default function ProductCard({ product }) {
             className="flex h-7 min-w-0 flex-1 items-center justify-center gap-1 rounded-md bg-action px-1 text-[11px] font-semibold text-white transition-colors hover:bg-[#1d54cc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-[#C5CDD8]"
           >
             <ShoppingCart className="cart-action-icon h-3.5 w-3.5 shrink-0" />
-            <span className="truncate">{product.is_out_of_stock ? 'Out of stock' : adding ? 'Adding...' : justAdded ? 'Added' : 'Add to Cart'}</span>
+            <span className="truncate">{product.is_out_of_stock ? 'Out of Stock' : adding ? 'Adding...' : justAdded ? 'Added' : 'Add to Cart'}</span>
           </button>
         </div>
       </div>

@@ -68,7 +68,7 @@ export default function QuickViewModal({ product, onClose, onAddToCart, adding, 
               Save Tk {Math.round(comparePrice - price).toLocaleString()}
             </p>
           )}
-          {view.is_out_of_stock && <p className="mt-2 text-sm text-red-600">Out of stock</p>}
+          {view.is_out_of_stock && <p className="mt-2 text-sm text-red-600">Out of Stock</p>}
           <div className="mt-6 flex flex-wrap gap-3">
             <button
               type="button"

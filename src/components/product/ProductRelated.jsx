@@ -129,7 +129,7 @@ function RelatedCard({ product, compact = false }) {
           type="button"
           onClick={cart}
           disabled={adding || product.is_out_of_stock}
-          aria-label={product.is_out_of_stock ? 'Out of stock' : 'Add to cart'}
+          aria-label={product.is_out_of_stock ? 'Out of Stock' : 'Add to cart'}
           className={`flex shrink-0 items-center justify-center rounded-md border border-[#E6ECF5] text-[#2864E8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8] disabled:opacity-40 ${compact ? 'h-7 w-7' : 'h-11 w-11 lg:h-7 lg:w-7'}`}
         >
           <ShoppingCart className="h-3.5 w-3.5" />

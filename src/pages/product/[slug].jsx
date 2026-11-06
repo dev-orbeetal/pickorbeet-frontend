@@ -136,10 +136,7 @@ export default function ProductDetailPage({ initialProduct }) {
   }, [product?.slug, reviewTick, reviewQuery]);
 
   const variantList = useMemo(
-    () => (product?.variants || []).filter((variant) => (
-      variant.is_active !== false
-      && (variant.dealer_available !== false || !Object.prototype.hasOwnProperty.call(variant, 'dealer_available'))
-    )),
+    () => (product?.variants || []).filter((variant) => variant.is_active !== false),
     [product],
   );
   const groups = useMemo(() => selectionGroups({ ...product, variants: variantList, option_groups: product?.option_groups }), [product, variantList]);
@@ -171,19 +168,6 @@ export default function ProductDetailPage({ initialProduct }) {
     () => matchedVariant(groups, variantList, selected),
     [groups, variantList, selected],
   );
-  const selectionReady = groups.filter((group) => group.required).every((group) => selected[group.name]);
-  const dealerSellable = chosen
-    ? chosen.dealer_available !== false
-    : !product?.is_out_of_stock;
-  const recordedStock = chosen
-    ? Number(chosen.stock_quantity)
-    : selectionReady
-      ? Number(product?.stock_quantity || 0)
-      : variantList.reduce((max, variant) => Math.max(max, Number(variant.stock_quantity) || 0), 0);
-  // Dealer-available options stay buyable even when warehouse books are empty.
-  const stockLimit = dealerSellable
-    ? Math.max(recordedStock, recordedStock > 0 ? recordedStock : 99)
-    : recordedStock;
   const displayPrice = chosen?.effective_price || chosen?.price || product?.price;
   const comparePrice = product?.compare_price === null || product?.compare_price === undefined || product?.compare_price === ''
     ? null
@@ -194,23 +178,14 @@ export default function ProductDetailPage({ initialProduct }) {
   const discount = hasDiscount
     ? (Number(product?.discount_percentage) || Math.round(((comparePrice - priceNumber) / comparePrice) * 100))
     : 0;
-  const outOfStock = variantList.length > 0
-    ? (selectionReady ? !dealerSellable : Boolean(product?.is_out_of_stock))
-    : Boolean(product?.is_out_of_stock);
-  const lowStock = chosen
-    ? recordedStock > 0 && recordedStock <= Number(chosen.low_stock_threshold || 0)
-    : Boolean(product?.is_low_stock) && !outOfStock;
-  const stockState = outOfStock ? 'out' : lowStock ? 'low' : 'in';
+  const outOfStock = (chosen || product)?.availability === 'out_of_stock';
+  const stockState = outOfStock ? 'out' : 'in';
 
   useEffect(() => {
     const sync = () => setSaved(product?.id ? readList(WISHLIST_KEY).includes(product.id) : false);
     sync();
     return subscribeLists(sync);
   }, [product?.id]);
-
-  useEffect(() => {
-    if (stockLimit > 0 && quantity > stockLimit) setQuantity(stockLimit);
-  }, [stockLimit, quantity]);
 
   const chooseOption = (name, label) => {
     setSelected((current) => {
@@ -234,7 +209,7 @@ export default function ProductDetailPage({ initialProduct }) {
       toast.error(`Choose a ${missing.name.toLowerCase()}`);
       return;
     }
-    if (!stockLimit) {
+    if (outOfStock) {
       toast.error('This option is out of stock');
       return;
     }
@@ -242,7 +217,7 @@ export default function ProductDetailPage({ initialProduct }) {
     dispatch(addToCart({
       product_id: product.id,
       variant_id: chosen?.id || null,
-      quantity: Math.min(quantity, stockLimit),
+      quantity,
     }))
       .unwrap()
       .then(() => {
@@ -369,7 +344,6 @@ export default function ProductDetailPage({ initialProduct }) {
     onSelect: chooseOption,
     quantity,
     onQuantity: setQuantity,
-    stockLimit,
     stockState,
     average,
     reviewCount,
@@ -379,7 +353,7 @@ export default function ProductDetailPage({ initialProduct }) {
     onBuy: () => submitCart(true),
     pending,
     justAdded,
-    purchaseDisabled: Boolean(outOfStock) || !stockLimit,
+    purchaseDisabled: outOfStock,
   };
 
   const galleryProps = {

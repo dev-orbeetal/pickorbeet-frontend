@@ -32,7 +32,6 @@ export default function ProductPurchase({
   onSelect,
   quantity,
   onQuantity,
-  stockLimit,
   stockState,
   average,
   reviewCount,
@@ -218,15 +217,14 @@ export default function ProductPurchase({
           <span className="w-7 text-center text-sm font-semibold text-[#172033]">{quantity}</span>
           <button
             type="button"
-            onClick={() => onQuantity(stockLimit > 0 ? Math.min(stockLimit, quantity + 1) : quantity)}
-            disabled={!stockLimit || quantity >= stockLimit}
+            onClick={() => onQuantity(quantity + 1)}
             aria-label="Increase quantity"
-            className="flex h-9 w-[34px] items-center justify-center text-[#172033] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2864E8] disabled:opacity-40"
+            className="flex h-9 w-[34px] items-center justify-center text-[#172033] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2864E8]"
           >
             <Plus className="h-3.5 w-3.5" />
           </button>
         </div>
-        <StockLine state={stockState} stockLimit={stockLimit} />
+        <StockLine state={stockState} />
       </div>
 
       <div className="mt-3.5 flex gap-2.5">
@@ -267,30 +265,19 @@ export default function ProductPurchase({
   );
 }
 
-function StockLine({ state, stockLimit }) {
+function StockLine({ state }) {
   if (state === 'out') {
     return (
       <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-red-600">
         <span className="h-[7px] w-[7px] rounded-full bg-red-600" />
-        Out of stock
-      </span>
-    );
-  }
-  if (state === 'low') {
-    return (
-      <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#EA6C04]">
-        <span className="h-[7px] w-[7px] rounded-full bg-[#EA6C04]" />
-        Only {stockLimit} left
+        Out of Stock
       </span>
     );
   }
   return (
-    <span className="inline-flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px]">
-      <span className="inline-flex items-center gap-1.5 font-medium text-[#16835B]">
-        <span className="h-[7px] w-[7px] rounded-full bg-[#16835B]" />
-        In stock
-      </span>
-      <span className="text-[#8B95A7]">Ready to ship</span>
+    <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#16835B]">
+      <span className="h-[7px] w-[7px] rounded-full bg-[#16835B]" />
+      In Stock
     </span>
   );
 }

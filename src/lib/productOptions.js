@@ -71,12 +71,11 @@ export function selectionGroups(product) {
 }
 
 function isSellableVariant(variant) {
-  if (variant?.is_active === false) return false;
-  // Public API only returns dealer-available variants; treat missing flag as sellable.
-  if (Object.prototype.hasOwnProperty.call(variant || {}, 'dealer_available')) {
-    return Boolean(variant.dealer_available);
-  }
-  return true;
+  return variant?.is_active !== false;
+}
+
+function isInStock(variant) {
+  return variant.availability !== 'out_of_stock';
 }
 
 export function availableLabels(group, groups, variants, selected) {
@@ -114,7 +113,7 @@ export function matchedVariant(groups, variants, selected) {
   if (!active.length) return null;
   if (required.some((group) => !selected[group.name])) return null;
   if (!required.length) {
-    return active.find((variant) => Number(variant.stock_quantity) > 0) || active[0];
+    return active.find(isInStock) || active[0];
   }
   const matches = active.filter((variant) => {
     const choices = variantChoices(variant);
@@ -122,7 +121,7 @@ export function matchedVariant(groups, variants, selected) {
       choice.name === group.name && choice.label === selected[group.name]
     )));
   });
-  return matches.find((variant) => Number(variant.stock_quantity) > 0) || matches[0] || null;
+  return matches.find(isInStock) || matches[0] || null;
 }
 
 function itemsForVariantIds(all, ids) {

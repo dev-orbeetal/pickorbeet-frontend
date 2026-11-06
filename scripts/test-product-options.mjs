@@ -8,7 +8,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const modPath = path.join(root, 'src/lib/productOptions.js');
-const { galleryForSelection, galleryMediaForSelection, candidateVariants } = await import(pathToFileURL(modPath).href);
+const { galleryForSelection, galleryMediaForSelection, candidateVariants, matchedVariant } = await import(pathToFileURL(modPath).href);
 
 const white = { id: 'v-white', is_active: true, options: [{ name: 'Color', label: 'White' }] };
 const black = { id: 'v-black', is_active: true, options: [{ name: 'Color', label: 'Black' }] };
@@ -93,6 +93,15 @@ const whiteLImg = { id: 'i-white-l', image: '/white-l.png', variant: 'v-white-l'
     'image:i-white',
     'video:vid-white',
   ]);
+}
+
+{
+  // An in-stock match wins over an out-of-stock duplicate; an out-of-stock option stays selectable.
+  const groups = [{ name: 'Color', required: true, values: [] }];
+  const soldOut = { id: 'sold-out', is_active: true, availability: 'out_of_stock', options: [{ name: 'Color', label: 'White' }] };
+  const inStock = { id: 'in-stock', is_active: true, availability: 'in_stock', options: [{ name: 'Color', label: 'White' }] };
+  assert.equal(matchedVariant(groups, [soldOut, inStock], { Color: 'White' }).id, 'in-stock');
+  assert.equal(matchedVariant(groups, [soldOut], { Color: 'White' }).id, 'sold-out');
 }
 
 console.log('productOptions gallery checks passed');

@@ -38,9 +38,9 @@ export default function CartPage() {
 
   const handleUpdateQuantity = (item, newQuantity) => {
     if (newQuantity < 1) return;
-    const stock = Number(item.stock_quantity);
-    const next = Number.isFinite(stock) && stock > 0 ? Math.min(stock, newQuantity) : newQuantity;
-    dispatch(updateCartItem({ itemId: item.id, quantity: next }));
+    dispatch(updateCartItem({ itemId: item.id, quantity: newQuantity }))
+      .unwrap()
+      .catch((error) => toast.error(error?.error || 'Could not update quantity'));
   };
 
   const toggleItem = (itemId) => {
