@@ -63,7 +63,7 @@ export default function ShipmentPanel({ shipment, onRefresh, refreshing = false 
 
       {showCod && (
         <p className="mt-3 text-sm text-charcoal-600">
-          {cod > 0 ? `Cash to pay the rider: ৳${cod.toLocaleString()}` : 'Paid online. Nothing to pay the rider.'}
+          {cod > 0 ? `Cash to pay the rider: ৳${cod.toLocaleString()}` : 'Nothing to pay the rider.'}
         </p>
       )}
 
