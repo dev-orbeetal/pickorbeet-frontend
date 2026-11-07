@@ -5,6 +5,7 @@ import {
   Check, CreditCard, Minus, Package, Plus, Share2, ShieldCheck, ShoppingCart, Zap,
 } from 'lucide-react';
 import { swatchHex } from '@/lib/colorSwatch';
+import { MAX_ORDER_QUANTITY } from '@/lib/productOptions';
 import Stars from '@/components/product/Stars';
 import { productEase } from '@/components/product/motion';
 
@@ -217,9 +218,10 @@ export default function ProductPurchase({
           <span className="w-7 text-center text-sm font-semibold text-[#172033]">{quantity}</span>
           <button
             type="button"
-            onClick={() => onQuantity(quantity + 1)}
+            onClick={() => onQuantity(Math.min(MAX_ORDER_QUANTITY, quantity + 1))}
+            disabled={quantity >= MAX_ORDER_QUANTITY}
             aria-label="Increase quantity"
-            className="flex h-9 w-[34px] items-center justify-center text-[#172033] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2864E8]"
+            className="flex h-9 w-[34px] items-center justify-center text-[#172033] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2864E8] disabled:opacity-40"
           >
             <Plus className="h-3.5 w-3.5" />
           </button>

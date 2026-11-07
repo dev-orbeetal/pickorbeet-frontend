@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { ordersAPI } from '@/lib/api';
 import { money } from '@/lib/delivery';
 
-export default function CouponField({ subtotal, coupon, onApply, onClear }) {
+export default function CouponField({ itemIds, coupon, onApply, onClear }) {
   const [code, setCode] = useState(coupon?.code || '');
   const [busy, setBusy] = useState(false);
 
@@ -13,9 +13,13 @@ export default function CouponField({ subtotal, coupon, onApply, onClear }) {
       toast.error('Enter a coupon code');
       return;
     }
+    if (!itemIds.length) {
+      toast.error('Select at least one item');
+      return;
+    }
     setBusy(true);
     try {
-      const response = await ordersAPI.validateCoupon({ code: next, subtotal });
+      const response = await ordersAPI.validateCoupon({ code: next, item_ids: itemIds });
       const applied = {
         code: response.data.coupon.code,
         discount: Number(response.data.discount_amount) || 0,

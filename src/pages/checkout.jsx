@@ -78,17 +78,12 @@ export default function CheckoutPage() {
   const deliveryCharge = deliveryChargeFor({
     city: formData.shipping_city,
     district: formData.shipping_district,
-    division: formData.shipping_division,
     inside: deliveryInside,
     outside: deliveryOutside,
   });
   const discount = coupon?.discount || 0;
   const total = Math.max(0, lineSubtotal - discount) + (deliveryCharge || 0);
-  const inside = isInsideDhaka(
-    formData.shipping_city,
-    formData.shipping_district,
-    formData.shipping_division,
-  );
+  const inside = isInsideDhaka(formData.shipping_city, formData.shipping_district);
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
@@ -125,7 +120,7 @@ export default function CheckoutPage() {
     if (!code || lineSubtotal <= 0) return undefined;
     couponBoot.current = true;
     let active = true;
-    ordersAPI.validateCoupon({ code, subtotal: lineSubtotal })
+    ordersAPI.validateCoupon({ code, item_ids: checkoutItems.map((item) => item.id) })
       .then((response) => {
         if (!active) return;
         setCoupon({
@@ -135,7 +130,7 @@ export default function CheckoutPage() {
       })
       .catch(() => {});
     return () => { active = false; };
-  }, [router.isReady, router.query.coupon, cartLoaded, lineSubtotal]);
+  }, [router.isReady, router.query.coupon, cartLoaded, lineSubtotal, checkoutItems]);
 
   useEffect(() => {
     if (!cartLoaded || !router.isReady) return;
@@ -461,7 +456,7 @@ export default function CheckoutPage() {
               </div>
               <div className="mb-4">
                 <CouponField
-                  subtotal={lineSubtotal}
+                  itemIds={checkoutItems.map((item) => item.id)}
                   coupon={coupon}
                   onApply={setCoupon}
                   onClear={() => setCoupon(null)}

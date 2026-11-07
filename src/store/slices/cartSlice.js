@@ -5,8 +5,8 @@ const initialState = {
   items: [],
   totalItems: 0,
   subtotal: 0,
-  deliveryInside: 0,
-  deliveryOutside: 0,
+  deliveryInside: 70,
+  deliveryOutside: 125,
   loading: false,
   error: null,
 };

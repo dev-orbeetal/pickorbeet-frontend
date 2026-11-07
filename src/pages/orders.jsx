@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Package, ChevronRight, Search, Filter, ShoppingBag, Truck, CheckCircle, XCircle, Clock, ArrowLeft, Copy } from 'lucide-react';
+import { Package, ChevronRight, Search, Filter, ShoppingBag, Truck, CheckCircle, XCircle, Clock, ArrowLeft, Copy, FileDown } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
 import BdAddressFields from '@/components/BdAddressFields';
@@ -117,6 +117,20 @@ export default function OrdersPage() {
       toast.error(error.response?.data?.error || 'Could not refresh the courier status');
     } finally {
       setRefreshingShipment(false);
+    }
+  };
+
+  const downloadInvoice = async () => {
+    if (!selectedOrder?.id) return;
+    setActing(true);
+    try {
+      const response = await ordersAPI.invoiceLink(selectedOrder.id);
+      // Sent as an attachment, so the browser downloads it and stays on this page.
+      window.location.assign(response.data.url);
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Could not download the invoice');
+    } finally {
+      setActing(false);
     }
   };
 
@@ -261,6 +275,12 @@ export default function OrdersPage() {
                     <button type="button" onClick={buyAgain} disabled={acting} className="rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-primary-700 hover:bg-cream-100 disabled:opacity-60">
                       Buy again
                     </button>
+                    {selectedOrder.invoice_available && (
+                      <button type="button" onClick={downloadInvoice} disabled={acting} className="inline-flex items-center gap-1.5 rounded-lg bg-white/15 px-3 py-1.5 text-sm font-medium text-white hover:bg-white/25 disabled:opacity-60">
+                        <FileDown className="w-4 h-4" />
+                        Download invoice
+                      </button>
+                    )}
                   </div>
                 </div>
 

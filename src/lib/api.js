@@ -165,6 +165,7 @@ export const ordersAPI = {
   cancelOrder: (id) => api.post(`/orders/my-orders/${id}/cancel/`),
   updateDelivery: (id, data) => api.patch(`/orders/my-orders/${id}/delivery/`, data),
   refreshShipment: (id) => api.post(`/orders/my-orders/${id}/shipment/refresh/`),
+  invoiceLink: (id) => api.post(`/orders/my-orders/${id}/invoice/link/`),
   trackOrder: (data) => api.post('/orders/track/', data),
   validateCoupon: (data) => api.post('/orders/coupons/validate/', data),
 };

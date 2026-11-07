@@ -1,3 +1,6 @@
+// Shoppers never see stock counts; the server checks real stock when items are added.
+export const MAX_ORDER_QUANTITY = 99;
+
 function unique(values) {
   const seen = [];
   values.forEach((value) => {

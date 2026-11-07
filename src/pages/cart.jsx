@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -9,12 +9,17 @@ import Layout from '@/components/layout/Layout';
 import { useBootGate } from '@/components/loading/LoadingProvider';
 import CouponField from '@/components/checkout/CouponField';
 import { fetchCart, updateCartItem, removeFromCart } from '@/store/slices/cartSlice';
+import { ordersAPI } from '@/lib/api';
 import { money } from '@/lib/delivery';
-import { optionParts } from '@/lib/productOptions';
+import { MAX_ORDER_QUANTITY, optionParts } from '@/lib/productOptions';
 import { getMediaUrl } from '@/lib/siteConfig';
 
 function optionLine(item) {
   return optionParts(item).join(' | ');
+}
+
+function canIncrease(item) {
+  return !item.is_out_of_stock && item.quantity < (item.max_quantity ?? MAX_ORDER_QUANTITY);
 }
 
 export default function CartPage() {
@@ -26,15 +31,39 @@ export default function CartPage() {
   const [coupon, setCoupon] = useState(null);
   useBootGate(pendingBoot && (!items || items.length === 0));
 
-  const selectedIds = !items?.length
-    ? []
-    : (selected === null ? items.map((item) => item.id) : selected.filter((id) => items.some((item) => item.id === id)));
-  const selectedItems = (items || []).filter((item) => selectedIds.includes(item.id));
+  const buyable = (items || []).filter((item) => !item.is_out_of_stock);
+  const selectedIds = selected === null
+    ? buyable.map((item) => item.id)
+    : selected.filter((id) => buyable.some((item) => item.id === id));
+  const selectedItems = buyable.filter((item) => selectedIds.includes(item.id));
   const selectedSubtotal = selectedItems.reduce((sum, item) => sum + (parseFloat(item.total_price) || 0), 0);
+  const quoteKey = selectedItems.map((item) => `${item.id}:${item.total_price}`).join(',');
+  const pricedFor = useRef(null);
 
   useEffect(() => {
     dispatch(fetchCart()).finally(() => setPendingBoot(false));
   }, [dispatch]);
+
+  useEffect(() => {
+    if (!coupon?.code || !selectedIds.length || pricedFor.current === quoteKey) return undefined;
+    pricedFor.current = quoteKey;
+    let active = true;
+    ordersAPI.validateCoupon({ code: coupon.code, item_ids: selectedIds })
+      .then((response) => {
+        if (active) setCoupon({ code: coupon.code, discount: Number(response.data.discount_amount) || 0 });
+      })
+      .catch((error) => {
+        if (!active) return;
+        setCoupon(null);
+        toast.error(error.response?.data?.error || 'That coupon no longer applies');
+      });
+    return () => { active = false; };
+  }, [coupon?.code, quoteKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const applyCoupon = (next) => {
+    pricedFor.current = quoteKey;
+    setCoupon(next);
+  };
 
   const handleUpdateQuantity = (item, newQuantity) => {
     if (newQuantity < 1) return;
@@ -43,7 +72,12 @@ export default function CartPage() {
       .catch((error) => toast.error(error?.error || 'Could not update quantity'));
   };
 
-  const toggleItem = (itemId) => {
+  const toggleItem = (item) => {
+    const itemId = item.id;
+    if (item.is_out_of_stock) {
+      toast.error(`${item.product_name} is unavailable right now`);
+      return;
+    }
     const next = selectedIds.includes(itemId)
       ? selectedIds.filter((id) => id !== itemId)
       : [...selectedIds, itemId];
@@ -119,9 +153,9 @@ export default function CartPage() {
             <label className="flex items-center gap-2 text-sm font-medium text-secondary-700">
               <input
                 type="checkbox"
-                checked={selectedIds.length === items.length}
+                checked={buyable.length > 0 && selectedIds.length === buyable.length}
                 onChange={() => {
-                  setSelected(selectedIds.length === items.length ? [] : items.map((item) => item.id));
+                  setSelected(selectedIds.length === buyable.length ? [] : buyable.map((item) => item.id));
                   setCoupon(null);
                 }}
                 className="h-4 w-4 rounded border-gray-300 text-primary-600"
@@ -139,7 +173,7 @@ export default function CartPage() {
                 <input
                   type="checkbox"
                   checked={selectedIds.includes(item.id)}
-                  onChange={() => toggleItem(item.id)}
+                  onChange={() => toggleItem(item)}
                   aria-label={`Select ${item.product_name}`}
                   className="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 text-primary-600"
                 />
@@ -168,6 +202,9 @@ export default function CartPage() {
                   <p className="text-primary-600 font-semibold mt-2">
                     ৳{parseFloat(item.unit_price).toLocaleString()}
                   </p>
+                  {item.is_out_of_stock && (
+                    <p className="text-sm font-medium text-red-600 mt-1">Unavailable</p>
+                  )}
 
                   {/* Mobile Quantity & Remove */}
                   <div className="flex items-center justify-between mt-4 md:hidden">
@@ -181,7 +218,9 @@ export default function CartPage() {
                       <span className="w-8 text-center text-sm">{item.quantity}</span>
                       <button
                         onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
-                        className="p-2 hover:bg-gray-100"
+                        disabled={!canIncrease(item)}
+                        aria-label="Increase quantity"
+                        className="p-2 hover:bg-gray-100 disabled:opacity-40 disabled:hover:bg-transparent"
                       >
                         <Plus className="w-4 h-4" />
                       </button>
@@ -206,7 +245,9 @@ export default function CartPage() {
                   <span className="w-10 text-center">{item.quantity}</span>
                   <button
                     onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
-                    className="p-2 hover:bg-gray-100"
+                    disabled={!canIncrease(item)}
+                    aria-label="Increase quantity"
+                    className="p-2 hover:bg-gray-100 disabled:opacity-40 disabled:hover:bg-transparent"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -258,9 +299,9 @@ export default function CartPage() {
 
               <div className="mb-4">
                 <CouponField
-                  subtotal={selectedSubtotal}
+                  itemIds={selectedIds}
                   coupon={coupon}
-                  onApply={setCoupon}
+                  onApply={applyCoupon}
                   onClear={() => setCoupon(null)}
                 />
               </div>
