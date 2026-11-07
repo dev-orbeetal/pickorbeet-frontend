@@ -93,10 +93,9 @@ export default function ShipmentPanel({ shipment, onRefresh, refreshing = false 
             <div key={event.id || `${event.created_at}-${index}`} className="flex gap-3">
               <div className="w-2 h-2 mt-1.5 rounded-full bg-primary-500 shrink-0" />
               <div>
-                <p className="text-sm font-medium text-charcoal-800 capitalize">
-                  {(event.status || event.source || 'update').replace(/_/g, ' ')}
+                <p className="text-sm font-medium text-charcoal-800">
+                  {event.message || (event.status || event.source || 'update').replace(/_/g, ' ')}
                 </p>
-                {event.message && <p className="text-sm text-charcoal-600">{event.message}</p>}
                 <p className="text-xs text-charcoal-400">{when(event.occurred_at || event.created_at)}</p>
               </div>
             </div>
