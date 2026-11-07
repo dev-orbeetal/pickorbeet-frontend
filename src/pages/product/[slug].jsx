@@ -20,7 +20,7 @@ import { fetchProduct, fetchProducts, clearProduct } from '@/store/slices/produc
 import { addToCart } from '@/store/slices/cartSlice';
 import { readList, subscribeLists, toggleList, WISHLIST_KEY } from '@/lib/productLists';
 import { productsAPI } from '@/lib/api';
-import { availableLabels, galleryMediaForSelection, matchedVariant, selectionGroups } from '@/lib/productOptions';
+import { availableLabels, galleryMediaForSelection, matchedVariant, optionStates, selectionGroups } from '@/lib/productOptions';
 import siteConfig, { buildOgImageUrl, getAbsoluteImageUrl } from '@/lib/siteConfig';
 import { offerPrices, productBrand, productPriceDescription, productPriceTitle } from '@/lib/seo';
 import { fetchApi, serializable } from '@/lib/serverApi';
@@ -141,10 +141,12 @@ export default function ProductDetailPage({ initialProduct }) {
   );
   const groups = useMemo(() => selectionGroups({ ...product, variants: variantList, option_groups: product?.option_groups }), [product, variantList]);
   const shownGroups = useMemo(() => groups.map((group) => {
-    const labels = availableLabels(group, groups, variantList, selected);
+    const states = optionStates(group, groups, variantList, selected);
     return {
       ...group,
-      values: group.values.filter((value) => labels.includes(value.label)),
+      values: group.values
+        .filter((value) => states[value.label])
+        .map((value) => ({ ...value, soldOut: states[value.label] === 'sold_out' })),
     };
   }).filter((group) => group.values.length > 0), [groups, variantList, selected]);
 

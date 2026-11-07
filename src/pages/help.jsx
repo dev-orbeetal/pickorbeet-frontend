@@ -4,8 +4,8 @@ import { useRouter } from 'next/router';
 import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
-import { supportAPI } from '@/lib/api';
-import { supportSocketUrl } from '@/lib/notifications';
+import { ordersAPI, supportAPI } from '@/lib/api';
+import { clearSupportNotifications, refreshAccessToken, supportSocketUrl } from '@/lib/notifications';
 import { getMediaUrl } from '@/lib/siteConfig';
 
 const TOPICS = [
@@ -14,6 +14,24 @@ const TOPICS = [
   { id: 'return', label: 'Return or refund' },
   { id: 'product', label: 'Product question' },
 ];
+
+function OrderCard({ order, light = false }) {
+  if (!order?.order_number && !order?.display_number) return null;
+  const image = order.product_image || order.preview_item?.product_image || order.items?.[0]?.product_image;
+  const name = order.product_name || order.preview_item?.product_name || order.items?.[0]?.product_name;
+  const number = order.display_number || order.order_number;
+  return (
+    <Link href={order.id ? `/orders?order=${order.id}` : `/track-order?order=${order.order_number}`} className={`mt-2 flex items-center gap-2 rounded-xl p-2 ${light ? 'bg-white/15' : 'bg-cream-50'}`}>
+      {image && <img src={getMediaUrl(image)} alt="" className="h-12 w-12 rounded-lg object-cover" />}
+      <span className="min-w-0">
+        <span className="block truncate text-xs font-semibold">{name || `Order ${number}`}</span>
+        <span className={`block text-[11px] ${light ? 'text-white/80' : 'text-charcoal-500'}`}>
+          {order.status_label || order.order_status} · Track
+        </span>
+      </span>
+    </Link>
+  );
+}
 
 function upsertMessage(list, message) {
   if (!message?.id) return list;
@@ -34,7 +52,13 @@ export default function HelpPage() {
   const [agentOnline, setAgentOnline] = useState(false);
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [agentTyping, setAgentTyping] = useState(false);
+  const [trackOrder, setTrackOrder] = useState(null);
   const scroller = useRef(null);
+  const typingSent = useRef(false);
+  const typingIdle = useRef(null);
+  const socketRef = useRef(null);
+  const orderNumber = typeof router.query.order === 'string' ? router.query.order : '';
 
   useEffect(() => {
     if (!isAuthenticated) router.replace('/login?redirect=/help');
@@ -58,8 +82,26 @@ export default function HelpPage() {
         if (active) setLoading(false);
       });
     supportAPI.markRead().catch(() => {});
+    clearSupportNotifications();
     return () => { active = false; };
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !router.isReady || !orderNumber) return undefined;
+    let active = true;
+    const uuid = /^[0-9a-f-]{32,}$/i.test(orderNumber);
+    const request = uuid
+      ? ordersAPI.getOrder(orderNumber)
+      : ordersAPI.getMyOrders({ search: orderNumber, page: 1 }).then((response) => {
+        const rows = response.data.results || [];
+        const match = rows.find((row) => row.order_number === orderNumber) || rows[0];
+        return match ? ordersAPI.getOrder(match.id) : { data: null };
+      });
+    request.then((response) => {
+      if (active) setTrackOrder(response.data);
+    }).catch(() => {});
+    return () => { active = false; };
+  }, [isAuthenticated, router.isReady, orderNumber]);
 
   useEffect(() => {
     if (!isAuthenticated) return undefined;
@@ -67,10 +109,21 @@ export default function HelpPage() {
     let stopped = false;
     let retry;
 
-    const connect = () => {
-      const token = localStorage.getItem('access_token');
+    const reloadThread = () => {
+      supportAPI.conversation().then((response) => {
+        if (stopped) return;
+        setThread(response.data);
+        setMessages(response.data.messages || []);
+        setAgentOnline(Boolean(response.data.agent_online));
+      }).catch(() => {});
+    };
+
+    const connect = async (refresh) => {
+      const token = refresh ? await refreshAccessToken() : localStorage.getItem('access_token');
       if (!token || stopped) return;
+      if (refresh) reloadThread();
       socket = new WebSocket(supportSocketUrl(token));
+      socketRef.current = socket;
       socket.onmessage = (event) => {
         let payload;
         try {
@@ -80,14 +133,33 @@ export default function HelpPage() {
         }
         if (payload.type === 'message.created' && payload.message) {
           setMessages((current) => upsertMessage(current, payload.message));
+          setAgentTyping(false);
           if (payload.message.author !== 'customer') supportAPI.markRead().catch(() => {});
         }
+        if (payload.type === 'message.read' && payload.read_at) {
+          setMessages((current) => current.map((message) => (
+            message.author === payload.author && !message.read_at
+              ? { ...message, read_at: payload.read_at }
+              : message
+          )));
+        }
         if (payload.type === 'presence') setAgentOnline(Boolean(payload.agent_online));
+        if (payload.type === 'typing' && payload.author !== 'customer') {
+          setAgentTyping(Boolean(payload.active));
+        }
       };
-      socket.onclose = () => {
-        if (!stopped) retry = setTimeout(connect, 3000);
+      socket.onclose = (event) => {
+        if (stopped) return;
+        if (event.code === 4401) {
+          connect(true);
+          return;
+        }
+        const wait = Math.min(30000, 1000 * (2 ** Math.min(retryCount, 5)));
+        retryCount += 1;
+        retry = setTimeout(() => connect(false), wait);
       };
     };
+    let retryCount = 0;
 
     connect();
     return () => {
@@ -97,12 +169,31 @@ export default function HelpPage() {
         socket.onclose = null;
         socket.close();
       }
+      socketRef.current = null;
+      if (typingSent.current && socket) {
+        typingSent.current = false;
+      }
     };
   }, [isAuthenticated]);
 
   useEffect(() => {
     scroller.current?.scrollTo({ top: scroller.current.scrollHeight });
-  }, [messages]);
+  }, [messages, agentTyping]);
+
+  const setTyping = (active) => {
+    if (typingSent.current === active) return;
+    const socket = socketRef.current;
+    if (!socket || socket.readyState !== WebSocket.OPEN) return;
+    typingSent.current = active;
+    socket.send(JSON.stringify({ type: 'typing', active }));
+  };
+
+  const onDraft = (value) => {
+    setDraft(value);
+    setTyping(Boolean(value.trim()));
+    clearTimeout(typingIdle.current);
+    typingIdle.current = setTimeout(() => setTyping(false), 1500);
+  };
 
   const send = async ({ topic = '', body = draft } = {}) => {
     const text = body.trim();
@@ -110,17 +201,21 @@ export default function HelpPage() {
       toast.error('Write a message or choose a topic');
       return;
     }
+    setTyping(false);
     setSending(true);
+    const looksLikeId = /^[0-9a-f-]{32,}$/i.test(orderNumber);
+    const tracked = topic === 'track_order' ? (trackOrder?.order_number || (looksLikeId ? '' : orderNumber)) : '';
     try {
       let response;
       if (file) {
         const form = new FormData();
         if (text) form.append('body', text);
         if (topic) form.append('topic', topic);
+        if (tracked) form.append('order_number', tracked);
         form.append('image', file);
         response = await supportAPI.sendMessage(form);
       } else {
-        response = await supportAPI.sendMessage({ body: text, topic });
+        response = await supportAPI.sendMessage({ body: text, topic, order_number: tracked || undefined });
       }
       setMessages((current) => upsertMessage(current, response.data));
       setDraft('');
@@ -162,6 +257,7 @@ export default function HelpPage() {
             {!loading && messages.length === 0 && (
               <p className="text-sm text-charcoal-500">Send a message and the store will reply here.</p>
             )}
+            {trackOrder && <OrderCard order={trackOrder} />}
             {messages.map((message) => {
               const mine = message.author === 'customer';
               return (
@@ -172,15 +268,15 @@ export default function HelpPage() {
                     {message.image && (
                       <img src={getMediaUrl(message.image)} alt="" className="mt-2 max-h-48 rounded-lg" />
                     )}
-                    {message.order?.order_number && (
-                      <Link href={`/orders?order=${message.order.id || ''}`} className={`mt-2 block text-xs underline ${mine ? 'text-white' : 'text-primary-700'}`}>
-                        Order {message.order.order_number}
-                      </Link>
+                    {message.order && <OrderCard order={message.order} light={mine} />}
+                    {mine && (
+                      <p className="mt-1 text-right text-[10px] text-white/80">{message.read_at ? 'Read' : 'Sent'}</p>
                     )}
                   </div>
                 </div>
               );
             })}
+            {agentTyping && <p className="text-xs text-charcoal-500">Support is typing…</p>}
           </div>
 
           <div className="border-t p-4">
@@ -206,7 +302,7 @@ export default function HelpPage() {
             >
               <input
                 value={draft}
-                onChange={(event) => setDraft(event.target.value)}
+                onChange={(event) => onDraft(event.target.value)}
                 className="input flex-1"
                 placeholder="Write a message"
                 maxLength={2000}

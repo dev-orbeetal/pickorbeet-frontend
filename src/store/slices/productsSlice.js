@@ -34,9 +34,7 @@ export const fetchCategories = createAsyncThunk(
 async function fetchProductPage(params) {
   const response = await productsAPI.getProducts(params);
   const data = response.data;
-  // An exact category name comes back as one complete list. Other searches
-  // are paged, so follow them until every match is loaded.
-  if (!params?.search || Array.isArray(data) || !data?.results || !data.next) {
+  if (Array.isArray(data) || !data?.results || !data.next) {
     return data;
   }
   const results = [...data.results];

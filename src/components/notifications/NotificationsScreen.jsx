@@ -12,6 +12,8 @@ import {
   loadChannels,
   saveChannels,
 } from './catalog';
+import toast from 'react-hot-toast';
+import { notificationsAPI } from '@/lib/api';
 import { getNotificationState, loadNotifications, markAllNotificationsRead, markNotificationsRead, subscribeNotifications } from '@/lib/notifications';
 
 const ease = [0.16, 1, 0.3, 1];
@@ -130,9 +132,12 @@ export default function NotificationsScreen() {
 
   useEffect(() => {
     setChannelState(loadChannels());
+    const onChannels = (event) => setChannelState(event.detail || loadChannels());
+    window.addEventListener('pickorbeet:channels', onChannels);
     if (!localStorage.getItem('access_token')) {
       router.replace('/login?redirect=/notifications');
     }
+    return () => window.removeEventListener('pickorbeet:channels', onChannels);
   }, [router]);
 
   const visible = useMemo(
@@ -157,6 +162,11 @@ export default function NotificationsScreen() {
     setChannelState((current) => {
       const next = { ...current, [id]: !current[id] };
       saveChannels(next);
+      if (id === 'offers') {
+        notificationsAPI.savePreferences({ offers: next.offers }).catch(() => {
+          toast.error('Could not save offer notifications');
+        });
+      }
       return next;
     });
   };
@@ -346,7 +356,9 @@ export default function NotificationsScreen() {
                                   <p className="notif-card-body"><Body text={item.body} highlight={item.highlight} /></p>
                                   <time className="notif-card-time" dateTime={item.time}>{item.time}</time>
                                 </span>
-                                {item.thumb && <Thumb kind={item.thumb} />}
+                                {item.image
+                                  ? <img src={item.image} alt="" className="h-12 w-12 shrink-0 rounded-xl object-cover" />
+                                  : item.thumb && <Thumb kind={item.thumb} />}
                                 <AnimatePresence>
                                   {isUnread && (
                                     <motion.span

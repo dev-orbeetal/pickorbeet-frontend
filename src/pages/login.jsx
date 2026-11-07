@@ -8,6 +8,8 @@ import Script from 'next/script';
 import Layout from '@/components/layout/Layout';
 import AuthShell, { authButtonClass, authInputClass } from '@/components/auth/AuthShell';
 import { login, googleAuth, clearError } from '@/store/slices/authSlice';
+import store from '@/store/store';
+import { cartAPI } from '@/lib/api';
 import { fetchCart } from '@/store/slices/cartSlice';
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
@@ -17,6 +19,7 @@ export default function LoginPage() {
   const dispatch = useDispatch();
   const { isAuthenticated, loading, error } = useSelector((state) => state.auth);
   const hasShownWelcome = useRef(false);
+  const guestLines = useRef(null);
   const [showPassword, setShowPassword] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -24,7 +27,19 @@ export default function LoginPage() {
   useEffect(() => {
     if (isAuthenticated && !hasShownWelcome.current) {
       hasShownWelcome.current = true;
-      dispatch(fetchCart());
+      const lines = guestLines.current;
+      guestLines.current = null;
+      const merge = lines?.length
+        ? lines.reduce(
+          (chain, line) => chain.then(() => cartAPI.addToCart({
+            product_id: line.product,
+            variant_id: line.variant || null,
+            quantity: line.quantity,
+          }).catch(() => null)),
+          Promise.resolve(),
+        ).then(() => cartAPI.clearSessionCart().catch(() => null))
+        : Promise.resolve();
+      merge.finally(() => dispatch(fetchCart()));
       const redirect = router.query.redirect || '/';
       router.push(redirect);
       toast.success('Welcome back');
@@ -40,6 +55,7 @@ export default function LoginPage() {
 
   const handleGoogleCallback = useCallback(async (response) => {
     if (!response.credential) return;
+    guestLines.current = store.getState().cart.items || [];
     setGoogleLoading(true);
     try {
       await dispatch(googleAuth(response.credential)).unwrap();
@@ -76,6 +92,7 @@ export default function LoginPage() {
       toast.error('Enter your email and password');
       return;
     }
+    guestLines.current = store.getState().cart.items || [];
     dispatch(login(formData));
   };
 

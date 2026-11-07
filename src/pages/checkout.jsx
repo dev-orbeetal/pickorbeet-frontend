@@ -2,16 +2,16 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
-import { CreditCard, Truck, User, CheckCircle, Banknote } from 'lucide-react';
+import { CreditCard, Truck, User, CheckCircle, Banknote, Minus, Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
 import BdAddressFields from '@/components/BdAddressFields';
 import CouponField from '@/components/checkout/CouponField';
 import { useBootGate } from '@/components/loading/LoadingProvider';
-import { fetchCart } from '@/store/slices/cartSlice';
+import { fetchCart, updateCartItem } from '@/store/slices/cartSlice';
 import { addressAPI, ordersAPI, paymentsAPI } from '@/lib/api';
 import { deliveryChargeFor, isInsideDhaka, money } from '@/lib/delivery';
-import { optionParts } from '@/lib/productOptions';
+import { MAX_ORDER_QUANTITY, optionParts } from '@/lib/productOptions';
 import { getMediaUrl } from '@/lib/siteConfig';
 
 const PAYMENTS = [
@@ -74,6 +74,7 @@ export default function CheckoutPage() {
     return (items || []).filter((item) => requestedIds.includes(String(item.id)));
   }, [items, requestedIds]);
 
+  const blocked = checkoutItems.some((item) => item.is_out_of_stock);
   const lineSubtotal = checkoutItems.reduce((sum, item) => sum + (parseFloat(item.total_price) || 0), 0);
   const deliveryCharge = deliveryChargeFor({
     city: formData.shipping_city,
@@ -128,7 +129,11 @@ export default function CheckoutPage() {
           discount: Number(response.data.discount_amount) || 0,
         });
       })
-      .catch(() => {});
+      .catch((error) => {
+        if (!active) return;
+        setCoupon(null);
+        toast.error(error.response?.data?.error || 'That coupon no longer applies');
+      });
     return () => { active = false; };
   }, [router.isReady, router.query.coupon, cartLoaded, lineSubtotal, checkoutItems]);
 
@@ -184,8 +189,19 @@ export default function CheckoutPage() {
     if (validateStep(step)) setStep(step + 1);
   };
 
+  const changeQuantity = (item, quantity) => {
+    if (quantity < 1 || quantity > (item.max_quantity ?? MAX_ORDER_QUANTITY) || item.is_out_of_stock) return;
+    dispatch(updateCartItem({ itemId: item.id, quantity }))
+      .unwrap()
+      .catch((error) => toast.error(error?.error || 'Could not update quantity'));
+  };
+
   const handleSubmit = async (paymentMethod) => {
     if (paymentMethod !== 'cod') return;
+    if (blocked) {
+      toast.error('Remove unavailable items before placing the order');
+      return;
+    }
     if (!validateStep(2)) return;
     setLoading(true);
     try {
@@ -397,7 +413,7 @@ export default function CheckoutPage() {
                         key={method.id}
                         type="button"
                         onClick={() => method.available && handleSubmit(method.id)}
-                        disabled={loading || !method.available}
+                        disabled={loading || blocked || !method.available}
                         className={`w-full p-4 border-2 rounded-xl transition-colors text-left flex items-center ${
                           method.available
                             ? 'hover:border-primary-600 disabled:opacity-60'
@@ -448,7 +464,22 @@ export default function CheckoutPage() {
                       {optionParts(item).length > 0 && (
                         <p className="text-xs text-secondary-500">{optionParts(item).join(' | ')}</p>
                       )}
-                      <p className="text-xs text-secondary-500">Qty: {item.quantity}</p>
+                      <div className="mt-1 flex items-center border rounded-lg w-fit">
+                        <button type="button" aria-label="Decrease quantity" onClick={() => changeQuantity(item, item.quantity - 1)} className="p-1 hover:bg-gray-100">
+                          <Minus className="w-3.5 h-3.5" />
+                        </button>
+                        <span className="w-6 text-center text-xs">{item.quantity}</span>
+                        <button
+                          type="button"
+                          aria-label="Increase quantity"
+                          disabled={item.is_out_of_stock || item.quantity >= (item.max_quantity ?? MAX_ORDER_QUANTITY)}
+                          onClick={() => changeQuantity(item, item.quantity + 1)}
+                          className="p-1 hover:bg-gray-100 disabled:opacity-40"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      {item.is_out_of_stock && <p className="text-xs font-medium text-red-600">Unavailable</p>}
                       <p className="text-sm font-semibold text-primary-600">৳{money(item.total_price)}</p>
                     </div>
                   </div>

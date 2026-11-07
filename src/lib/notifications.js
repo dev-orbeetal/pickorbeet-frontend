@@ -1,5 +1,7 @@
+import { createElement } from 'react';
 import toast from 'react-hot-toast';
 import { notificationsAPI } from '@/lib/api';
+import { loadChannels, saveChannels } from '@/components/notifications/catalog';
 
 const listeners = new Set();
 const presented = new Set();
@@ -86,26 +88,29 @@ function groupOf(created) {
 }
 
 function categoryOf(kind) {
-  if (/^(order|payment|refund)\./.test(kind)) return 'orders';
-  if (/^(offer|promo|price|arrival)\./.test(kind)) return 'offers';
-  if (kind.startsWith('account.')) return 'account';
+  if (/^(order|payment|refund|parcel)\./.test(kind)) return 'orders';
+  if (/^(offer|promo|price|arrival|product)\./.test(kind)) return 'offers';
+  if (kind.startsWith('account.') || kind.startsWith('support.')) return 'account';
   return 'system';
 }
 
 function iconOf(kind) {
-  if (kind === 'order.shipped' || kind === 'order.out_for_delivery' || kind === 'order.delivered') return 'truck';
+  if (kind === 'order.shipped' || kind === 'order.out_for_delivery' || kind === 'order.delivered' || kind === 'parcel.update') return 'truck';
   if (kind.startsWith('payment.') || kind.startsWith('refund.')) return 'clipboard';
-  if (kind.startsWith('offer.') || kind.startsWith('promo.')) return 'tag';
-  if (kind.startsWith('price.')) return 'heart';
+  if (kind === 'product.arrival') return 'star';
+  if (kind === 'product.price_drop' || kind === 'promo.sale' || kind.startsWith('offer.') || kind.startsWith('promo.')) return 'tag';
+  if (kind === 'product.low_stock' || kind === 'product.back_in_stock' || kind.startsWith('price.')) return 'heart';
   if (kind.startsWith('arrival.')) return 'star';
-  if (kind.startsWith('account.')) return 'megaphone';
+  if (kind.startsWith('account.') || kind.startsWith('support.')) return 'megaphone';
   if (kind.startsWith('system.')) return 'gear';
   return 'package';
 }
 
 function hrefOf(data) {
-  if (data.order_id) return `/orders?order=${encodeURIComponent(data.order_id)}`;
+  if (data.target === 'support') return '/help';
+  if (data.target === 'product' && data.product_slug) return `/product/${encodeURIComponent(data.product_slug)}`;
   if (data.target === 'products') return '/products';
+  if (data.order_id) return `/orders?order=${encodeURIComponent(data.order_id)}`;
   if (data.target === 'wishlist') return '/wishlist';
   if (data.target === 'account') return '/account';
   return '/orders';
@@ -115,6 +120,7 @@ export function toInboxItem(row) {
   const data = row.data || {};
   const code = typeof data.code === 'string' ? data.code : '';
   const thumb = data.thumb === 'save' || data.thumb === 'price' || data.thumb === 'arrivals' ? data.thumb : undefined;
+  const image = typeof data.image === 'string' && data.image ? data.image : '';
   return {
     id: row.id,
     group: groupOf(row.created_at),
@@ -126,6 +132,7 @@ export function toInboxItem(row) {
     time: timeLabel(row.created_at),
     href: hrefOf(data),
     thumb,
+    image,
     unread: !row.read_at,
   };
 }
@@ -181,11 +188,44 @@ function upsert(row, unreadCount) {
     presented.add(item.id);
     const path = `${window.location.pathname}${window.location.search}`;
     const orderId = row.data?.order_id;
-    if (!(orderId && path.includes(orderId))) toast(item.body || item.title);
+    if (orderId && path.includes(orderId)) {
+      window.dispatchEvent(new CustomEvent('pickorbeet:order-updated', { detail: String(orderId) }));
+      return;
+    }
+    toast.custom(createElement(
+      'div',
+      {
+        style: {
+          display: 'flex',
+          gap: '10px',
+          alignItems: 'center',
+          maxWidth: '360px',
+          padding: '10px 12px',
+          borderRadius: '14px',
+          background: '#fff',
+          boxShadow: '0 10px 30px rgba(7,19,58,0.16)',
+        },
+      },
+      item.image
+        ? createElement('img', { src: item.image, alt: '', width: 44, height: 44, style: { width: 44, height: 44, borderRadius: 10, objectFit: 'cover' } })
+        : null,
+      createElement(
+        'div',
+        null,
+        createElement('strong', { style: { display: 'block', color: '#07133A', fontSize: 13 } }, item.title),
+        createElement('span', { style: { color: '#4C556E', fontSize: 12 } }, item.body),
+      ),
+    ));
   }
 }
 
-async function refreshedToken() {
+export function clearSupportNotifications() {
+  const pending = state.items.filter((item) => item.unread && item.href === '/help').map((item) => item.id);
+  if (!pending.length) return;
+  markNotificationsRead(pending);
+}
+
+export async function refreshAccessToken() {
   const refresh = localStorage.getItem('refresh_token');
   if (!refresh) return null;
   const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
@@ -240,7 +280,7 @@ function connect() {
   current.onclose = (event) => {
     if (stopped || socket !== current) return;
     if (event.code === 4401) {
-      refreshedToken().then((next) => {
+      refreshAccessToken().then((next) => {
         if (next) connect();
         else stopNotificationSocket();
       }).catch(() => scheduleRetry());
@@ -250,10 +290,25 @@ function connect() {
   };
 }
 
+export async function syncOfferPreference() {
+  try {
+    const response = await notificationsAPI.preferences();
+    return response.data?.offers !== false;
+  } catch {
+    return null;
+  }
+}
+
 export function startNotificationSocket() {
   stopped = false;
   loadNotifications();
   connect();
+  syncOfferPreference().then((offers) => {
+    if (offers === null || typeof window === 'undefined') return;
+    const next = { ...loadChannels(), offers };
+    saveChannels(next);
+    window.dispatchEvent(new CustomEvent('pickorbeet:channels', { detail: next }));
+  });
 }
 
 export function stopNotificationSocket() {

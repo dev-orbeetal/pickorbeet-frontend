@@ -81,21 +81,37 @@ function isInStock(variant) {
   return variant.availability !== 'out_of_stock';
 }
 
+function variantMatches(variant, group, label, groups, selected) {
+  const choices = variantChoices(variant);
+  if (!choices.some((choice) => choice.name === group.name && choice.label === label)) return false;
+  return groups.every((other) => {
+    if (other.name === group.name || !other.required) return true;
+    const picked = selected[other.name];
+    if (!picked) return true;
+    return choices.some((choice) => choice.name === other.name && choice.label === picked);
+  });
+}
+
+/** `available` can be bought, `sold_out` is struck through, missing labels stay hidden. */
+export function optionStates(group, groups, variants, selected) {
+  const states = {};
+  if (!variants?.length) {
+    group.values.forEach((value) => { states[value.label] = 'available'; });
+    return states;
+  }
+  const sellable = variants.filter(isSellableVariant);
+  group.values.forEach((value) => {
+    const matches = sellable.filter((variant) => variantMatches(variant, group, value.label, groups, selected));
+    if (!matches.length) return;
+    states[value.label] = matches.some(isInStock) ? 'available' : 'sold_out';
+  });
+  return states;
+}
+
 export function availableLabels(group, groups, variants, selected) {
   if (!variants.length) return group.values.map((value) => value.label);
-  const sellable = variants.filter(isSellableVariant);
-  if (!sellable.length) return [];
-  const labels = group.values.filter((value) => sellable.some((variant) => {
-    const choices = variantChoices(variant);
-    if (!choices.some((choice) => choice.name === group.name && choice.label === value.label)) return false;
-    return groups.every((other) => {
-      if (other.name === group.name || !other.required) return true;
-      const picked = selected[other.name];
-      if (!picked) return true;
-      return choices.some((choice) => choice.name === other.name && choice.label === picked);
-    });
-  })).map((value) => value.label);
-  return labels;
+  const states = optionStates(group, groups, variants, selected);
+  return Object.keys(states).filter((label) => states[label] === 'available');
 }
 
 export function optionParts(item) {

@@ -39,7 +39,7 @@ api.interceptors.request.use(
         delete config.headers['Content-Type'];
       }
     }
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && !config.skipAuth) {
       const token = localStorage.getItem('access_token');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
@@ -145,6 +145,7 @@ export const productsAPI = {
   getBanners: (params) => api.get('/products/banners/', { params }),
   getHomepage: () => api.get('/products/homepage/'),
   getProductsByCategory: () => api.get('/products/by-category/'),
+  replaceWishlist: (productIds) => api.put('/products/wishlist/', { product_ids: productIds }),
 };
 
 // Cart API
@@ -154,12 +155,13 @@ export const cartAPI = {
   updateCartItem: (itemId, data) => api.patch(`/orders/cart/item/${itemId}/`, data),
   removeCartItem: (itemId) => api.delete(`/orders/cart/item/${itemId}/`),
   clearCart: () => api.delete('/orders/cart/clear/'),
+  clearSessionCart: () => api.delete('/orders/cart/clear/', { skipAuth: true }),
 };
 
 // Orders API
 export const ordersAPI = {
   checkout: (data) => api.post('/orders/checkout/', data),
-  getMyOrders: () => api.get('/orders/my-orders/'),
+  getMyOrders: (params) => api.get('/orders/my-orders/', { params }),
   getOrderSummary: () => api.get('/orders/my-orders/summary/'),
   getOrder: (id) => api.get(`/orders/my-orders/${id}/`),
   cancelOrder: (id) => api.post(`/orders/my-orders/${id}/cancel/`),
@@ -168,6 +170,7 @@ export const ordersAPI = {
   invoiceLink: (id) => api.post(`/orders/my-orders/${id}/invoice/link/`),
   trackOrder: (data) => api.post('/orders/track/', data),
   validateCoupon: (data) => api.post('/orders/coupons/validate/', data),
+  listCoupons: (params) => api.get('/orders/coupons/', { params }),
 };
 
 export const supportAPI = {
@@ -196,6 +199,8 @@ export const notificationsAPI = {
   unreadCount: () => api.get('/notifications/unread-count/'),
   markRead: (id) => api.post(`/notifications/${id}/read/`),
   markAllRead: () => api.post('/notifications/read-all/'),
+  preferences: () => api.get('/notifications/preferences/'),
+  savePreferences: (data) => api.put('/notifications/preferences/', data),
 };
 
 export default api;

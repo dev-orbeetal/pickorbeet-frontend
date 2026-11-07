@@ -8,6 +8,7 @@ import store from '@/store/store';
 import { getProfile, checkAuth } from '@/store/slices/authSlice';
 import { fetchCategories } from '@/store/slices/productsSlice';
 import { startNotificationSocket, stopNotificationSocket } from '@/lib/notifications';
+import { pushWishlist } from '@/lib/productLists';
 import { installAnalytics } from '@/lib/analytics';
 import LoadingProvider from '@/components/loading/LoadingProvider';
 import '@/styles/globals.css';
@@ -78,6 +79,7 @@ function NotificationLive() {
       return undefined;
     }
     startNotificationSocket();
+    pushWishlist();
     return () => stopNotificationSocket();
   }, [isAuthenticated]);
 

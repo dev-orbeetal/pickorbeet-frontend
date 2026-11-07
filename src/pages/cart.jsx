@@ -9,8 +9,8 @@ import Layout from '@/components/layout/Layout';
 import { useBootGate } from '@/components/loading/LoadingProvider';
 import CouponField from '@/components/checkout/CouponField';
 import { fetchCart, updateCartItem, removeFromCart } from '@/store/slices/cartSlice';
-import { ordersAPI } from '@/lib/api';
-import { money } from '@/lib/delivery';
+import { addressAPI, ordersAPI } from '@/lib/api';
+import { deliveryChargeFor, isInsideDhaka, money } from '@/lib/delivery';
 import { MAX_ORDER_QUANTITY, optionParts } from '@/lib/productOptions';
 import { getMediaUrl } from '@/lib/siteConfig';
 
@@ -26,6 +26,8 @@ export default function CartPage() {
   const router = useRouter();
   const dispatch = useDispatch();
   const { items, totalItems, loading, deliveryInside, deliveryOutside } = useSelector((state) => state.cart);
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const [deliveryZone, setDeliveryZone] = useState(null);
   const [pendingBoot, setPendingBoot] = useState(true);
   const [selected, setSelected] = useState(null);
   const [coupon, setCoupon] = useState(null);
@@ -37,12 +39,36 @@ export default function CartPage() {
     : selected.filter((id) => buyable.some((item) => item.id === id));
   const selectedItems = buyable.filter((item) => selectedIds.includes(item.id));
   const selectedSubtotal = selectedItems.reduce((sum, item) => sum + (parseFloat(item.total_price) || 0), 0);
+  const deliveryCharge = deliveryZone
+    ? deliveryChargeFor({ ...deliveryZone, inside: deliveryInside, outside: deliveryOutside })
+    : null;
+  const inside = deliveryZone ? isInsideDhaka(deliveryZone.city, deliveryZone.district) : null;
+  const orderTotal = Math.max(0, selectedSubtotal - (coupon?.discount || 0)) + (deliveryCharge || 0);
   const quoteKey = selectedItems.map((item) => `${item.id}:${item.total_price}`).join(',');
   const pricedFor = useRef(null);
 
   useEffect(() => {
     dispatch(fetchCart()).finally(() => setPendingBoot(false));
   }, [dispatch]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setDeliveryZone(null);
+      return undefined;
+    }
+    let active = true;
+    addressAPI.list()
+      .then((response) => {
+        if (!active) return;
+        const rows = Array.isArray(response.data) ? response.data : response.data?.results || [];
+        const preferred = rows.find((row) => row.is_default) || rows[0];
+        setDeliveryZone(preferred ? { city: preferred.city, district: preferred.district } : null);
+      })
+      .catch(() => {
+        if (active) setDeliveryZone(null);
+      });
+    return () => { active = false; };
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (!coupon?.code || !selectedIds.length || pricedFor.current === quoteKey) return undefined;
@@ -72,6 +98,14 @@ export default function CartPage() {
       .catch((error) => toast.error(error?.error || 'Could not update quantity'));
   };
 
+  useEffect(() => {
+    if (!router.isReady) return;
+    const code = typeof router.query.coupon === 'string' ? router.query.coupon.trim() : '';
+    if (!code) return;
+    setCoupon((current) => (current?.code === code ? current : { code, discount: 0 }));
+    pricedFor.current = null;
+  }, [router.isReady, router.query.coupon]);
+
   const toggleItem = (item) => {
     const itemId = item.id;
     if (item.is_out_of_stock) {
@@ -82,7 +116,6 @@ export default function CartPage() {
       ? selectedIds.filter((id) => id !== itemId)
       : [...selectedIds, itemId];
     setSelected(next);
-    setCoupon(null);
   };
 
   const checkout = () => {
@@ -156,7 +189,6 @@ export default function CartPage() {
                 checked={buyable.length > 0 && selectedIds.length === buyable.length}
                 onChange={() => {
                   setSelected(selectedIds.length === buyable.length ? [] : buyable.map((item) => item.id));
-                  setCoupon(null);
                 }}
                 className="h-4 w-4 rounded border-gray-300 text-primary-600"
               />
@@ -288,12 +320,16 @@ export default function CartPage() {
                   </div>
                 )}
                 <div className="flex justify-between text-secondary-600">
-                  <span>Delivery</span>
-                  <span className="text-right text-sm text-secondary-500">
-                    Inside Dhaka ৳{money(deliveryInside)}
-                    <br />
-                    Outside Dhaka ৳{money(deliveryOutside)}
+                  <span>Delivery{inside == null ? '' : inside ? ' (Inside Dhaka)' : ' (Outside Dhaka)'}</span>
+                  <span className="text-right text-sm">
+                    {deliveryCharge == null
+                      ? `Inside ৳${money(deliveryInside)} · Outside ৳${money(deliveryOutside)}`
+                      : `৳${money(deliveryCharge)}`}
                   </span>
+                </div>
+                <div className="flex justify-between border-t pt-3 text-lg font-semibold text-secondary-900">
+                  <span>Total</span>
+                  <span>৳{money(orderTotal)}</span>
                 </div>
               </div>
 

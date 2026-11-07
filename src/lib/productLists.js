@@ -1,4 +1,7 @@
+import { productsAPI } from '@/lib/api';
+
 const EVENT = 'pickorbeet-product-lists';
+const WISHLIST_CAP = 50;
 
 export const WISHLIST_KEY = 'pickorbeet-wishlist';
 export const COMPARE_KEY = 'pickorbeet-compare';
@@ -13,15 +16,28 @@ export function readList(key) {
   }
 }
 
+function writeList(key, ids) {
+  window.localStorage.setItem(key, JSON.stringify(ids));
+  window.dispatchEvent(new Event(EVENT));
+}
+
+export function pushWishlist() {
+  if (typeof window === 'undefined') return;
+  const ids = readList(WISHLIST_KEY).slice(0, WISHLIST_CAP);
+  if (!localStorage.getItem('access_token')) return;
+  productsAPI.replaceWishlist(ids).catch(() => {});
+}
+
 export function toggleList(key, id, max) {
   const current = readList(key);
   const exists = current.includes(id);
-  if (!exists && max && current.length >= max) {
+  const limit = key === WISHLIST_KEY ? WISHLIST_CAP : max;
+  if (!exists && limit && current.length >= limit) {
     return { ok: false, added: false, ids: current };
   }
   const ids = exists ? current.filter((item) => item !== id) : [...current, id];
-  window.localStorage.setItem(key, JSON.stringify(ids));
-  window.dispatchEvent(new Event(EVENT));
+  writeList(key, ids);
+  if (key === WISHLIST_KEY) pushWishlist();
   return { ok: true, added: !exists, ids };
 }
 

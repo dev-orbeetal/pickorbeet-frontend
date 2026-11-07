@@ -60,6 +60,10 @@ export default function ProductCard({ product }) {
     event.preventDefault();
     event.stopPropagation();
     const result = toggleList(WISHLIST_KEY, product.id);
+    if (!result.ok) {
+      toast.error('Your wishlist is full');
+      return;
+    }
     setWishlisted(result.added);
     toast.success(result.added ? 'Added to wishlist' : 'Removed from wishlist');
   };

@@ -153,13 +153,14 @@ export default function ProductPurchase({
                     <motion.button
                       key={value.label}
                       type="button"
+                      disabled={value.soldOut}
                       onClick={() => onSelect?.(group.name, value.label)}
-                      aria-label={value.label}
+                      aria-label={value.soldOut ? `${value.label}, out of stock` : value.label}
                       aria-pressed={active}
                       whileTap={reduce ? undefined : { scale: 0.97 }}
                       animate={{ borderColor: active ? '#2864E8' : '#E6ECF5' }}
                       transition={{ duration: reduce ? 0 : 0.22, ease: productEase }}
-                      className={`inline-flex h-9 items-center gap-2 rounded-[10px] border-[1.5px] px-3 text-[13px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8] ${
+                      className={`inline-flex h-9 items-center gap-2 rounded-[10px] border-[1.5px] px-3 text-[13px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8] disabled:cursor-not-allowed disabled:line-through disabled:opacity-45 ${
                         active ? 'font-bold text-[#172033]' : 'font-medium text-[#525E70]'
                       }`}
                     >
@@ -185,10 +186,12 @@ export default function ProductPurchase({
                     <motion.button
                       key={value.label}
                       type="button"
+                      disabled={value.soldOut}
                       onClick={() => onSelect?.(group.name, value.label)}
                       aria-pressed={active}
+                      aria-label={value.soldOut ? `${value.label}, out of stock` : value.label}
                       whileTap={reduce ? undefined : { scale: 0.97 }}
-                      className={`h-10 min-w-10 rounded-lg border px-3.5 text-[13px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8] ${
+                      className={`h-10 min-w-10 rounded-lg border px-3.5 text-[13px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2864E8] disabled:cursor-not-allowed disabled:line-through disabled:opacity-45 ${
                         active
                           ? 'border-[1.5px] border-[#172033] font-bold text-[#172033]'
                           : 'border-[#E6ECF5] font-semibold text-[#525E70]'

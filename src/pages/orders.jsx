@@ -19,7 +19,25 @@ const statusConfig = {
   out_for_delivery: { color: 'bg-cyan-100 text-cyan-800 border-cyan-200', icon: Truck, label: 'Out for delivery' },
   delivered: { color: 'bg-green-100 text-green-800 border-green-200', icon: CheckCircle, label: 'Delivered' },
   cancelled: { color: 'bg-red-100 text-red-800 border-red-200', icon: XCircle, label: 'Cancelled' },
+  refunded: { color: 'bg-rose-100 text-rose-800 border-rose-200', icon: XCircle, label: 'Refunded' },
 };
+
+const ORDER_GROUPS = [
+  { id: 'all', label: 'All', status: undefined },
+  { id: 'processing', label: 'Processing', status: 'pending,confirmed,processing' },
+  { id: 'shipped', label: 'Shipped', status: 'shipped,out_for_delivery' },
+  { id: 'delivered', label: 'Delivered', status: 'delivered' },
+  { id: 'cancelled', label: 'Cancelled', status: 'cancelled,refunded' },
+];
+
+function groupCount(summary, id) {
+  const counts = summary?.counts || {};
+  if (id === 'all') return summary?.total || 0;
+  if (id === 'processing') return (counts.pending || 0) + (counts.confirmed || 0) + (counts.processing || 0);
+  if (id === 'shipped') return (counts.shipped || 0) + (counts.out_for_delivery || 0);
+  if (id === 'delivered') return counts.delivered || 0;
+  return (counts.cancelled || 0) + (counts.refunded || 0);
+}
 
 const CANCELLABLE = ['pending', 'confirmed', 'processing'];
 
@@ -42,6 +60,9 @@ export default function OrdersPage() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [nextPage, setNextPage] = useState(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [summary, setSummary] = useState(null);
   const [refreshingShipment, setRefreshingShipment] = useState(false);
   const [acting, setActing] = useState(false);
   const [editingDelivery, setEditingDelivery] = useState(false);
@@ -54,10 +75,12 @@ export default function OrdersPage() {
   }, [isAuthenticated, router]);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchOrders();
-    }
-  }, [isAuthenticated]);
+    if (!isAuthenticated) return undefined;
+    const timer = setTimeout(() => {
+      fetchOrders({ page: 1, replace: true });
+    }, searchQuery ? 300 : 0);
+    return () => clearTimeout(timer);
+  }, [isAuthenticated, filterStatus, searchQuery]);
 
   useEffect(() => {
     setEditingDelivery(false);
@@ -69,15 +92,38 @@ export default function OrdersPage() {
     fetchOrderDetail(orderId);
   }, [isAuthenticated, router.isReady, router.query.order]);
 
-  const fetchOrders = async () => {
-    setLoading(true);
+  useEffect(() => {
+    const onOrder = (event) => {
+      const orderId = String(event.detail || '');
+      if (orderId && selectedOrder?.id === orderId) fetchOrderDetail(orderId);
+    };
+    window.addEventListener('pickorbeet:order-updated', onOrder);
+    return () => window.removeEventListener('pickorbeet:order-updated', onOrder);
+  }, [selectedOrder?.id]);
+
+  const fetchOrders = async ({ page = 1, replace = true } = {}) => {
+    if (replace) setLoading(true);
+    else setLoadingMore(true);
+    const group = ORDER_GROUPS.find((item) => item.id === filterStatus);
     try {
-      const response = await ordersAPI.getMyOrders();
-      setOrders(response.data.results || response.data || []);
+      const [response, summaryResponse] = await Promise.all([
+        ordersAPI.getMyOrders({
+          page,
+          order_status: group?.status,
+          search: searchQuery.trim() || undefined,
+        }),
+        replace ? ordersAPI.getOrderSummary() : Promise.resolve(null),
+      ]);
+      const body = response.data;
+      const rows = body.results || (Array.isArray(body) ? body : []);
+      setOrders((current) => (replace ? rows : [...current, ...rows]));
+      setNextPage(body.next ? page + 1 : null);
+      if (summaryResponse) setSummary(summaryResponse.data);
     } catch (error) {
       toast.error('Failed to load orders');
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
 
@@ -208,15 +254,6 @@ export default function OrdersPage() {
       setActing(false);
     }
   };
-
-  const filteredOrders = orders.filter((order) => {
-    const query = searchQuery.toLowerCase();
-    const matchesStatus = filterStatus === 'all' || order.order_status === filterStatus;
-    const matchesSearch = !query ||
-      order.order_number?.toLowerCase().includes(query) ||
-      order.tracking_code?.toLowerCase().includes(query);
-    return matchesStatus && matchesSearch;
-  });
 
   if (!isAuthenticated) return null;
 
@@ -477,16 +514,16 @@ export default function OrdersPage() {
                   />
                 </div>
                 <div className="flex gap-2 flex-wrap">
-                  {['all', 'pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'].map((status) => (
+                  {ORDER_GROUPS.map((group) => (
                     <button
-                      key={status}
-                      onClick={() => setFilterStatus(status)}
-                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors capitalize ${filterStatus === status
+                      key={group.id}
+                      onClick={() => setFilterStatus(group.id)}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${filterStatus === group.id
                         ? 'bg-primary-600 text-white'
                         : 'bg-white border text-charcoal-600 hover:bg-cream-50'
                         }`}
                     >
-                      {status}
+                      {group.label}{summary ? ` (${groupCount(summary, group.id)})` : ''}
                     </button>
                   ))}
                 </div>
@@ -505,18 +542,18 @@ export default function OrdersPage() {
                     </div>
                   ))}
                 </div>
-              ) : filteredOrders.length === 0 ? (
+              ) : orders.length === 0 ? (
                 <div className="text-center py-16 bg-white rounded-2xl border">
                   <ShoppingBag className="w-16 h-16 text-charcoal-300 mx-auto mb-4" />
                   <h2 className="text-xl font-semibold text-charcoal-700 mb-2">
-                    {orders.length === 0 ? 'No orders yet' : 'No matching orders'}
+                    {(summary?.total || 0) === 0 && !searchQuery ? 'No orders yet' : 'No matching orders'}
                   </h2>
                   <p className="text-charcoal-500 mb-6">
-                    {orders.length === 0
+                    {(summary?.total || 0) === 0 && !searchQuery
                       ? "You haven't placed any orders yet."
                       : 'Try adjusting your search or filter.'}
                   </p>
-                  {orders.length === 0 && (
+                  {(summary?.total || 0) === 0 && !searchQuery && (
                     <button onClick={() => router.push('/products')} className="btn btn-primary">
                       Start Shopping
                     </button>
@@ -524,7 +561,7 @@ export default function OrdersPage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {filteredOrders.map((order, index) => {
+                  {orders.map((order, index) => {
                     const config = statusConfig[order.order_status] || statusConfig.pending;
                     const StatusIcon = config.icon;
                     return (
@@ -583,6 +620,16 @@ export default function OrdersPage() {
                       </motion.button>
                     );
                   })}
+                  {nextPage && (
+                    <button
+                      type="button"
+                      disabled={loadingMore}
+                      onClick={() => fetchOrders({ page: nextPage, replace: false })}
+                      className="btn btn-secondary w-full"
+                    >
+                      {loadingMore ? 'Loading…' : 'Load more'}
+                    </button>
+                  )}
                 </div>
               )}
             </motion.div>

@@ -7,7 +7,8 @@ import {
   Calendar, Check, ChevronLeft, Clock3, Percent, Search, ShoppingCart, Ticket, Truck, X,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { tones, voucherCount, voucherFilters, vouchersFor } from './voucherData';
+import { ordersAPI } from '@/lib/api';
+import { mapWalletRow, tones, voucherFilters } from './voucherData';
 
 const ease = [0.16, 1, 0.3, 1];
 
@@ -29,11 +30,37 @@ export default function VouchersScreen() {
   const { totalItems } = useSelector((state) => state.cart);
   const [filter, setFilter] = useState('all');
   const [terms, setTerms] = useState(null);
-  const list = vouchersFor(filter);
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    ordersAPI.listCoupons()
+      .then((response) => {
+        if (!active) return;
+        const body = Array.isArray(response.data) ? response.data : response.data?.results || [];
+        setRows(body.map(mapWalletRow));
+        setFailed(false);
+      })
+      .catch(() => {
+        if (active) setFailed(true);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => { active = false; };
+  }, []);
+
+  const list = filter === 'all' ? rows : rows.filter((voucher) => voucher.state === filter);
+  const countOf = (id) => (id === 'all' ? rows.length : rows.filter((voucher) => voucher.state === id).length);
 
   const useVoucher = (voucher) => {
-    toast.success(`Use ${voucher.code} at checkout`);
-    window.setTimeout(() => router.push('/cart'), 700);
+    if (voucher.applies === false) {
+      toast.error(voucher.reason || 'This voucher does not cover the selected items');
+      return;
+    }
+    router.push(`/cart?coupon=${encodeURIComponent(voucher.code)}`);
   };
 
   return (
@@ -41,8 +68,13 @@ export default function VouchersScreen() {
       <VoucherHeader count={totalItems} onBack={() => (window.history.length > 1 ? router.back() : router.push('/account'))} />
       <div className="mx-auto w-full max-w-[430px] px-[13px] pb-8 pt-3">
         <Hero reduced={reduced} />
-        <FilterRow filter={filter} onSelect={setFilter} />
+        <FilterRow filter={filter} onSelect={setFilter} countOf={countOf} />
         <div className="mt-3 space-y-2.5">
+          {loading && <p className="py-8 text-center text-sm text-[#6A738C]">Loading your vouchers…</p>}
+          {failed && <p className="py-8 text-center text-sm text-[#6A738C]">Could not load vouchers. Please try again.</p>}
+          {!loading && !failed && list.length === 0 && (
+            <p className="py-8 text-center text-sm text-[#6A738C]">No vouchers in this list yet.</p>
+          )}
           <AnimatePresence mode="popLayout" initial={false}>
             {list.map((voucher, index) => (
               <VoucherTicket
@@ -164,7 +196,7 @@ function Bag() {
   );
 }
 
-function FilterRow({ filter, onSelect }) {
+function FilterRow({ filter, onSelect, countOf }) {
   const frame = useRef(null);
   const row = useRef(null);
   const [scale, setScale] = useState(1);
@@ -193,7 +225,7 @@ function FilterRow({ filter, onSelect }) {
           <FilterChip
             key={item.id}
             item={item}
-            count={voucherCount(item.id)}
+            count={countOf(item.id)}
             selected={filter === item.id}
             onSelect={() => onSelect(item.id)}
           />
