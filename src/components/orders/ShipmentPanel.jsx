@@ -1,4 +1,4 @@
-import { Copy, ExternalLink, RefreshCw, Truck } from 'lucide-react';
+import { Copy, ExternalLink, Phone, RefreshCw, Truck } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const GROUP_STYLE = {
@@ -100,6 +100,24 @@ export default function ShipmentPanel({ shipment, onRefresh, refreshing = false 
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {(shipment.rider_name || shipment.rider_phone) && (
+        <div className="mt-4 pt-4 border-t">
+          <p className="text-xs font-semibold uppercase tracking-wide text-charcoal-400">Assigned rider</p>
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <div>
+              {shipment.rider_name && <p className="font-semibold text-charcoal-900">{shipment.rider_name}</p>}
+              {shipment.rider_phone && <p className="text-sm text-charcoal-600">{shipment.rider_phone}</p>}
+            </div>
+            {shipment.rider_phone && (
+              <a href={`tel:${shipment.rider_phone}`} className="btn btn-outline px-4 py-2 text-sm whitespace-nowrap">
+                <Phone className="w-4 h-4 mr-1.5" />
+                Call
+              </a>
+            )}
+          </div>
         </div>
       )}
     </div>
