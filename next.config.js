@@ -13,7 +13,7 @@ const nextConfig = {
       ],
     },
   },
-  // Avoid redirect loops with Django APPEND_SLASH when proxying /api and /admin.
+  // Avoid redirect loops with Django APPEND_SLASH when proxying /api.
   skipTrailingSlashRedirect: true,
   env: {
     PORT: process.env.PORT || '',
@@ -66,8 +66,15 @@ const nextConfig = {
       },
     ],
   },
+  async redirects() {
+    const adminOrigin = (process.env.NEXT_PUBLIC_ADMIN_URL || 'https://admin.pickorbeet.com').replace(/\/$/, '');
+    return [
+      { source: '/admin', destination: `${adminOrigin}/`, permanent: false },
+      { source: '/admin/:path*', destination: `${adminOrigin}/:path*`, permanent: false },
+    ];
+  },
   async rewrites() {
-    // Same-domain API/admin: browser hits pickorbeet.com/..., Vercel proxies to Django.
+    // Same-domain API: browser hits pickorbeet.com/api/..., Vercel proxies to Django.
     // BACKEND_ORIGIN must be a public Django URL (e.g. https://admin.pickorbeet.com).
     if (!backendOrigin) {
       return [];
@@ -83,18 +90,6 @@ const nextConfig = {
       {
         source: '/api/:path*',
         destination: `${backendOrigin}/api/:path*/`,
-      },
-      {
-        source: '/admin',
-        destination: `${backendOrigin}/admin/`,
-      },
-      {
-        source: '/admin/:path*/',
-        destination: `${backendOrigin}/admin/:path*/`,
-      },
-      {
-        source: '/admin/:path*',
-        destination: `${backendOrigin}/admin/:path*/`,
       },
       {
         source: '/static/:path*',
