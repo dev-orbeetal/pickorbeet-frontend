@@ -14,7 +14,7 @@ const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 export default function RegisterPage() {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { isAuthenticated, loading, error, pendingVerification } = useSelector((state) => state.auth);
+  const { isAuthenticated, loading, error, pendingVerification, pendingTwoFactor } = useSelector((state) => state.auth);
   const hasRedirected = useRef(false);
   const [showPassword, setShowPassword] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -31,6 +31,10 @@ export default function RegisterPage() {
   useEffect(() => {
     if (isAuthenticated) router.push('/');
   }, [isAuthenticated, router]);
+
+  useEffect(() => {
+    if (pendingTwoFactor) router.replace('/login');
+  }, [pendingTwoFactor, router]);
 
   useEffect(() => {
     if (pendingVerification?.requires_verification && !hasRedirected.current) {

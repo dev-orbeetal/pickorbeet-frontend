@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import Script from 'next/script';
 import Layout from '@/components/layout/Layout';
 import AuthShell, { authButtonClass, authInputClass } from '@/components/auth/AuthShell';
-import { login, googleAuth, clearError } from '@/store/slices/authSlice';
+import { login, googleAuth, verifyTwoFactor, resendTwoFactor, clearError, clearPendingTwoFactor } from '@/store/slices/authSlice';
 import store from '@/store/store';
 import { cartAPI } from '@/lib/api';
 import { fetchCart } from '@/store/slices/cartSlice';
@@ -17,12 +17,14 @@ const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 export default function LoginPage() {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { isAuthenticated, loading, error } = useSelector((state) => state.auth);
+  const { isAuthenticated, loading, error, pendingTwoFactor } = useSelector((state) => state.auth);
   const hasShownWelcome = useRef(false);
   const guestLines = useRef(null);
   const [showPassword, setShowPassword] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [formData, setFormData] = useState({ email: '', password: '' });
+  const [code, setCode] = useState('');
+  const [seconds, setSeconds] = useState(0);
 
   useEffect(() => {
     if (isAuthenticated && !hasShownWelcome.current) {
@@ -52,6 +54,19 @@ export default function LoginPage() {
     toast.error(errorMessage);
     dispatch(clearError());
   }, [error, dispatch]);
+
+  useEffect(() => {
+    if (!pendingTwoFactor) return undefined;
+    setCode('');
+    setSeconds(60);
+    return undefined;
+  }, [pendingTwoFactor]);
+
+  useEffect(() => {
+    if (!pendingTwoFactor || seconds <= 0) return undefined;
+    const timer = setTimeout(() => setSeconds((value) => value - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [pendingTwoFactor, seconds]);
 
   const handleGoogleCallback = useCallback(async (response) => {
     if (!response.credential) return;
@@ -96,19 +111,76 @@ export default function LoginPage() {
     dispatch(login(formData));
   };
 
+  const handleVerify = (event) => {
+    event.preventDefault();
+    if (!pendingTwoFactor || code.length !== 6) {
+      toast.error('Enter the 6-digit code from your email');
+      return;
+    }
+    dispatch(verifyTwoFactor({ challenge: pendingTwoFactor.challenge, code }));
+  };
+
+  const handleResend = async () => {
+    if (!pendingTwoFactor || seconds > 0) return;
+    try {
+      const message = await dispatch(resendTwoFactor(pendingTwoFactor.challenge)).unwrap();
+      toast.success(message);
+      setSeconds(60);
+    } catch (failure) {
+      const message = typeof failure === 'string' ? failure : failure?.detail || 'Could not resend the code.';
+      toast.error(message);
+    }
+  };
+
   return (
     <Layout title="Sign in - PickOrbeet" noindex>
       <Script src="https://accounts.google.com/gsi/client" onLoad={initializeGoogle} strategy="lazyOnload" />
       <AuthShell
-        title="Welcome back"
-        subtitle="Sign in to track orders, save addresses, and check out faster."
-        footer={(
+        title={pendingTwoFactor ? 'Check your email' : 'Welcome back'}
+        subtitle={pendingTwoFactor
+          ? `Enter the 6-digit code sent to ${pendingTwoFactor.emailHint || 'your email'}.`
+          : 'Sign in to track orders, save addresses, and check out faster.'}
+        footer={pendingTwoFactor ? (
+          <button type="button" onClick={() => dispatch(clearPendingTwoFactor())} className="font-semibold text-[#0040EE]">
+            Use a different account
+          </button>
+        ) : (
           <>
             New to PickOrbeet?{' '}
             <Link href="/register" className="font-semibold text-[#0040EE]">Create an account</Link>
           </>
         )}
       >
+        {pendingTwoFactor ? (
+          <form onSubmit={handleVerify} className="space-y-4">
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-medium text-[#051340]">Email code</span>
+              <input
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                value={code}
+                onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
+                className={`${authInputClass} tracking-[0.4em] text-center`}
+                placeholder="••••••"
+                required
+              />
+            </label>
+            <button type="submit" disabled={loading || code.length !== 6} className={authButtonClass}>
+              {loading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
+              {loading ? 'Checking code' : 'Verify and sign in'}
+            </button>
+            <button
+              type="button"
+              onClick={handleResend}
+              disabled={seconds > 0 || loading}
+              className="w-full text-sm font-semibold text-[#0040EE] disabled:text-[#98A2BE]"
+            >
+              {seconds > 0 ? `Resend code in ${seconds}s` : 'Resend code'}
+            </button>
+          </form>
+        ) : (
+          <>
         {GOOGLE_CLIENT_ID && (
           <>
             <div className="mb-5 min-h-[44px]">
@@ -177,6 +249,8 @@ export default function LoginPage() {
             {loading ? 'Signing in' : 'Sign in'}
           </button>
         </form>
+          </>
+        )}
       </AuthShell>
     </Layout>
   );

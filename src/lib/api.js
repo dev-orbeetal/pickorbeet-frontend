@@ -56,7 +56,7 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.skipAuth) {
       originalRequest._retry = true;
       
       try {
@@ -66,8 +66,9 @@ api.interceptors.response.use(
             refresh: refreshToken,
           });
           
-          const { access } = response.data;
+          const { access, refresh } = response.data;
           localStorage.setItem('access_token', access);
+          if (refresh) localStorage.setItem('refresh_token', refresh);
           
           originalRequest.headers.Authorization = `Bearer ${access}`;
           return api(originalRequest);
@@ -85,17 +86,19 @@ api.interceptors.response.use(
 
 // Auth API
 export const authAPI = {
-  login: (data) => api.post('/auth/login/', data),
-  register: (data) => api.post('/auth/register/', data),
+  login: (data) => api.post('/auth/login/', data, { skipAuth: true }),
+  register: (data) => api.post('/auth/register/', data, { skipAuth: true }),
   logout: (data) => api.post('/auth/logout/', data),
   getProfile: () => api.get('/auth/profile/'),
   updateProfile: (data) => api.patch('/auth/profile/', data, { timeout: 45000 }),
   changePassword: (data) => api.post('/auth/change-password/', data),
-  forgotPassword: (data) => api.post('/auth/forgot-password/', data),
-  resetPassword: (data) => api.post('/auth/reset-password/', data),
-  verifyEmail: (data) => api.post('/auth/verify-email/', data),
-  resendVerification: (data) => api.post('/auth/resend-verification/', data),
-  googleAuth: (data) => api.post('/auth/google/', data),
+  forgotPassword: (data) => api.post('/auth/forgot-password/', data, { skipAuth: true }),
+  resetPassword: (data) => api.post('/auth/reset-password/', data, { skipAuth: true }),
+  verifyEmail: (data) => api.post('/auth/verify-email/', data, { skipAuth: true }),
+  resendVerification: (data) => api.post('/auth/resend-verification/', data, { skipAuth: true }),
+  googleAuth: (data) => api.post('/auth/google/', data, { skipAuth: true }),
+  verifyTwoFactor: (data) => api.post('/auth/2fa/verify/', data, { skipAuth: true }),
+  resendTwoFactor: (data) => api.post('/auth/2fa/resend/', data, { skipAuth: true }),
 };
 
 export const addressAPI = {
