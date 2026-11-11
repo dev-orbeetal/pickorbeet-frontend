@@ -168,8 +168,13 @@ export default function CheckoutPage() {
 
   const validateStep = (stepNum) => {
     if (stepNum === 1 && !isAuthenticated) {
-      if (!formData.guest_name || !formData.guest_phone) {
-        toast.error('Please fill in your name and phone number');
+      const email = formData.guest_email.trim();
+      if (!formData.guest_name || !formData.guest_phone || !email) {
+        toast.error('Please fill in your name, phone number, and email');
+        return false;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        toast.error('Enter a valid email so we can send your tracking link');
         return false;
       }
     }
@@ -228,7 +233,7 @@ export default function CheckoutPage() {
       }
     } catch (error) {
       const data = error.response?.data;
-      const message = data?.error || data?.detail || data?.payment_method?.[0] || 'Checkout failed';
+      const message = data?.error || data?.detail || data?.guest_email?.[0] || data?.payment_method?.[0] || 'Checkout failed';
       toast.error(typeof message === 'string' ? message : 'Checkout failed');
     } finally {
       setLoading(false);
@@ -297,8 +302,9 @@ export default function CheckoutPage() {
                           <input type="tel" name="guest_phone" value={formData.guest_phone} onChange={handleChange} className="input" placeholder="01XXXXXXXXX" />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-secondary-700 mb-1">Email (Optional)</label>
-                          <input type="email" name="guest_email" value={formData.guest_email} onChange={handleChange} className="input" placeholder="your@email.com" />
+                          <label className="block text-sm font-medium text-secondary-700 mb-1">Email *</label>
+                          <input type="email" name="guest_email" value={formData.guest_email} onChange={handleChange} className="input" placeholder="your@email.com" required />
+                          <p className="mt-1 text-xs text-secondary-500">We email your tracking link here.</p>
                         </div>
                       </div>
                     </div>
