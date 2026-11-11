@@ -119,22 +119,6 @@ export const productsAPI = {
   getCategories: () => api.get('/products/categories/'),
   getCategory: (slug) => api.get(`/products/categories/${slug}/`),
   getProducts: (params) => api.get('/products/', { params }),
-  getAllProducts: async (params = {}) => {
-    const products = [];
-    let page = 1;
-    while (page <= 50) {
-      const response = await api.get('/products/', {
-        params: { ordering: '-created_at', ...params, page },
-      });
-      const data = response.data;
-      const batch = Array.isArray(data?.results) ? data.results : (Array.isArray(data) ? data : []);
-      if (!batch.length) break;
-      products.push(...batch);
-      if (!data?.next) break;
-      page += 1;
-    }
-    return products;
-  },
   getProduct: (slug) => api.get(`/products/${slug}/`),
   getReviews: (slug, params) => api.get(`/products/${slug}/reviews/`, { params }),
   saveReview: (slug, data) => {

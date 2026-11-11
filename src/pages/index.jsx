@@ -10,7 +10,7 @@ import HomeSkeleton from '@/components/loading/HomeSkeleton';
 import { useBootGate } from '@/components/loading/LoadingProvider';
 import { productsAPI } from '@/lib/api';
 import { buildSiteJsonLd } from '@/lib/seo';
-import { fetchApi, serializable } from '@/lib/serverApi';
+import { fetchApi, productRows, serializable } from '@/lib/serverApi';
 
 function productSectionRank(section) {
   const key = `${section.key || ''} ${section.title || ''}`.toLowerCase();
@@ -19,20 +19,10 @@ function productSectionRank(section) {
   return 2;
 }
 
-async function fetchAllProductsServer() {
-  const products = [];
-  let page = 1;
-  while (page <= 50) {
-    const result = await fetchApi(`/products/?ordering=-created_at&page=${page}`);
-    if (!result.ok) break;
-    const data = result.data;
-    const batch = Array.isArray(data?.results) ? data.results : (Array.isArray(data) ? data : []);
-    if (!batch.length) break;
-    products.push(...batch);
-    if (!data?.next) break;
-    page += 1;
-  }
-  return products;
+const HOME_LATEST_COUNT = 8;
+
+function latestProducts(data) {
+  return productRows(data).slice(0, HOME_LATEST_COUNT);
 }
 
 export default function Home({ initialSections = [], storeContact = null, initialAllProducts = [] }) {
@@ -48,13 +38,13 @@ export default function Home({ initialSections = [], storeContact = null, initia
     if (reloadKey > 0) setStatus('loading');
     Promise.all([
       productsAPI.getHomepage(),
-      productsAPI.getAllProducts(),
+      productsAPI.getProducts({ ordering: '-created_at', page: 1 }),
     ])
-      .then(([homeResponse, products]) => {
+      .then(([homeResponse, productsResponse]) => {
         if (!active) return;
         const next = homeResponse.data.sections || [];
         setSections(next);
-        setAllProducts(Array.isArray(products) ? products : []);
+        setAllProducts(latestProducts(productsResponse.data));
         setStatus(next.length ? 'ready' : 'empty');
       })
       .catch(() => {
@@ -87,7 +77,7 @@ export default function Home({ initialSections = [], storeContact = null, initia
         viewAllHref: '/products',
         viewAllLabel: 'View All',
         products: allProducts,
-        showAll: true,
+        showAll: false,
       },
     ];
   }, [sections, allProducts]);
@@ -171,10 +161,10 @@ export default function Home({ initialSections = [], storeContact = null, initia
 
 export async function getServerSideProps() {
   try {
-    const [homeResult, settingsResult, allProducts] = await Promise.all([
+    const [homeResult, settingsResult, productResult] = await Promise.all([
       fetchApi('/products/homepage/'),
       fetchApi('/products/settings/public/'),
-      fetchAllProductsServer(),
+      fetchApi('/products/?ordering=-created_at&page=1'),
     ]);
     const sections = homeResult.ok && Array.isArray(homeResult.data?.sections)
       ? homeResult.data.sections
@@ -182,7 +172,7 @@ export async function getServerSideProps() {
     return {
       props: {
         initialSections: serializable(sections) || [],
-        initialAllProducts: serializable(allProducts) || [],
+        initialAllProducts: serializable(latestProducts(productResult.ok ? productResult.data : null)) || [],
         storeContact: settingsResult.ok ? serializable(settingsResult.data) : null,
       },
     };
