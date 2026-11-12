@@ -181,6 +181,10 @@ export const contactAPI = {
   submitMessage: (data) => api.post('/products/contact/', data),
 };
 
+export const careersAPI = {
+  submitApplication: (data) => api.post('/careers/apply/', data, { timeout: 60000 }),
+};
+
 export const notificationsAPI = {
   list: (page = 1) => api.get('/notifications/', { params: { page } }),
   unreadCount: () => api.get('/notifications/unread-count/'),

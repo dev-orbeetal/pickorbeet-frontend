@@ -10,6 +10,7 @@ const footerLinks = {
   quickLinks: [
     { href: '/products', label: 'Shop All' },
     { href: '/about', label: 'About Us' },
+    { href: '/careers', label: 'Careers' },
     { href: '/contact', label: 'Contact' },
     { href: '/track-order', label: 'Track Order' },
   ],
