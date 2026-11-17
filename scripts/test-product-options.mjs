@@ -46,7 +46,7 @@ const whiteLImg = { id: 'i-white-l', image: '/white-l.png', variant: 'v-white-l'
 {
   const product = { images: [shared, whiteImg, blackImg], variants: [white, black] };
   const gallery = galleryForSelection(product, white, { Color: 'White' });
-  assert.deepEqual(gallery.map((i) => i.id), ['i-white']);
+  assert.deepEqual(gallery.map((i) => i.id), ['i-white', 'i-shared']);
 }
 
 {
@@ -56,7 +56,7 @@ const whiteLImg = { id: 'i-white-l', image: '/white-l.png', variant: 'v-white-l'
   };
   // Color only — no full SKU match yet.
   const gallery = galleryForSelection(product, null, { Color: 'White' });
-  assert.deepEqual(gallery.map((i) => i.id).sort(), ['i-white-l', 'i-white-m']);
+  assert.deepEqual(gallery.map((i) => i.id).sort(), ['i-shared', 'i-white-l', 'i-white-m']);
 }
 
 {
@@ -91,6 +91,7 @@ const whiteLImg = { id: 'i-white-l', image: '/white-l.png', variant: 'v-white-l'
   const media = galleryMediaForSelection(product, white, { Color: 'White' });
   assert.deepEqual(media.map((item) => `${item.type}:${item.id || item.youtube_id}`), [
     'image:i-white',
+    'image:i-shared',
     'video:vid-white',
   ]);
 }

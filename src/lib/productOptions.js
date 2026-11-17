@@ -214,19 +214,40 @@ export function scopedGalleryItems(all, product, chosen, selected = {}) {
 }
 
 /**
+ * Variant photos stay specific to the current pick. Shared photos (no variant)
+ * are extra gallery images and still show after those variant photos.
+ */
+function withSharedExtras(scoped, all) {
+  const items = Array.isArray(all) ? all : [];
+  const shared = items.filter((item) => !item.variant);
+  if (!scoped.length || !shared.length) return scoped;
+  if (scoped.every((item) => !item.variant)) return scoped;
+  const seen = new Set(scoped.map((item) => String(item.image || item.id || '')));
+  const extras = shared.filter((item) => !seen.has(String(item.image || item.id || '')));
+  return extras.length ? [...scoped, ...extras] : scoped;
+}
+
+/**
  * Images for the product gallery.
  * Prefer exact matched variant, then images for the current (possibly partial)
  * option picks / same color, then shared images, then the full set.
+ * Extra shared images always follow the variant photos.
  */
 export function galleryForSelection(product, chosen, selected = {}) {
-  const scoped = scopedGalleryItems(product?.images, product, chosen, selected);
+  const scoped = withSharedExtras(
+    scopedGalleryItems(product?.images, product, chosen, selected),
+    product?.images,
+  );
   if (scoped.length) return scoped;
   return [{ image: product?.primary_image || '/images/placeholder.svg' }];
 }
 
 /** Mixed gallery slides: images first, then YouTube videos for the selection. */
 export function galleryMediaForSelection(product, chosen, selected = {}) {
-  const images = scopedGalleryItems(product?.images, product, chosen, selected);
+  const images = withSharedExtras(
+    scopedGalleryItems(product?.images, product, chosen, selected),
+    product?.images,
+  );
   const videos = scopedGalleryItems(product?.videos, product, chosen, selected);
   const imageSlides = images.length
     ? images
