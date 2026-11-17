@@ -335,6 +335,7 @@ export default function ProductDetailPage({ initialProduct }) {
   ].filter(Boolean);
 
   const purchaseProps = {
+    sku: chosen?.sku || product.sku,
     product,
     displayPrice,
     hasDiscount,

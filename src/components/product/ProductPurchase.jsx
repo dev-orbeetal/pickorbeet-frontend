@@ -22,6 +22,7 @@ const TRUST = [
 ];
 
 export default function ProductPurchase({
+  sku,
   product,
   displayPrice,
   hasDiscount,
@@ -100,9 +101,9 @@ export default function ProductPurchase({
         </motion.button>
       </div>
 
-      {product.sku && (
+      {(sku || product.sku) && (
         <p className="mt-1 text-[13px] font-medium text-[#8B95A7]">
-          SKU: <span className="text-[#687386]">{product.sku}</span>
+          SKU: <span className="text-[#687386]">{sku || product.sku}</span>
         </p>
       )}
 
