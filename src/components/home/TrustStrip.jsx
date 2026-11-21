@@ -35,8 +35,14 @@ function Wheel({ cx, cy }) {
   return (
     <g className="trust-wheel">
       <circle cx={cx} cy={cy} r="5.2" fill="#141824" />
-      <circle cx={cx} cy={cy} r="2" fill="#FF861F" />
-      <rect x={cx - 0.45} y={cy - 4.5} width="0.9" height="2.1" rx="0.4" fill="#FFF6ED" />
+      <circle cx={cx} cy={cy} r="4.15" fill="#EEF2FA" />
+      <circle cx={cx} cy={cy} r="2.35" fill="#24306A" />
+      <circle cx={cx} cy={cy} r="1.05" fill="#FF861F" />
+      <g stroke="#FFF8F2" strokeWidth="0.7" strokeLinecap="round">
+        <path d={`M${cx} ${cy - 3.55}v1.45`} />
+        <path d={`M${cx} ${cy - 3.55}v1.45`} transform={`rotate(120 ${cx} ${cy})`} />
+        <path d={`M${cx} ${cy - 3.55}v1.45`} transform={`rotate(240 ${cx} ${cy})`} />
+      </g>
     </g>
   );
 }
@@ -49,16 +55,51 @@ function DeliveryTruck({ spinSeconds }) {
       style={{ '--wheel-spin': `${spinSeconds}s` }}
       aria-hidden="true"
     >
+      <defs>
+        <linearGradient id="trustTruckCargo" x1="8" y1="9" x2="8" y2="29" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#35479A" />
+          <stop offset="58%" stopColor="#243272" />
+          <stop offset="100%" stopColor="#1A245C" />
+        </linearGradient>
+        <linearGradient id="trustTruckCab" x1="50" y1="11" x2="80" y2="30" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#4E5CB8" />
+          <stop offset="100%" stopColor="#2A3178" />
+        </linearGradient>
+        <linearGradient id="trustTruckGlass" x1="54" y1="13" x2="70" y2="23" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#FFFFFF" />
+          <stop offset="100%" stopColor="#D4E2FF" />
+        </linearGradient>
+        <linearGradient id="trustTruckPanel" x1="16" y1="15" x2="16" y2="27" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#FFB56A" />
+          <stop offset="100%" stopColor="#F47312" />
+        </linearGradient>
+      </defs>
       <g className="trust-bob">
-        <rect x="3" y="8" width="48" height="20" rx="2.5" fill="#202D70" />
-        <rect x="3" y="8" width="48" height="5" rx="2" fill="#2864E8" />
-        <rect x="16" y="16" width="16" height="9" rx="1.2" fill="#FF861F" />
-        <path d="M16 20.5h16M24 16v9" stroke="#FFF6ED" strokeWidth="1" />
-        <path d="M51 13h14.5L75 21.2V28H51V13z" fill="#34338A" />
-        <path d="M58 15.2h7.2l6.2 6H58v-6z" fill="#E8F0FF" />
-        <rect x="73.5" y="23.2" width="5.2" height="2.4" rx="0.6" fill="#FF861F" />
-        <Wheel cx="20" cy="30.5" />
-        <Wheel cx="64" cy="30.5" />
+        <ellipse cx="43" cy="36.4" rx="29" ry="1.25" fill="#1A2458" opacity="0.16" />
+        <rect x="11" y="27.4" width="60" height="1.35" rx="0.7" fill="#12182F" opacity="0.45" />
+
+        <rect x="4.5" y="10.2" width="46.5" height="17.6" rx="3.4" fill="url(#trustTruckCargo)" />
+        <path d="M7.2 13.4c0-1.7 1.4-3 3.1-3h34.2" stroke="#7EA0FF" strokeWidth="1.15" strokeLinecap="round" opacity="0.85" />
+        <rect x="15.2" y="15.2" width="16.6" height="9.8" rx="2" fill="url(#trustTruckPanel)" />
+        <path d="M23.5 15.2v9.8" stroke="#FFF8F2" strokeWidth="1.2" strokeLinecap="round" />
+        <path d="M20.7 17.5h5.6" stroke="#FFF8F2" strokeWidth="0.9" strokeLinecap="round" />
+        <path d="M32.4 14.4v11.2" stroke="#A9BBEF" strokeWidth="0.45" opacity="0.5" strokeLinecap="round" />
+
+        <path
+          d="M49.4 14.1c.35-1.7 1.8-2.9 3.5-2.9h5.6c2.5 0 4.5 1.3 5.7 3.4l6.8 5.6c.8.6 1.2 1.6 1.2 2.5v4.5c0 .9-.7 1.6-1.6 1.6H50.3c-.5 0-.9-.4-.9-1V14.1z"
+          fill="url(#trustTruckCab)"
+        />
+        <path
+          d="M53 14.5h6.6c.6 0 1.1.3 1.4.7l4.2 4.1c.3.3.1.8-.3.8H53.6c-.4 0-.6-.3-.6-.7v-4.2c0-.4.3-.7.7-.7z"
+          fill="url(#trustTruckGlass)"
+        />
+        <path d="M54.1 15.4h3.8" stroke="#fff" strokeWidth="0.55" strokeLinecap="round" opacity="0.9" />
+        <path d="M50.2 16.2h-2.2c-.4 0-.7.3-.7.7v1.4" stroke="#24306A" strokeWidth="0.75" strokeLinecap="round" />
+        <rect x="70.2" y="22.5" width="4.2" height="2" rx="0.7" fill="#FFF6EA" />
+        <rect x="70.55" y="22.8" width="1.7" height="1.35" rx="0.45" fill="#FF861F" />
+
+        <Wheel cx="20.5" cy="30.8" />
+        <Wheel cx="63.5" cy="30.8" />
       </g>
     </svg>
   );
